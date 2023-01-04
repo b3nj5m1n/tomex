@@ -1,0 +1,21 @@
+[package]
+name = "bokhylle"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.68"
+chrono = "0.4.23"
+clap = "4.0.32"
+derive_builder = "0.12.0"
+dotenvy = "0.15.6"
+reedline = "0.14.0"
+shlex = "1.1.0"
+sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "postgres", "sqlite", "macros", "chrono", "offline"] }
+tokio = { version = "1.23.0", features = ["full"] }
+uuid = { version = "1.2.2", features = ["v4"] }
+
+[dev-dependencies]
+pretty_assertions = "1.3.0"
