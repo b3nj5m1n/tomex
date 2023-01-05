@@ -19,6 +19,13 @@ pub fn arg_parser() -> Command {
                 .subcommand(Command::new("book"))
                 .subcommand(Command::new("author")),
         )
+        .subcommand(
+            Command::new("query")
+                .about("Get existing records in database")
+                .subcommand_required(true)
+                .subcommand(Command::new("book"))
+                .subcommand(Command::new("author")),
+        )
 }
 
 pub fn arg_parser_cli() -> Command {

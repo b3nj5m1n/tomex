@@ -51,6 +51,28 @@ async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
+        Some(("query", _matches)) => match _matches.subcommand() {
+            Some(("book", _matches)) => {
+                println!("\nBooks:");
+                let books = sqlx::query_as::<_, Book>("SELECT * FROM books;")
+                    .fetch_all(&conn)
+                    .await?;
+                for book in books {
+                    println!("{}", book);
+                }
+            }
+            Some(("author", _matches)) => {
+                println!("\nAuthors:");
+                let authors = sqlx::query_as::<_, Author>("SELECT * FROM authors;")
+                    .fetch_all(&conn)
+                    .await?;
+                for author in authors {
+                    println!("{}", author);
+                }
+            }
+            Some((name, _matches)) => unimplemented!("{}", name),
+            None => unreachable!("subcommand required"),
+        },
         Some((name, _matches)) => unimplemented!("{}", name),
         None => unreachable!("subcommand required"),
     }
@@ -108,61 +130,10 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args_parsed = command_parser::arg_parser_cli().get_matches_from(env::args_os().skip(1));
-    /* match matches.subcommand() {
-    Some(("add", _matches)) => match _matches.subcommand() { */
+
     let conn = connect_to_db(None).await?;
-    /* let pool = SqlitePoolOptions::new()
-    .max_connections(5)
-    .connect(db_url)
-    .await?; */
+
     create_tables(&conn).await?;
-
-    /* // Insert data
-    let id_author = Uuid(uuid::Uuid::new_v4());
-    sqlx::query(
-        r#"
-        INSERT INTO authors ( id, name_first, name_last, date_born )
-        VALUES ( ?1, ?2, ?3, ?4 )
-        "#,
-    )
-    .bind(&id_author)
-    .bind("Andy")
-    .bind("Weir")
-    .bind(&Timestamp(Some(
-        Utc.with_ymd_and_hms(1972, 6, 16, 0, 0, 0).unwrap(),
-    )))
-    .execute(&mut conn)
-    .await?;
-    let id_book = Uuid(uuid::Uuid::new_v4());
-    sqlx::query(
-        r#"
-        INSERT INTO books ( id, title, author, release_date )
-        VALUES ( ?1, ?2, ?3, ?4 )
-        "#,
-    )
-    .bind(&id_book)
-    .bind("Project Hail Mary")
-    .bind(&id_author)
-    .bind(&Timestamp(Some(
-        Utc.with_ymd_and_hms(2021, 5, 4, 0, 0, 0).unwrap(),
-    )))
-    .execute(&mut conn)
-    .await?; */
-
-    println!("\nAuthors:");
-    let authors = sqlx::query_as::<_, Author>("SELECT * FROM authors;")
-        .fetch_all(&conn)
-        .await?;
-    for author in authors {
-        println!("{}", author);
-    }
-    /* println!("\nBooks:");
-    let books = sqlx::query_as::<_, Book>("SELECT * FROM books;")
-        .fetch_all(&mut conn)
-        .await?;
-    for book in books {
-        println!("{:?}", book);
-    } */
 
     if let Some(("repl", _)) = args_parsed.subcommand() {
         let mut repl = repl::Repl::new(command_parser::generate_completions());

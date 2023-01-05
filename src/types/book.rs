@@ -1,4 +1,6 @@
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+use std::fmt::Display;
+
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
@@ -26,6 +28,16 @@ pub struct Book {
     pub genres: Vec<Genre>,
     #[builder(default = "false")]
     pub deleted: bool,
+}
+impl Display for Book {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.release_date.0 {
+            None => write!(f, "{} ({})", self.title, self.id.0),
+            Some(release_date) => {
+                write!(f, "{}, released {} ({})", self.title, release_date, self.id.0)
+            }
+        }
+    }
 }
 impl CreateByPrompt for Book {
     async fn create_by_prompt(conn: sqlx::SqlitePool) -> anyhow::Result<Self>
