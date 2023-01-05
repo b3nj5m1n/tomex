@@ -18,10 +18,29 @@ pub trait Insertable {
         Self: Sized;
 }
 
-pub trait Queryable
+pub trait DbTable
 where
     Self: Sized,
-    Self: Display,
 {
-    async fn query(conn: sqlx::SqlitePool) -> Result<Option<Self>>;
+    const NAME_SINGULAR: &'static str;
+    const NAME_PLURAL: &'static str;
+    const TABLE_NAME: &'static str = Self::NAME_PLURAL;
+}
+
+pub trait Queryable
+where
+    for<'r> Self: FromRow<'r, sqlx::sqlite::SqliteRow>,
+    Self: DbTable,
+    Self: Sized,
+    Self: Display,
+    Self: Send,
+    Self: Unpin,
+{
+    async fn query(conn: sqlx::SqlitePool) -> Result<Option<Self>> {
+        let x: Vec<Self> = sqlx::query_as::<_, Self>(&format!("SELECT * FROM {};", Self::TABLE_NAME))
+            .fetch_all(&conn)
+            .await?;
+        let ans: Option<Self> = inquire::Select::new(&format!("Select {}:", Self::NAME_SINGULAR), x).prompt_skippable()?;
+        Ok(ans)
+    }
 }

@@ -2,17 +2,18 @@ use std::fmt::Display;
 
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+use derives::DbTable;
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
     FromRow, Row,
 };
 
 use crate::{
-    traits::{CreateByPrompt, Insertable, Queryable},
+    traits::{CreateByPrompt, Insertable, Queryable, DbTable},
     types::{timestamp::Timestamp, uuid::Uuid},
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<String>,
@@ -21,7 +22,12 @@ pub struct Author {
     pub date_died: Timestamp,
     pub deleted: bool,
 }
-impl Queryable for Author {
+/* impl DbTable for Author {
+    const NAME_SINGULAR: &'static str = "author";
+    const NAME_PLURAL: &'static str = "authors";
+} */
+impl Queryable for Author {}
+/* impl Queryable for Author {
     async fn query(conn: sqlx::SqlitePool) -> Result<Option<Self>> {
         let authors: Vec<Author> = sqlx::query_as::<_, Author>("SELECT * FROM authors;")
             .fetch_all(&conn)
@@ -30,7 +36,7 @@ impl Queryable for Author {
             inquire::Select::new("Select author:", authors).prompt_skippable()?;
         Ok(ans)
     }
-}
+} */
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match (&self.name_first, &self.name_last) {

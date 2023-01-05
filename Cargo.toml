@@ -10,6 +10,7 @@ anyhow = "1.0.68"
 chrono = "0.4.23"
 clap = "4.0.32"
 derive_builder = "0.12.0"
+derives = { version = "0.1.0", path = "src/derives" }
 dotenvy = "0.15.6"
 inquire = { version = "0.5.2", features = ["date"] }
 reedline = "0.14.0"
