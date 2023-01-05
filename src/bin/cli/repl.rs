@@ -3,7 +3,7 @@ use reedline::{
     KeyModifiers, Reedline, ReedlineEvent, ReedlineMenu, Signal,
 };
 
-use crate::prompt::BokhyllePrompt;
+use crate::{prompt::BokhyllePrompt};
 
 pub struct Repl {
     reedline: Reedline,
@@ -35,7 +35,7 @@ impl Repl {
 
         let prompt = BokhyllePrompt {};
 
-        let mut line_editor = Reedline::create()
+        let line_editor = Reedline::create()
             .with_history(history)
             .with_highlighter(Box::new(ExampleHighlighter::new(commands)))
             .with_completer(completer)
@@ -47,21 +47,7 @@ impl Repl {
             prompt,
         }
     }
-    pub fn start(&mut self, handler: fn(String)) {
-        loop {
-            let sig = self.reedline.read_line(&self.prompt);
-            match sig {
-                Ok(Signal::Success(buffer)) => {
-                    handler(buffer.clone());
-                }
-                Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
-                    println!("\nAborted!");
-                    break;
-                }
-                x => {
-                    println!("Event: {:?}", x);
-                }
-            }
-        }
+    pub fn read_line(&mut self) -> anyhow::Result<Signal> {
+            Ok(self.reedline.read_line(&self.prompt)?)
     }
 }

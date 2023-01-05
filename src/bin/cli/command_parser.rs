@@ -1,5 +1,4 @@
 use clap::Command;
-use reedline::{Completer, Span, Suggestion};
 
 pub fn arg_parser() -> Command {
     Command::new("bokhylle")
@@ -11,14 +10,14 @@ pub fn arg_parser() -> Command {
                 .about("Add something (book/review/etc.)")
                 .subcommand_required(true)
                 .subcommand(Command::new("book"))
-                .subcommand(Command::new("review")),
+                .subcommand(Command::new("author")),
         )
         .subcommand(
             Command::new("remove")
                 .about("Remove something (book/review/etc.)")
                 .subcommand_required(true)
                 .subcommand(Command::new("book"))
-                .subcommand(Command::new("review")),
+                .subcommand(Command::new("author")),
         )
 }
 

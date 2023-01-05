@@ -11,6 +11,7 @@ chrono = "0.4.23"
 clap = "4.0.32"
 derive_builder = "0.12.0"
 dotenvy = "0.15.6"
+inquire = { version = "0.5.2", features = ["date"] }
 reedline = "0.14.0"
 shlex = "1.1.0"
 sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "postgres", "sqlite", "macros", "chrono", "offline"] }
