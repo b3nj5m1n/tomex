@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use reedline::{Prompt, PromptEditMode, PromptViMode, PromptHistorySearchStatus};
+use reedline::{Prompt, PromptEditMode, PromptHistorySearchStatus, PromptViMode};
 
 pub struct BokhyllePrompt;
 

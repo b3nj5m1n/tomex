@@ -1,6 +1,4 @@
-use crate::{
-    traits::{CreateByPrompt, Insertable},
-};
+use crate::traits::{CreateByPrompt, Insertable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Pace {

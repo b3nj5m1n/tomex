@@ -3,7 +3,7 @@ use reedline::{
     KeyModifiers, Reedline, ReedlineEvent, ReedlineMenu, Signal,
 };
 
-use crate::{prompt::BokhyllePrompt};
+use crate::prompt::BokhyllePrompt;
 
 pub struct Repl {
     reedline: Reedline,
@@ -48,6 +48,6 @@ impl Repl {
         }
     }
     pub fn read_line(&mut self) -> anyhow::Result<Signal> {
-            Ok(self.reedline.read_line(&self.prompt)?)
+        Ok(self.reedline.read_line(&self.prompt)?)
     }
 }

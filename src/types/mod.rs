@@ -1,14 +1,14 @@
-pub mod uuid;
 pub mod timestamp;
+pub mod uuid;
 
-pub mod book;
 pub mod author;
+pub mod book;
 pub mod edition;
-pub mod review;
 pub mod edition_review;
-pub mod progress;
-pub mod language;
-pub mod publisher;
 pub mod genre;
-pub mod pace;
+pub mod language;
 pub mod mood;
+pub mod pace;
+pub mod progress;
+pub mod publisher;
+pub mod review;

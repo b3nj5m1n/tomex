@@ -21,6 +21,10 @@ pub fn arg_parser() -> Command {
         )
 }
 
+pub fn arg_parser_cli() -> Command {
+    arg_parser().subcommand(Command::new("repl").about("Launch a read eval print loop"))
+}
+
 pub fn generate_completions() -> Vec<String> {
     let cmd = arg_parser();
     fn add_command(parent_fn_name: &str, cmd: &Command, subcmds: &mut Vec<String>) {

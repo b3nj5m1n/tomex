@@ -1,3 +1,5 @@
+use std::env;
+
 use anyhow::Result;
 use dotenvy::{dotenv, var as envar};
 use reedline::Signal;
@@ -11,8 +13,8 @@ mod command_parser;
 mod prompt;
 mod repl;
 
-use bokhylle::traits::*;
 use bokhylle::types::author::Author;
+use bokhylle::{traits::*, types::book::Book};
 
 async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
     let args = command_parser::arg_parser();
@@ -29,16 +31,11 @@ async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
     match matches.subcommand() {
         Some(("add", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                /* let validator = |input: &str| match input.chars().find(|c| c.is_numeric()) {
-                    Some(_) => Ok(Validation::Valid),
-                    None => Ok(Validation::Invalid(
-                        "Your password should contain at least 1 digit".into(),
-                    )),
-                };
-                let title = inquire::Text::new("Book title:").with_validator(validator).prompt(); */
+                let book = Book::create_by_prompt(conn.clone()).await?;
+                book.insert(conn).await?;
             }
             Some(("author", _matches)) => {
-                let author = Author::create_by_prompt()?;
+                let author = Author::create_by_prompt(conn.clone()).await?;
                 author.insert(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
@@ -110,6 +107,9 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let args_parsed = command_parser::arg_parser_cli().get_matches_from(env::args_os().skip(1));
+    /* match matches.subcommand() {
+    Some(("add", _matches)) => match _matches.subcommand() { */
     let conn = connect_to_db(None).await?;
     /* let pool = SqlitePoolOptions::new()
     .max_connections(5)
@@ -154,7 +154,7 @@ async fn main() -> Result<()> {
         .fetch_all(&conn)
         .await?;
     for author in authors {
-        println!("{:?}", author);
+        println!("{}", author);
     }
     /* println!("\nBooks:");
     let books = sqlx::query_as::<_, Book>("SELECT * FROM books;")
@@ -164,25 +164,32 @@ async fn main() -> Result<()> {
         println!("{:?}", book);
     } */
 
-    let mut repl = repl::Repl::new(command_parser::generate_completions());
-    /* .start(Box::new(move |n| Box::pin(handle_command(n))))
-    .await; */
-    loop {
-        match repl.read_line() {
-            Ok(Signal::Success(buffer)) => {
-                match handle_command(buffer.clone(), conn.clone()).await {
-                    Ok(_) => (),
-                    Err(e) => println!("Error: {}", e),
-                };
-            }
-            Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
-                println!("\nAborted!");
-                break;
-            }
-            x => {
-                println!("Event: {:?}", x);
+    if let Some(("repl", _)) = args_parsed.subcommand() {
+        let mut repl = repl::Repl::new(command_parser::generate_completions());
+        loop {
+            match repl.read_line() {
+                Ok(Signal::Success(buffer)) => {
+                    match handle_command(buffer.clone(), conn.clone()).await {
+                        Ok(_) => (),
+                        Err(e) => println!("Error: {}", e),
+                    };
+                }
+                Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
+                    println!("\nAborted!");
+                    break;
+                }
+                x => {
+                    println!("Event: {:?}", x);
+                }
             }
         }
+    } else {
+        let args = env::args_os()
+            .skip(1)
+            .map(|x| x.into_string().expect("Invalid unicode in arguments"))
+            .collect::<Vec<String>>()
+            .join(" ");
+        handle_command(args, conn).await?;
     }
 
     Ok(())
