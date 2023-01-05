@@ -11,7 +11,8 @@ mod command_parser;
 mod prompt;
 mod repl;
 
-use bokhylle::types::*;
+use bokhylle::traits::*;
+use bokhylle::types::author::Author;
 
 async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
     let args = command_parser::arg_parser();
@@ -169,7 +170,10 @@ async fn main() -> Result<()> {
     loop {
         match repl.read_line() {
             Ok(Signal::Success(buffer)) => {
-                handle_command(buffer.clone(), conn.clone()).await?;
+                match handle_command(buffer.clone(), conn.clone()).await {
+                    Ok(_) => (),
+                    Err(e) => println!("Error: {}", e),
+                };
             }
             Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
                 println!("\nAborted!");
