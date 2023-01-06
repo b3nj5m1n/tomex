@@ -44,10 +44,10 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
         },
         Some(("remove", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                println!("Removing book")
+                Book::remove_by_query(conn).await?;
             }
             Some(("author", _matches)) => {
-                println!("Removing author")
+                Author::remove_by_query(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),

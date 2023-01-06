@@ -3,18 +3,22 @@ use std::fmt::Write;
 
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+use derives::Id;
+use derives::Removeable;
 use derives::{DbTable, Queryable};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
     FromRow, Row,
 };
 
+use crate::traits::Id;
+use crate::traits::Removeable;
 use crate::{
     traits::{CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Insertable, Queryable},
     types::{timestamp::Timestamp, uuid::Uuid},
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable, Queryable)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable, Queryable, Id, Removeable)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<String>,

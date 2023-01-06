@@ -25,3 +25,25 @@ pub fn derive_querable(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+#[proc_macro_derive(Removeable)]
+pub fn derive_removeable(input: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(input);
+    quote! {
+        impl Removeable for #ident { }
+    }
+    .into()
+}
+
+#[proc_macro_derive(Id)]
+pub fn derive_id(input: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(input);
+    quote! {
+        impl Id for #ident {
+            async fn id(&self) -> Uuid {
+                self.id.clone()
+            }
+        }
+    }
+    .into()
+}

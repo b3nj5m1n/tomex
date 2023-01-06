@@ -1,5 +1,6 @@
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+use derives::{Removeable, Id};
 use derives::{DbTable, Queryable};
 use std::fmt::Display;
 use std::fmt::Write;
@@ -7,6 +8,8 @@ use std::fmt::Write;
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
+use crate::traits::Id;
+use crate::traits::Removeable;
 use crate::{
     traits::{CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Insertable, Queryable},
     types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
@@ -14,7 +17,7 @@ use crate::{
 
 use super::author::Author;
 
-#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable, Queryable)]
+#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable, Queryable, Id, Removeable)]
 #[builder(setter(into))]
 pub struct Book {
     pub id: Uuid,

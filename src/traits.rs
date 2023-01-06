@@ -50,6 +50,47 @@ where
     const NAME_PLURAL: &'static str;
     const TABLE_NAME: &'static str = Self::NAME_PLURAL;
 }
+pub trait Id {
+    async fn id(&self) -> Uuid;
+}
+pub trait Removeable
+where
+    Self: DbTable,
+    Self: Sized,
+    Self: Id,
+{
+    async fn remove(conn: &sqlx::SqlitePool, id: Uuid) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            DELETE FROM {} WHERE id = ?1"#,
+            Self::TABLE_NAME
+        ))
+        .bind(id)
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+    async fn remove_by_query(conn: &sqlx::SqlitePool) -> Result<()>
+    where
+        Self: Queryable,
+    {
+        let x = Self::query_by_prompt(conn).await?;
+        match x {
+            Some(x) => {
+                if !inquire::Confirm::new(&format!("Are you sure you want to remove {}?", x))
+                    .with_default(false)
+                    .prompt()?
+                {
+                    anyhow::bail!("Aborted");
+                };
+                Self::remove(conn, x.id().await).await?;
+                println!("Deleted");
+            }
+            None => println!("Nothing selected, doing nothing"),
+        }
+        Ok(())
+    }
+}
 
 pub trait Queryable
 where
