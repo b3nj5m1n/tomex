@@ -92,27 +92,7 @@ async fn connect_to_db(db_url: Option<String>) -> Result<SqlitePool> {
 }
 
 async fn create_tables(conn: &SqlitePool) -> Result<()> {
-    // Create test table
-    sqlx::query(
-        r#"CREATE TABLE IF NOT EXISTS authors (
-            id TEXT PRIMARY KEY NOT NULL,
-            name_first TEXT,
-            name_last TEXT,
-            date_born INTEGER,
-            date_died INTEGER,
-            deleted BOOL DEFAULT FALSE
-        );
-        CREATE TABLE IF NOT EXISTS books (
-            id TEXT PRIMARY KEY NOT NULL,
-            title TEXT NOT NULL,
-            author TEXT,
-            release_date INTEGER,
-            deleted BOOL DEFAULT FALSE,
-            FOREIGN KEY (author) REFERENCES authors (id)
-        );"#,
-    )
-    .execute(conn)
-    .await?;
+    tokio::try_join!(Author::create_table(conn), Book::create_table(conn))?;
     Ok(())
 }
 

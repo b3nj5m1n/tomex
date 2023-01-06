@@ -1,18 +1,19 @@
+use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
-use derives::DbTable;
+use derives::{DbTable, Queryable};
 use std::fmt::Display;
 
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
 use crate::{
-    traits::{CreateByPrompt, Insertable, Queryable, DbTable},
+    traits::{CreateByPrompt, CreateTable, DbTable, Insertable, Queryable},
     types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
 };
 
 use super::author::Author;
 
-#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable)]
+#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable, Queryable)]
 #[builder(setter(into))]
 pub struct Book {
     pub id: Uuid,
@@ -30,13 +31,36 @@ pub struct Book {
     #[builder(default = "false")]
     pub deleted: bool,
 }
-impl Queryable for Book {}
+
+impl CreateTable for Book {
+    async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            CREATE TABLE IF NOT EXISTS {} (
+                id TEXT PRIMARY KEY NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT,
+                release_date INTEGER,
+                deleted BOOL DEFAULT FALSE,
+                FOREIGN KEY (author) REFERENCES authors (id)
+            );"#,
+            Self::TABLE_NAME
+        ))
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+}
 impl Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.release_date.0 {
             None => write!(f, "{} ({})", self.title, self.id.0),
             Some(release_date) => {
-                write!(f, "{}, released {} ({})", self.title, release_date, self.id.0)
+                write!(
+                    f,
+                    "{}, released {} ({})",
+                    self.title, release_date, self.id.0
+                )
             }
         }
     }

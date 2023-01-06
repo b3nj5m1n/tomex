@@ -20,6 +20,14 @@ pub trait Insertable {
         Self: Sized;
 }
 
+pub trait CreateTable
+where
+    Self: Sized,
+    Self: DbTable,
+{
+    async fn create_table(conn: &sqlx::SqlitePool) -> Result<()>;
+}
+
 pub trait DbTable
 where
     Self: Sized,
@@ -74,7 +82,7 @@ where
                     Ok(uuid) => {
                         let uuid = Uuid(uuid);
                         println!("{}", Self::get_by_id(conn.clone(), uuid).await?);
-                    },
+                    }
                     Err(_) => println!("Invalid uuid"),
                 },
                 None => println!("No uuid supplied"),

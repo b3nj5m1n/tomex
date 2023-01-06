@@ -2,18 +2,18 @@ use std::fmt::Display;
 
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
-use derives::DbTable;
+use derives::{DbTable, Queryable};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
     FromRow, Row,
 };
 
 use crate::{
-    traits::{CreateByPrompt, Insertable, Queryable, DbTable},
+    traits::{CreateByPrompt, CreateTable, DbTable, Insertable, Queryable},
     types::{timestamp::Timestamp, uuid::Uuid},
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable, Queryable)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<String>,
@@ -22,21 +22,25 @@ pub struct Author {
     pub date_died: Timestamp,
     pub deleted: bool,
 }
-/* impl DbTable for Author {
-    const NAME_SINGULAR: &'static str = "author";
-    const NAME_PLURAL: &'static str = "authors";
-} */
-impl Queryable for Author {}
-/* impl Queryable for Author {
-    async fn query(conn: sqlx::SqlitePool) -> Result<Option<Self>> {
-        let authors: Vec<Author> = sqlx::query_as::<_, Author>("SELECT * FROM authors;")
-            .fetch_all(&conn)
-            .await?;
-        let ans: Option<Author> =
-            inquire::Select::new("Select author:", authors).prompt_skippable()?;
-        Ok(ans)
+impl CreateTable for Author {
+    async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            CREATE TABLE IF NOT EXISTS {} (
+                id TEXT PRIMARY KEY NOT NULL,
+                name_first TEXT,
+                name_last TEXT,
+                date_born INTEGER,
+                date_died INTEGER,
+                deleted BOOL DEFAULT FALSE
+            );"#,
+            Self::TABLE_NAME
+        ))
+        .execute(conn)
+        .await?;
+        Ok(())
     }
-} */
+}
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match (&self.name_first, &self.name_last) {
