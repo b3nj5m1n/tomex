@@ -1,4 +1,4 @@
-use clap::Command;
+use clap::{Command, ArgAction};
 
 pub fn arg_parser() -> Command {
     Command::new("bokhylle")
@@ -22,6 +22,33 @@ pub fn arg_parser() -> Command {
         .subcommand(
             Command::new("query")
                 .about("Get existing records in database")
+                .arg(
+                    clap::Arg::new("all")
+                        .global(true)
+                        .required(false)
+                        .num_args(0)
+                        .short('a')
+                        .long("all")
+                        .help("Display all records in database"),
+                )
+                .arg(
+                    clap::Arg::new("interactive")
+                        .global(true)
+                        .required(false)
+                        .num_args(0)
+                        .short('i')
+                        .long("interactive")
+                        .help("Launch an interactive search"),
+                )
+                .arg(
+                    clap::Arg::new("uuid")
+                        .global(true)
+                        .required(false)
+                        .num_args(1)
+                        .short('u')
+                        .long("uuid")
+                        .help("Get record by uuid"),
+                )
                 .subcommand_required(true)
                 .subcommand(Command::new("book"))
                 .subcommand(Command::new("author")),

@@ -1,6 +1,7 @@
 use std::env;
 
 use anyhow::Result;
+use clap::parser::ValueSource;
 use dotenvy::{dotenv, var as envar};
 use reedline::Signal;
 use sqlx::{
@@ -53,22 +54,10 @@ async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
         },
         Some(("query", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                println!("\nBooks:");
-                let books = sqlx::query_as::<_, Book>("SELECT * FROM books;")
-                    .fetch_all(&conn)
-                    .await?;
-                for book in books {
-                    println!("{}", book);
-                }
+                Book::query_by_clap(conn, _matches).await?;
             }
             Some(("author", _matches)) => {
-                println!("\nAuthors:");
-                let authors = sqlx::query_as::<_, Author>("SELECT * FROM authors;")
-                    .fetch_all(&conn)
-                    .await?;
-                for author in authors {
-                    println!("{}", author);
-                }
+                Author::query_by_clap(conn, _matches).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),

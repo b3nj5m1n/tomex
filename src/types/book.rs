@@ -1,17 +1,18 @@
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+use derives::DbTable;
 use std::fmt::Display;
 
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
 use crate::{
-    traits::{CreateByPrompt, Insertable, Queryable},
+    traits::{CreateByPrompt, Insertable, Queryable, DbTable},
     types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
 };
 
 use super::author::Author;
 
-#[derive(Default, Builder, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable)]
 #[builder(setter(into))]
 pub struct Book {
     pub id: Uuid,
@@ -29,6 +30,7 @@ pub struct Book {
     #[builder(default = "false")]
     pub deleted: bool,
 }
+impl Queryable for Book {}
 impl Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.release_date.0 {
@@ -49,7 +51,7 @@ impl CreateByPrompt for Book {
         if title.is_empty() {
             anyhow::bail!("Title is required");
         }
-        let author = Author::query(conn).await?;
+        let author = Author::query_by_prompt(conn).await?;
         let release_date = Timestamp(
             inquire::DateSelect::new("What was the book released?")
                 .prompt_skippable()?
