@@ -17,7 +17,7 @@ mod repl;
 use bokhylle::types::author::Author;
 use bokhylle::{traits::*, types::book::Book};
 
-async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
+async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
     let args = command_parser::arg_parser();
     let command = shlex::split(&command);
     if let None = command {
@@ -32,11 +32,11 @@ async fn handle_command(command: String, conn: SqlitePool) -> Result<()> {
     match matches.subcommand() {
         Some(("add", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                let book = Book::create_by_prompt(conn.clone()).await?;
+                let book = Book::create_by_prompt(conn).await?;
                 book.insert(conn).await?;
             }
             Some(("author", _matches)) => {
-                let author = Author::create_by_prompt(conn.clone()).await?;
+                let author = Author::create_by_prompt(conn).await?;
                 author.insert(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
@@ -109,7 +109,7 @@ async fn main() -> Result<()> {
         loop {
             match repl.read_line() {
                 Ok(Signal::Success(buffer)) => {
-                    match handle_command(buffer.clone(), conn.clone()).await {
+                    match handle_command(buffer.clone(), &conn).await {
                         Ok(_) => (),
                         Err(e) => println!("Error: {}", e),
                     };
@@ -129,7 +129,7 @@ async fn main() -> Result<()> {
             .map(|x| x.into_string().expect("Invalid unicode in arguments"))
             .collect::<Vec<String>>()
             .join(" ");
-        handle_command(args, conn).await?;
+        handle_command(args, &conn).await?;
     }
 
     Ok(())

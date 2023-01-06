@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::fmt::Write;
 
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
@@ -9,7 +10,7 @@ use sqlx::{
 };
 
 use crate::{
-    traits::{CreateByPrompt, CreateTable, DbTable, Insertable, Queryable},
+    traits::{CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Insertable, Queryable},
     types::{timestamp::Timestamp, uuid::Uuid},
 };
 
@@ -57,8 +58,27 @@ impl Display for Author {
         }
     }
 }
+impl DisplayTerminal for Author {
+    async fn fmt(&self, f: &mut String, _conn: &sqlx::SqlitePool) -> Result<()> {
+        match (&self.name_first, &self.name_last) {
+            (None, None) => write!(f, "{}", self.id.0)?,
+            (None, Some(name_last)) => write!(
+                f, "{}, (First name unknown) ({})",
+                name_last, self.id.0
+            )?,
+            (Some(name_first), None) => write!(
+                f, "(Last name unknown), {} ({})",
+                name_first, self.id.0
+            )?,
+            (Some(name_first), Some(name_last)) => {
+                write!(f, "{}, {} ({})", name_last, name_first, self.id.0)?
+            }
+        }
+        Ok(())
+    }
+}
 impl CreateByPrompt for Author {
-    async fn create_by_prompt(_conn: sqlx::SqlitePool) -> Result<Self> {
+    async fn create_by_prompt(_conn: &sqlx::SqlitePool) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
         let name_first = inquire::Text::new("What is the authors first name?")
             .prompt_skippable()?
@@ -104,7 +124,7 @@ impl CreateByPrompt for Author {
     }
 }
 impl Insertable for Author {
-    async fn insert(self, conn: sqlx::SqlitePool) -> Result<SqliteQueryResult> {
+    async fn insert(self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult> {
         Ok(sqlx::query(
             r#"
                     INSERT INTO authors ( id, name_first, name_last, date_born, date_died, deleted )
@@ -117,7 +137,7 @@ impl Insertable for Author {
         .bind(&self.date_born)
         .bind(&self.date_died)
         .bind(&self.deleted)
-        .execute(&conn)
+        .execute(conn)
         .await?)
     }
 }

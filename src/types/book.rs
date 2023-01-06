@@ -2,12 +2,13 @@ use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
 use derives::{DbTable, Queryable};
 use std::fmt::Display;
+use std::fmt::Write;
 
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
 use crate::{
-    traits::{CreateByPrompt, CreateTable, DbTable, Insertable, Queryable},
+    traits::{CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Insertable, Queryable},
     types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
 };
 
@@ -19,7 +20,7 @@ pub struct Book {
     pub id: Uuid,
     pub title: String,
     #[builder(setter(into, strip_option), default = "None")]
-    pub author: Option<Uuid>,
+    pub author_id: Option<Uuid>,
     #[builder(setter(into, strip_option), default = "Timestamp(None)")]
     pub release_date: Timestamp,
     #[builder(default = "vec![]")]
@@ -30,6 +31,18 @@ pub struct Book {
     pub genres: Vec<Genre>,
     #[builder(default = "false")]
     pub deleted: bool,
+}
+
+impl Book {
+    pub async fn author(&self, conn: &sqlx::SqlitePool) -> Result<Option<Author>> {
+        match &self.author_id {
+            Some(id) => {
+                let author = Author::get_by_id(conn, id.clone()).await?;
+                Ok(Some(author))
+            }
+            None => Ok(None),
+        }
+    }
 }
 
 impl CreateTable for Book {
@@ -65,8 +78,47 @@ impl Display for Book {
         }
     }
 }
+impl DisplayTerminal for Book {
+    async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
+        write!(f, "{}", self.title)?;
+        write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
+        if let Some(author) = Book::author(&self, conn).await? {
+            write!(f, "[written by",)?;
+            write!(f, " ")?; // TODO see above
+            DisplayTerminal::fmt(&author, f, conn).await?;
+            write!(f, "]",)?;
+            write!(f, " ")?; // TODO see above
+        }
+        if let Some(release_date) = &self.release_date.0 {
+            write!(f, "[released by {}]", release_date)?;
+            write!(f, " ")?; // TODO see above
+        }
+        write!(f, "({})", self.id)?;
+        /* match (&self.release_date.0, Book::author(&self, conn).await?) {
+            (None, None) => Ok(format!("{} ({})", self.title, self.id.0)),
+            (None, Some(author)) => Ok(format!(
+                "{} [written by {}] ({})",
+                self.title,
+                DisplayTerminal::fmt(&author, conn).await?,
+                self.id.0
+            )),
+            (Some(release_date), None) => Ok(format!(
+                "{} [released {}] ({})",
+                self.title, release_date, self.id.0
+            )),
+            (Some(release_date), Some(author)) => Ok(format!(
+                "{} [released {}] [written by {}] ({})",
+                self.title,
+                release_date,
+                DisplayTerminal::fmt(&author, conn).await?,
+                self.id.0
+            )),
+        } */
+        Ok(())
+    }
+}
 impl CreateByPrompt for Book {
-    async fn create_by_prompt(conn: sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Sized,
     {
@@ -95,7 +147,7 @@ impl CreateByPrompt for Book {
         Ok(Self {
             id,
             title,
-            author: author.map(|x| x.id),
+            author_id: author.map(|x| x.id),
             release_date,
             editions: vec![],
             reviews: vec![],
@@ -105,7 +157,10 @@ impl CreateByPrompt for Book {
     }
 }
 impl Insertable for Book {
-    async fn insert(self, conn: sqlx::SqlitePool) -> anyhow::Result<sqlx::sqlite::SqliteQueryResult>
+    async fn insert(
+        self,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<sqlx::sqlite::SqliteQueryResult>
     where
         Self: Sized,
     {
@@ -117,10 +172,10 @@ impl Insertable for Book {
         )
         .bind(&self.id)
         .bind(&self.title)
-        .bind(&self.author)
+        .bind(&self.author_id)
         .bind(&self.release_date)
         .bind(&self.deleted)
-        .execute(&conn)
+        .execute(conn)
         .await?)
     }
 }
@@ -129,7 +184,7 @@ impl FromRow<'_, SqliteRow> for Book {
         Ok(Self {
             id: row.try_get("id")?,
             title: row.try_get("title")?,
-            author: row.try_get("author")?,
+            author_id: row.try_get("author")?,
             release_date: row.try_get("release_date")?,
             editions: vec![], // TODO
             reviews: vec![],
