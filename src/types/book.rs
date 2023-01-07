@@ -8,7 +8,7 @@ use std::fmt::Write;
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
-use crate::traits::Id;
+use crate::traits::{Id, QueryType};
 use crate::traits::Removeable;
 use crate::{
     traits::{CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Insertable, Queryable},
@@ -16,6 +16,7 @@ use crate::{
 };
 
 use super::author::Author;
+use super::timestamp::OptionalTimestamp;
 
 #[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable, Queryable, Id, Removeable)]
 #[builder(setter(into))]
@@ -24,8 +25,8 @@ pub struct Book {
     pub title: String,
     #[builder(setter(into, strip_option), default = "None")]
     pub author_id: Option<Uuid>,
-    #[builder(setter(into, strip_option), default = "Timestamp(None)")]
-    pub release_date: Timestamp,
+    #[builder(setter(into, strip_option), default = "OptionalTimestamp(None)")]
+    pub release_date: OptionalTimestamp,
     #[builder(default = "vec![]")]
     pub editions: Vec<Edition>,
     #[builder(default = "vec![]")]
@@ -75,7 +76,7 @@ impl Display for Book {
                 write!(
                     f,
                     "{}, released {} ({})",
-                    self.title, release_date, self.id.0
+                    self.title, release_date.0, self.id.0
                 )
             }
         }
@@ -93,7 +94,7 @@ impl DisplayTerminal for Book {
             write!(f, " ")?; // TODO see above
         }
         if let Some(release_date) = &self.release_date.0 {
-            write!(f, "[released by {}]", release_date)?;
+            write!(f, "[released by {}]", release_date.0)?;
             write!(f, " ")?; // TODO see above
         }
         write!(f, "({})", self.id)?;
@@ -131,7 +132,7 @@ impl CreateByPrompt for Book {
             anyhow::bail!("Title is required");
         }
         let author = Author::query_by_prompt(conn).await?;
-        let release_date = Timestamp(
+        /* let release_date = Timestamp(
             inquire::DateSelect::new("What was the book released?")
                 .prompt_skippable()?
                 .map(|x| {
@@ -140,7 +141,8 @@ impl CreateByPrompt for Book {
                         Utc,
                     )
                 }),
-        );
+        ); */
+        let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable("When was the book released?")?);
         if !inquire::Confirm::new("Add book?")
             .with_default(true)
             .prompt()?

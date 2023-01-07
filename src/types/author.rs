@@ -22,6 +22,8 @@ use crate::{
     types::{timestamp::Timestamp, uuid::Uuid},
 };
 
+use super::timestamp::OptionalTimestamp;
+
 #[derive(
     Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable, CRUD, Queryable, Removeable, Id,
 )]
@@ -29,8 +31,8 @@ pub struct Author {
     pub id: Uuid,
     pub name_first: Option<String>,
     pub name_last: Option<String>,
-    pub date_born: Timestamp,
-    pub date_died: Timestamp,
+    pub date_born: OptionalTimestamp,
+    pub date_died: OptionalTimestamp,
     pub deleted: bool,
 }
 impl Updateable for Author {
@@ -89,7 +91,8 @@ impl Updateable for Author {
                 name_last = old.name_last.clone();
             };
         }
-        let mut date_born = Timestamp(
+        todo!()
+        /* let mut date_born = Timestamp(
             inquire::DateSelect::new("When was the author born?")
                 .prompt_skippable()?
                 .map(|x| {
@@ -143,7 +146,7 @@ impl Updateable for Author {
             date_died,
             deleted: delete,
         };
-        Self::update(&old, conn, new).await
+        Self::update(&old, conn, new).await */
     }
 }
 impl CreateTable for Author {
@@ -207,8 +210,8 @@ impl CreateByPrompt for Author {
         let name_last = inquire::Text::new("What is the authors last name?")
             .prompt_skippable()?
             .filter(|x| !x.is_empty());
-        let date_born = Timestamp::create_by_prompt_skippable("When was the author born?")?;
-        let date_died = Timestamp::create_by_prompt_skippable("When did the author die?")?;
+        let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable("When was the author born?")?);
+        let date_died = OptionalTimestamp(Timestamp::create_by_prompt_skippable("When did the author die?")?);
         if !inquire::Confirm::new("Add author?")
             .with_default(true)
             .prompt()?

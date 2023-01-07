@@ -13,7 +13,7 @@ where
     Self: Sized,
 {
     fn create_by_prompt(prompt: &str) -> Result<Self>;
-    fn create_by_prompt_skippable(prompt: &str) -> Result<Self>;
+    fn create_by_prompt_skippable(prompt: &str) -> Result<Option<Self>>;
 }
 
 pub trait CRUD
