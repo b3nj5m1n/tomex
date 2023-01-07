@@ -148,7 +148,7 @@ where
     async fn remove(&self, conn: &sqlx::SqlitePool) -> Result<()> {
         sqlx::query(&format!(
             r#"
-            DELETE FROM {} WHERE id = ?1"#,
+            UPDATE {} SET deleted = 1 WHERE id = ?1"#,
             Self::TABLE_NAME
         ))
         .bind(self.id().await)
@@ -190,7 +190,7 @@ where
 {
     async fn get_by_id(conn: &sqlx::SqlitePool, id: Uuid) -> Result<Self> {
         Ok(sqlx::query_as::<_, Self>(&format!(
-            "SELECT * FROM {} WHERE id = ?1;",
+            "SELECT * FROM {} WHERE id = ?1 AND deleted = 0;",
             Self::TABLE_NAME
         ))
         .bind(id)
@@ -199,7 +199,7 @@ where
     }
     async fn get_all(conn: &sqlx::SqlitePool) -> Result<Vec<Self>> {
         Ok(
-            sqlx::query_as::<_, Self>(&format!("SELECT * FROM {};", Self::TABLE_NAME))
+            sqlx::query_as::<_, Self>(&format!("SELECT * FROM {} WHERE deleted = 0;", Self::TABLE_NAME))
                 .fetch_all(conn)
                 .await?,
         )
