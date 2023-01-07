@@ -11,9 +11,65 @@ use crate::types::uuid::Uuid;
 pub trait QueryType
 where
     Self: Sized,
+    Self: Display,
+    Self: Clone,
 {
+    /// Prompts the user to create this type, a type has to be returned
     fn create_by_prompt(prompt: &str) -> Result<Self>;
+
+    /// Prompts the user to create this type, can be skipped
     fn create_by_prompt_skippable(prompt: &str) -> Result<Option<Self>>;
+
+    /// Prompts the user to update this type, the result will be the updated type
+    fn update_by_prompt(&self, prompt: &str) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        Self::create_by_prompt(&format!("{} (Currently {})", prompt, self))
+    }
+
+    /// Prompts the user to update this type, can be skipped, if skipped, the result will be the old
+    /// value
+    fn update_by_prompt_skippable(&self, prompt: &str) -> anyhow::Result<Self> {
+        match Self::create_by_prompt_skippable(&format!("{} (Currently {})", prompt, self))? {
+            Some(new) => Ok(new),
+            None => Ok(self.clone()),
+        }
+    }
+
+    /// Prompts the user to update or delete this type
+    fn update_by_prompt_deleteable(
+        &self,
+        prompt_delete: &str,
+        prompt_update: &str,
+    ) -> anyhow::Result<Option<Self>> {
+        if !inquire::Confirm::new(prompt_delete)
+            .with_default(false)
+            .prompt()?
+        {
+            return Ok(None);
+        };
+        Ok(Some(Self::update_by_prompt(&self, prompt_update)?))
+    }
+
+    /// Prompts the user to update or delete this type, can be skipped, if skipped, the result will
+    /// be the old value
+    fn update_by_prompt_skippable_deleteable(
+        &self,
+        prompt_delete: &str,
+        prompt_update: &str,
+    ) -> anyhow::Result<Option<Self>> {
+        if inquire::Confirm::new(prompt_delete)
+            .with_default(false)
+            .prompt()?
+        {
+            return Ok(None);
+        };
+        Ok(Some(Self::update_by_prompt_skippable(
+            &self,
+            prompt_update,
+        )?))
+    }
 }
 
 pub trait CRUD

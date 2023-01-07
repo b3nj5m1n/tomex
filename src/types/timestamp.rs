@@ -1,10 +1,31 @@
+use std::fmt::Display;
+
 use crate::traits::QueryType;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
 
+impl Display for Timestamp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct OptionalTimestamp(pub Option<Timestamp>);
+
+impl Display for OptionalTimestamp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            &match &self.0 {
+                Some(ts) => ts.0.to_string(),
+                None => "Not specified".to_string(),
+            }
+        )
+    }
+}
 
 impl sqlx::Type<sqlx::Sqlite> for OptionalTimestamp {
     fn type_info() -> sqlx::sqlite::SqliteTypeInfo {
@@ -38,6 +59,17 @@ impl QueryType for Timestamp {
             .map(|x| Timestamp(x)))
     }
 }
+
+// TODO I'm not sure if it makes sense to implement this trait for OptionalTimestamp
+/* impl QueryType for OptionalTimestamp {
+    fn create_by_prompt(prompt: &str) -> anyhow::Result<Self> {
+        Ok(OptionalTimestamp(Some(Timestamp::create_by_prompt(prompt)?)))
+    }
+
+    fn create_by_prompt_skippable(prompt: &str) -> anyhow::Result<Option<Self>> {
+        Ok(OptionalTimestamp(Timestamp::create_by_prompt_skippable(prompt)?))
+    }
+} */
 
 impl<'q> sqlx::Encode<'q, sqlx::Sqlite> for OptionalTimestamp {
     fn encode_by_ref(
