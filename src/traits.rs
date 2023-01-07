@@ -8,6 +8,28 @@ use sqlx::{
 
 use crate::types::uuid::Uuid;
 
+pub trait CRUD
+where
+    Self: Insertable,
+    Self: Queryable,
+    Self: Updateable,
+    Self: Removeable,
+{
+}
+
+pub trait Updateable
+where
+    Self: DbTable,
+    Self: Sized,
+    Self: Id,
+{
+    async fn update(&self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
+    async fn update_by_query(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
+    where
+        Self: Queryable;
+    // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
+}
+
 pub trait DisplayTerminal
 where
     Self: Sized,
@@ -31,7 +53,7 @@ pub trait Insertable
 where
     Self: Sized,
 {
-    async fn insert(self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>;
+    async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>;
 }
 
 pub trait CreateTable
@@ -59,13 +81,13 @@ where
     Self: Sized,
     Self: Id,
 {
-    async fn remove(conn: &sqlx::SqlitePool, id: Uuid) -> Result<()> {
+    async fn remove(&self, conn: &sqlx::SqlitePool) -> Result<()> {
         sqlx::query(&format!(
             r#"
             DELETE FROM {} WHERE id = ?1"#,
             Self::TABLE_NAME
         ))
-        .bind(id)
+        .bind(self.id().await)
         .execute(conn)
         .await?;
         Ok(())
@@ -83,7 +105,7 @@ where
                 {
                     anyhow::bail!("Aborted");
                 };
-                Self::remove(conn, x.id().await).await?;
+                Self::remove(&x, conn).await?;
                 println!("Deleted");
             }
             None => println!("Nothing selected, doing nothing"),

@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
-use derives::{Removeable, Id};
 use derives::{DbTable, Queryable};
+use derives::{Id, Removeable};
 use std::fmt::Display;
 use std::fmt::Write;
 
@@ -161,7 +161,7 @@ impl CreateByPrompt for Book {
 }
 impl Insertable for Book {
     async fn insert(
-        self,
+        &self,
         conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<sqlx::sqlite::SqliteQueryResult>
     where

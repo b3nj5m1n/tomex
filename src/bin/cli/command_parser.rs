@@ -1,4 +1,8 @@
-use clap::{Command, ArgAction};
+use clap::{ArgAction, Command};
+
+pub fn arg_parser_types() -> Vec<Command> {
+    vec![Command::new("book"), Command::new("author")]
+}
 
 pub fn arg_parser() -> Command {
     Command::new("bokhylle")
@@ -8,20 +12,32 @@ pub fn arg_parser() -> Command {
         .subcommand(
             Command::new("add")
                 .about("Add something (book/review/etc.)")
+                .alias("a")
+                .alias("insert")
                 .subcommand_required(true)
-                .subcommand(Command::new("book"))
-                .subcommand(Command::new("author")),
+                .subcommands(arg_parser_types())
+        )
+        .subcommand(
+            Command::new("edit")
+                .about("Edit something (book/review/etc.)")
+                .alias("e")
+                .alias("update")
+                .subcommand_required(true)
+                .subcommands(arg_parser_types())
         )
         .subcommand(
             Command::new("remove")
                 .about("Remove something (book/review/etc.)")
+                .alias("r")
+                .alias("delete")
                 .subcommand_required(true)
-                .subcommand(Command::new("book"))
-                .subcommand(Command::new("author")),
+                .subcommands(arg_parser_types())
         )
         .subcommand(
             Command::new("query")
                 .about("Get existing records in database")
+                .alias("q")
+                .alias("get")
                 .arg(
                     clap::Arg::new("all")
                         .global(true)
@@ -50,9 +66,12 @@ pub fn arg_parser() -> Command {
                         .help("Get record by uuid"),
                 )
                 .subcommand_required(true)
-                .subcommand(Command::new("book"))
-                .subcommand(Command::new("author")),
+                .subcommands(arg_parser_types())
         )
+}
+
+pub fn arg_parser_repl() -> Command {
+    arg_parser().subcommand(Command::new("exit").about("Exit the repl"))
 }
 
 pub fn arg_parser_cli() -> Command {
@@ -60,7 +79,7 @@ pub fn arg_parser_cli() -> Command {
 }
 
 pub fn generate_completions() -> Vec<String> {
-    let cmd = arg_parser();
+    let cmd = arg_parser_repl();
     fn add_command(parent_fn_name: &str, cmd: &Command, subcmds: &mut Vec<String>) {
         let fn_name = format!(
             "{parent_fn_name} {cmd_name}",

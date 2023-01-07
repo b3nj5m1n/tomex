@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, process::exit};
 
 use anyhow::Result;
 use clap::parser::ValueSource;
@@ -18,7 +18,7 @@ use bokhylle::types::author::Author;
 use bokhylle::{traits::*, types::book::Book};
 
 async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
-    let args = command_parser::arg_parser();
+    let args = command_parser::arg_parser_repl();
     let command = shlex::split(&command);
     if let None = command {
         anyhow::bail!("Invalid command");
@@ -38,6 +38,16 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("author", _matches)) => {
                 let author = Author::create_by_prompt(conn).await?;
                 author.insert(conn).await?;
+            }
+            Some((name, _matches)) => unimplemented!("{}", name),
+            None => unreachable!("subcommand required"),
+        },
+        Some(("edit", _matches)) => match _matches.subcommand() {
+            Some(("book", _matches)) => {
+                todo!()
+            }
+            Some(("author", _matches)) => {
+                Author::update_by_query(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -62,6 +72,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
+        Some(("exit", _matches)) => {
+            exit(0);
+        }
         Some((name, _matches)) => unimplemented!("{}", name),
         None => unreachable!("subcommand required"),
     }

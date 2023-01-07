@@ -17,8 +17,17 @@ pub fn derive_db_table(input: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro_derive(CRUD)]
+pub fn derive_crud(input: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(input);
+    quote! {
+        impl CRUD for #ident { }
+    }
+    .into()
+}
+
 #[proc_macro_derive(Queryable)]
-pub fn derive_querable(input: TokenStream) -> TokenStream {
+pub fn derive_queryable(input: TokenStream) -> TokenStream {
     let DeriveInput { ident, .. } = parse_macro_input!(input);
     quote! {
         impl Queryable for #ident { }
