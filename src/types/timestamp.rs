@@ -1,9 +1,36 @@
+use crate::traits::QueryType;
+
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Timestamp(pub Option<chrono::DateTime<chrono::Utc>>);
 
 impl sqlx::Type<sqlx::Sqlite> for Timestamp {
     fn type_info() -> sqlx::sqlite::SqliteTypeInfo {
         <&i8 as sqlx::Type<sqlx::Sqlite>>::type_info()
+    }
+}
+
+impl QueryType for Timestamp {
+    fn create_by_prompt(prompt: &str) -> anyhow::Result<Self> {
+        Ok(Timestamp(Some(chrono::DateTime::from_utc(
+            chrono::NaiveDateTime::new(
+                inquire::DateSelect::new(prompt).prompt()?,
+                chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
+            ),
+            chrono::Utc,
+        ))))
+    }
+
+    fn create_by_prompt_skippable(prompt: &str) -> anyhow::Result<Self> {
+        Ok(Timestamp(
+            inquire::DateSelect::new(prompt)
+                .prompt_skippable()?
+                .map(|x| {
+                    chrono::DateTime::from_utc(
+                        chrono::NaiveDateTime::new(x, chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
+                        chrono::Utc,
+                    )
+                }),
+        ))
     }
 }
 

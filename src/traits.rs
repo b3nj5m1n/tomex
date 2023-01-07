@@ -8,6 +8,14 @@ use sqlx::{
 
 use crate::types::uuid::Uuid;
 
+pub trait QueryType
+where
+    Self: Sized,
+{
+    fn create_by_prompt(prompt: &str) -> Result<Self>;
+    fn create_by_prompt_skippable(prompt: &str) -> Result<Self>;
+}
+
 pub trait CRUD
 where
     Self: Insertable,

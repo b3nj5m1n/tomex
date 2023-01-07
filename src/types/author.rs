@@ -12,6 +12,7 @@ use sqlx::{
     FromRow, Row,
 };
 
+use crate::traits::QueryType;
 use crate::traits::Updateable;
 use crate::{
     traits::{
@@ -206,26 +207,8 @@ impl CreateByPrompt for Author {
         let name_last = inquire::Text::new("What is the authors last name?")
             .prompt_skippable()?
             .filter(|x| !x.is_empty());
-        let date_born = Timestamp(
-            inquire::DateSelect::new("When was the author born?")
-                .prompt_skippable()?
-                .map(|x| {
-                    DateTime::from_utc(
-                        NaiveDateTime::new(x, NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
-                        Utc,
-                    )
-                }),
-        );
-        let date_died = Timestamp(
-            inquire::DateSelect::new("When did the author die?")
-                .prompt_skippable()?
-                .map(|x| {
-                    DateTime::from_utc(
-                        NaiveDateTime::new(x, NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
-                        Utc,
-                    )
-                }),
-        );
+        let date_born = Timestamp::create_by_prompt_skippable("When was the author born?")?;
+        let date_died = Timestamp::create_by_prompt_skippable("When did the author die?")?;
         if !inquire::Confirm::new("Add author?")
             .with_default(true)
             .prompt()?
