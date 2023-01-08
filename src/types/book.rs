@@ -16,13 +16,14 @@ use crate::{
 };
 
 use super::author::Author;
+use super::text::Text;
 use super::timestamp::OptionalTimestamp;
 
 #[derive(Default, Builder, Debug, Clone, PartialEq, Eq, DbTable, Queryable, Id, Removeable)]
 #[builder(setter(into))]
 pub struct Book {
     pub id: Uuid,
-    pub title: String,
+    pub title: Text,
     #[builder(setter(into, strip_option), default = "None")]
     pub author_id: Option<Uuid>,
     #[builder(setter(into, strip_option), default = "OptionalTimestamp(None)")]
@@ -98,26 +99,6 @@ impl DisplayTerminal for Book {
             write!(f, " ")?; // TODO see above
         }
         write!(f, "({})", self.id)?;
-        /* match (&self.release_date.0, Book::author(&self, conn).await?) {
-            (None, None) => Ok(format!("{} ({})", self.title, self.id.0)),
-            (None, Some(author)) => Ok(format!(
-                "{} [written by {}] ({})",
-                self.title,
-                DisplayTerminal::fmt(&author, conn).await?,
-                self.id.0
-            )),
-            (Some(release_date), None) => Ok(format!(
-                "{} [released {}] ({})",
-                self.title, release_date, self.id.0
-            )),
-            (Some(release_date), Some(author)) => Ok(format!(
-                "{} [released {}] [written by {}] ({})",
-                self.title,
-                release_date,
-                DisplayTerminal::fmt(&author, conn).await?,
-                self.id.0
-            )),
-        } */
         Ok(())
     }
 }
@@ -127,10 +108,7 @@ impl CreateByPrompt for Book {
         Self: Sized,
     {
         let id = Uuid(uuid::Uuid::new_v4());
-        let title = inquire::Text::new("What title of the book?").prompt()?;
-        if title.is_empty() {
-            anyhow::bail!("Title is required");
-        }
+        let title = Text::create_by_prompt("What is the title of the book?")?;
         let author = Author::query_by_prompt(conn).await?;
         /* let release_date = Timestamp(
             inquire::DateSelect::new("What was the book released?")

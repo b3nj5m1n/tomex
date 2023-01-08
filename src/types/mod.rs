@@ -1,5 +1,6 @@
 pub mod timestamp;
 pub mod uuid;
+pub mod text;
 
 pub mod author;
 pub mod book;
