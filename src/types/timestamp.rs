@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::traits::QueryType;
+use crate::traits::PromptType;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
@@ -33,7 +33,7 @@ impl sqlx::Type<sqlx::Sqlite> for OptionalTimestamp {
     }
 }
 
-impl QueryType for Timestamp {
+impl PromptType for Timestamp {
     fn create_by_prompt(prompt: &str, initial_value: Option<&Self>) -> anyhow::Result<Self> {
         let mut prompt = inquire::DateSelect::new(prompt);
         if let Some(s) = initial_value {

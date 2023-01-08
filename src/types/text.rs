@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use inquire::validator::StringValidator;
 
-use crate::traits::QueryType;
+use crate::traits::PromptType;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Text(pub String);
@@ -35,7 +35,7 @@ impl StringValidator for ValidatorNonEmpty {
     }
 }
 
-impl QueryType for Text {
+impl PromptType for Text {
     fn create_by_prompt(prompt: &str, initial_value: Option<&Self>) -> anyhow::Result<Self> {
         let mut prompt = inquire::Text::new(prompt).with_validator(ValidatorNonEmpty {});
         if let Some(s) = initial_value {

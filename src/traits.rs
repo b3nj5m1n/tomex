@@ -5,7 +5,11 @@ use sqlx::{sqlite::SqliteQueryResult, FromRow};
 
 use crate::types::{option_to_create::OptionToCreate, uuid::Uuid};
 
-pub trait QueryType
+/// A (more or less primitive) type which can be created and updated by command line prompts
+/// This is for things like Text, Timestamps, etc., while [CreateByPrompt] is for structs
+/// corresponding to a database table. A struct which implements [CreateByPrompt] should be made up
+/// of types which implement [PromptType]
+pub trait PromptType
 where
     Self: Sized,
     Self: Display,
@@ -75,28 +79,8 @@ where
     }
 }
 
-pub trait CRUD
-where
-    Self: Insertable,
-    Self: Queryable,
-    Self: Updateable,
-    Self: Removeable,
-{
-}
-
-pub trait Updateable
-where
-    Self: DbTable,
-    Self: Sized,
-    Self: Id,
-{
-    async fn update(&self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
-    async fn update_by_query(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
-    where
-        Self: Queryable;
-    // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
-}
-
+/// An alternative to std::fmt::Display which can query the database to retrieve addtional
+/// information
 pub trait DisplayTerminal
 where
     Self: Sized,
@@ -130,22 +114,22 @@ where
     }
 }
 
-pub trait Insertable
-where
-    Self: Sized,
-{
-    async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>;
-}
-
+/// A type which corresponds to a database table and can create it's own table in the database
 pub trait CreateTable
 where
     Self: Sized,
-    Self: DbTable,
+    Self: Names,
 {
     async fn create_table(conn: &sqlx::SqlitePool) -> Result<()>;
 }
 
-pub trait DbTable
+/// Singular and plural names for type & name of table in database, for example:
+/// ```
+/// const NAME_SINGULAR = "book";
+/// const NAME_PLURAL = "books";
+/// const TABLE_NAME = "books";
+/// ```
+pub trait Names
 where
     Self: Sized,
 {
@@ -153,52 +137,35 @@ where
     const NAME_PLURAL: &'static str;
     const TABLE_NAME: &'static str = Self::NAME_PLURAL;
 }
+
+/// A type which can be uniquely identified by an id
 pub trait Id {
     async fn id(&self) -> Uuid;
 }
-pub trait Removeable
+
+/// A type which corresponds to a database table entry and can be inserted, queried, updated and removed
+pub trait CRUD
 where
-    Self: DbTable,
-    Self: Sized,
-    Self: Id,
+    Self: Insertable,
+    Self: Queryable,
+    Self: Updateable,
+    Self: Removeable,
 {
-    async fn remove(&self, conn: &sqlx::SqlitePool) -> Result<()> {
-        sqlx::query(&format!(
-            r#"
-            UPDATE {} SET deleted = 1 WHERE id = ?1"#,
-            Self::TABLE_NAME
-        ))
-        .bind(self.id().await)
-        .execute(conn)
-        .await?;
-        Ok(())
-    }
-    async fn remove_by_query(conn: &sqlx::SqlitePool) -> Result<()>
-    where
-        Self: Queryable,
-    {
-        let x = Self::query_by_prompt_skippable(conn).await?;
-        match x {
-            Some(x) => {
-                if !inquire::Confirm::new(&format!("Are you sure you want to remove {}?", x))
-                    .with_default(false)
-                    .prompt()?
-                {
-                    anyhow::bail!("Aborted");
-                };
-                Self::remove(&x, conn).await?;
-                println!("Deleted");
-            }
-            None => println!("Nothing selected, doing nothing"),
-        }
-        Ok(())
-    }
 }
 
+/// A type which corresponds to a database table entry and can be inserted
+pub trait Insertable
+where
+    Self: Sized,
+{
+    async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>;
+}
+
+/// A type which corresponds to a database table entry and can be queried
 pub trait Queryable
 where
     for<'r> Self: FromRow<'r, sqlx::sqlite::SqliteRow>,
-    Self: DbTable,
+    Self: Names,
     Self: Sized,
     Self: DisplayTerminal,
     Self: Display,
@@ -311,6 +278,60 @@ where
             for x in xs {
                 println!("{}", DisplayTerminal::fmt_to_string(&x, conn).await?);
             }
+        }
+        Ok(())
+    }
+}
+
+/// A type which corresponds to a database table entry and can be updated
+pub trait Updateable
+where
+    Self: Names,
+    Self: Sized,
+    Self: Id,
+{
+    async fn update(&self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
+    async fn update_by_query(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
+    where
+        Self: Queryable;
+    // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
+}
+
+/// A type which corresponds to a database table entry and can be removed
+pub trait Removeable
+where
+    Self: Names,
+    Self: Sized,
+    Self: Id,
+{
+    async fn remove(&self, conn: &sqlx::SqlitePool) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            UPDATE {} SET deleted = 1 WHERE id = ?1"#,
+            Self::TABLE_NAME
+        ))
+        .bind(self.id().await)
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+    async fn remove_by_query(conn: &sqlx::SqlitePool) -> Result<()>
+    where
+        Self: Queryable,
+    {
+        let x = Self::query_by_prompt_skippable(conn).await?;
+        match x {
+            Some(x) => {
+                if !inquire::Confirm::new(&format!("Are you sure you want to remove {}?", x))
+                    .with_default(false)
+                    .prompt()?
+                {
+                    anyhow::bail!("Aborted");
+                };
+                Self::remove(&x, conn).await?;
+                println!("Deleted");
+            }
+            None => println!("Nothing selected, doing nothing"),
         }
         Ok(())
     }

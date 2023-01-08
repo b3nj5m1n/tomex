@@ -6,15 +6,15 @@ use anyhow::Result;
 use derives::Id;
 use derives::Queryable;
 use derives::Removeable;
-use derives::{DbTable, CRUD};
+use derives::{Names, CRUD};
 use sqlx::{sqlite::SqliteQueryResult, FromRow};
 
-use crate::traits::QueryType;
+use crate::traits::PromptType;
 use crate::traits::Updateable;
 use crate::{
     traits::{
-        CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Id, Insertable, Queryable,
-        Removeable, CRUD,
+        CreateByPrompt, CreateTable, DisplayTerminal, Id, Insertable, Names, Queryable, Removeable,
+        CRUD,
     },
     types::{timestamp::Timestamp, uuid::Uuid},
 };
@@ -22,9 +22,7 @@ use crate::{
 use super::text::Text;
 use super::timestamp::OptionalTimestamp;
 
-#[derive(
-    Default, Debug, Clone, PartialEq, Eq, FromRow, DbTable, CRUD, Queryable, Removeable, Id,
-)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Names, CRUD, Queryable, Removeable, Id)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<Text>,
