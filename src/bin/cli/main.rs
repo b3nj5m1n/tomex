@@ -32,12 +32,10 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
     match matches.subcommand() {
         Some(("add", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                let book = Book::create_by_prompt(conn).await?;
-                book.insert(conn).await?;
+                Book::create_by_prompt_insert(conn).await?;
             }
             Some(("author", _matches)) => {
-                let author = Author::create_by_prompt(conn).await?;
-                author.insert(conn).await?;
+                Author::create_by_prompt_insert(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),

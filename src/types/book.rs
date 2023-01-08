@@ -8,8 +8,8 @@ use std::fmt::Write;
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 
-use crate::traits::{Id, QueryType};
 use crate::traits::Removeable;
+use crate::traits::{Id, QueryType};
 use crate::{
     traits::{CreateByPrompt, CreateTable, DbTable, DisplayTerminal, Insertable, Queryable},
     types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
@@ -108,25 +108,12 @@ impl CreateByPrompt for Book {
         Self: Sized,
     {
         let id = Uuid(uuid::Uuid::new_v4());
-        let title = Text::create_by_prompt("What is the title of the book?")?;
-        let author = Author::query_by_prompt(conn).await?;
-        /* let release_date = Timestamp(
-            inquire::DateSelect::new("What was the book released?")
-                .prompt_skippable()?
-                .map(|x| {
-                    DateTime::from_utc(
-                        NaiveDateTime::new(x, NaiveTime::from_hms_opt(0, 0, 0).unwrap()),
-                        Utc,
-                    )
-                }),
-        ); */
-        let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable("When was the book released?")?);
-        if !inquire::Confirm::new("Add book?")
-            .with_default(true)
-            .prompt()?
-        {
-            anyhow::bail!("Aborted");
-        };
+        let title = Text::create_by_prompt("What is the title of the book?", None)?;
+        let author = Author::query_or_create_by_prompt_skippable(conn).await?;
+        let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
+            "When was the book released?",
+            None
+        )?);
         Ok(Self {
             id,
             title,

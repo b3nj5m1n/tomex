@@ -34,18 +34,35 @@ impl sqlx::Type<sqlx::Sqlite> for OptionalTimestamp {
 }
 
 impl QueryType for Timestamp {
-    fn create_by_prompt(prompt: &str) -> anyhow::Result<Self> {
+    fn create_by_prompt(prompt: &str, initial_value: Option<&Self>) -> anyhow::Result<Self> {
+        let mut prompt = inquire::DateSelect::new(prompt);
+        if let Some(s) = initial_value {
+            prompt = inquire::DateSelect {
+                starting_date: *(&s.0.date_naive()),
+                ..prompt
+            };
+        }
         Ok(Timestamp(chrono::DateTime::from_utc(
             chrono::NaiveDateTime::new(
-                inquire::DateSelect::new(prompt).prompt()?,
+                prompt.prompt()?,
                 chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
             ),
             chrono::Utc,
         )))
     }
 
-    fn create_by_prompt_skippable(prompt: &str) -> anyhow::Result<Option<Self>> {
-        Ok(inquire::DateSelect::new(prompt)
+    fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+    ) -> anyhow::Result<Option<Self>> {
+        let mut prompt = inquire::DateSelect::new(prompt);
+        if let Some(s) = initial_value {
+            prompt = inquire::DateSelect {
+                starting_date: *(&s.0.date_naive()),
+                ..prompt
+            };
+        }
+        Ok(prompt
             .prompt_skippable()?
             .map(|x| {
                 chrono::DateTime::<chrono::Utc>::from_utc(

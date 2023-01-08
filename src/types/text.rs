@@ -36,19 +36,23 @@ impl StringValidator for ValidatorNonEmpty {
 }
 
 impl QueryType for Text {
-    fn create_by_prompt(prompt: &str) -> anyhow::Result<Self> {
-        Ok(Text(
-            inquire::Text::new(prompt)
-                .with_validator(ValidatorNonEmpty {})
-                .prompt()?,
-        ))
+    fn create_by_prompt(prompt: &str, initial_value: Option<&Self>) -> anyhow::Result<Self> {
+        let mut prompt = inquire::Text::new(prompt).with_validator(ValidatorNonEmpty {});
+        if let Some(s) = initial_value {
+            prompt = prompt.with_initial_value(&s.0);
+        }
+        Ok(Text(prompt.prompt()?))
     }
 
-    fn create_by_prompt_skippable(prompt: &str) -> anyhow::Result<Option<Self>> {
-        match inquire::Text::new(prompt)
-            .with_validator(ValidatorNonEmpty {})
-            .prompt_skippable()?
-        {
+    fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+    ) -> anyhow::Result<Option<Self>> {
+        let mut prompt = inquire::Text::new(prompt).with_validator(ValidatorNonEmpty {});
+        if let Some(s) = initial_value {
+            prompt = prompt.with_initial_value(&s.0);
+        }
+        match prompt.prompt_skippable()? {
             Some(text) => Ok(Some(Text(text))),
             None => Ok(None),
         }

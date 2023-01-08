@@ -66,33 +66,44 @@ impl Updateable for Author {
     where
         Self: Queryable,
     {
-        let old = match Self::query_by_prompt(conn).await? {
-            Some(author) => author,
-            None => anyhow::bail!("No author selected"),
-        };
+        let old = Self::query_by_prompt(conn).await?;
 
         let name_first = match &old.name_first {
-            Some(name_first) => name_first.update_by_prompt_skippable_deleteable("Do you want to delete the authors first name?", "Change authors first name to:")?,
-            None => Text::create_by_prompt_skippable("What is the authors first name?")?,
+            Some(name_first) => name_first.update_by_prompt_skippable_deleteable(
+                "Do you want to delete the authors first name?",
+                "Change authors first name to:",
+            )?,
+            None => Text::create_by_prompt_skippable("What is the authors first name?", None)?,
         };
         let name_last = match &old.name_last {
-            Some(name_last) => name_last.update_by_prompt_skippable_deleteable("Do you want to delete the authors last name?", "Change authors last name to:")?,
-            None => Text::create_by_prompt_skippable("What is the authors last name?")?,
+            Some(name_last) => name_last.update_by_prompt_skippable_deleteable(
+                "Do you want to delete the authors last name?",
+                "Change authors last name to:",
+            )?,
+            None => Text::create_by_prompt_skippable("What is the authors last name?", None)?,
         };
         let date_born = match &old.date_born {
-            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
-                ts.update_by_prompt_skippable_deleteable("Delete date of birth?", "When was the author born?")?,
-            ),
+            OptionalTimestamp(Some(ts)) => {
+                OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
+                    "Delete date of birth?",
+                    "When was the author born?",
+                )?)
+            }
             OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
                 "When was the author born?",
+                None
             )?),
         };
         let date_died = match &old.date_died {
-            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
-                ts.update_by_prompt_skippable_deleteable("Delete date of death?", "When did the author die?")?,
-            ),
+            OptionalTimestamp(Some(ts)) => {
+                OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
+                    "Delete date of death?",
+                    "When did the author die?",
+                )?)
+            }
             OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
                 "When did the author die?",
+                None
             )?),
         };
 
@@ -170,25 +181,21 @@ impl CreateByPrompt for Author {
     async fn create_by_prompt(_conn: &sqlx::SqlitePool) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
         /* let name_first = inquire::Text::new("What is the authors first name?")
-            .prompt_skippable()?
-            .filter(|x| !x.is_empty()); */
-        let name_first = Text::create_by_prompt_skippable("What is the authors first name?")?;
-        let name_last = Text::create_by_prompt_skippable("What is the authors last name?")?;
+        .prompt_skippable()?
+        .filter(|x| !x.is_empty()); */
+        let name_first = Text::create_by_prompt_skippable("What is the authors first name?", None)?;
+        let name_last = Text::create_by_prompt_skippable("What is the authors last name?", None)?;
         /* let name_last = inquire::Text::new("What is the authors last name?")
-            .prompt_skippable()?
-            .filter(|x| !x.is_empty()); */
+        .prompt_skippable()?
+        .filter(|x| !x.is_empty()); */
         let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
             "When was the author born?",
+            None,
         )?);
         let date_died = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
             "When did the author die?",
+            None,
         )?);
-        if !inquire::Confirm::new("Add author?")
-            .with_default(true)
-            .prompt()?
-        {
-            anyhow::bail!("Aborted");
-        };
 
         Ok(Self {
             id,
