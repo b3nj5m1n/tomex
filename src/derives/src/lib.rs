@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput, Ident};
+use syn::{parse_macro_input, DeriveInput};
 
 // TODO possibly use [darling](https://lib.rs/crates/darling) to make these fields configurable
 #[proc_macro_derive(DbTable)]

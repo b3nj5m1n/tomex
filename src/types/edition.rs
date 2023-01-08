@@ -1,9 +1,6 @@
-use crate::{
-    traits::{CreateByPrompt, Insertable},
-    types::{
-        edition_review::EditionReview, language::Language, mood::Mood, pace::Pace,
-        progress::Progress, publisher::Publisher, timestamp::Timestamp,
-    },
+use crate::types::{
+    edition_review::EditionReview, language::Language, mood::Mood, pace::Pace, progress::Progress,
+    publisher::Publisher, timestamp::Timestamp,
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]

@@ -1,5 +1,3 @@
-use crate::traits::{CreateByPrompt, Insertable};
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Genre {
     Fantasy,

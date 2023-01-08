@@ -1,7 +1,7 @@
 use std::{env, process::exit};
 
 use anyhow::Result;
-use clap::parser::ValueSource;
+
 use dotenvy::{dotenv, var as envar};
 use reedline::Signal;
 use sqlx::{

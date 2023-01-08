@@ -1,4 +1,4 @@
-use clap::{ArgAction, Command};
+use clap::Command;
 
 pub fn arg_parser_types() -> Vec<Command> {
     vec![Command::new("book"), Command::new("author")]
@@ -15,7 +15,7 @@ pub fn arg_parser() -> Command {
                 .alias("a")
                 .alias("insert")
                 .subcommand_required(true)
-                .subcommands(arg_parser_types())
+                .subcommands(arg_parser_types()),
         )
         .subcommand(
             Command::new("edit")
@@ -23,7 +23,7 @@ pub fn arg_parser() -> Command {
                 .alias("e")
                 .alias("update")
                 .subcommand_required(true)
-                .subcommands(arg_parser_types())
+                .subcommands(arg_parser_types()),
         )
         .subcommand(
             Command::new("remove")
@@ -31,7 +31,7 @@ pub fn arg_parser() -> Command {
                 .alias("r")
                 .alias("delete")
                 .subcommand_required(true)
-                .subcommands(arg_parser_types())
+                .subcommands(arg_parser_types()),
         )
         .subcommand(
             Command::new("query")
@@ -66,7 +66,7 @@ pub fn arg_parser() -> Command {
                         .help("Get record by uuid"),
                 )
                 .subcommand_required(true)
-                .subcommands(arg_parser_types())
+                .subcommands(arg_parser_types()),
         )
 }
 

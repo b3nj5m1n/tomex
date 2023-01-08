@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+
 use derives::{DbTable, Queryable};
 use derives::{Id, Removeable};
 use std::fmt::Display;
@@ -112,7 +112,7 @@ impl CreateByPrompt for Book {
         let author = Author::query_or_create_by_prompt_skippable(conn).await?;
         let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
             "When was the book released?",
-            None
+            None,
         )?);
         Ok(Self {
             id,

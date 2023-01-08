@@ -1,7 +1,4 @@
-use crate::{
-    traits::{CreateByPrompt, Insertable},
-    types::{timestamp::Timestamp, uuid::Uuid},
-};
+use crate::types::timestamp::Timestamp;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Progress {

@@ -2,15 +2,12 @@ use std::fmt::Display;
 use std::fmt::Write;
 
 use anyhow::Result;
-use chrono::{DateTime, NaiveDateTime, NaiveTime, Utc};
+
 use derives::Id;
 use derives::Queryable;
 use derives::Removeable;
 use derives::{DbTable, CRUD};
-use sqlx::{
-    sqlite::{SqliteQueryResult, SqliteRow},
-    FromRow, Row,
-};
+use sqlx::{sqlite::SqliteQueryResult, FromRow};
 
 use crate::traits::QueryType;
 use crate::traits::Updateable;
@@ -91,7 +88,7 @@ impl Updateable for Author {
             }
             OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
                 "When was the author born?",
-                None
+                None,
             )?),
         };
         let date_died = match &old.date_died {
@@ -103,7 +100,7 @@ impl Updateable for Author {
             }
             OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
                 "When did the author die?",
-                None
+                None,
             )?),
         };
 

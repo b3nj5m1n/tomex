@@ -1,10 +1,7 @@
-use std::{fmt::Display, io::Write};
+use std::fmt::Display;
 
 use anyhow::Result;
-use sqlx::{
-    sqlite::{SqliteQueryResult, SqliteRow},
-    FromRow, Row,
-};
+use sqlx::{sqlite::SqliteQueryResult, FromRow};
 
 use crate::types::{option_to_create::OptionToCreate, uuid::Uuid};
 
@@ -18,7 +15,10 @@ where
     fn create_by_prompt(prompt: &str, _initial_value: Option<&Self>) -> Result<Self>;
 
     /// Prompts the user to create this type, can be skipped
-    fn create_by_prompt_skippable(prompt: &str, _initial_value: Option<&Self>) -> Result<Option<Self>>;
+    fn create_by_prompt_skippable(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+    ) -> Result<Option<Self>>;
 
     /// Prompts the user to update this type, the result will be the updated type
     fn update_by_prompt(&self, prompt: &str) -> anyhow::Result<Self>
@@ -31,7 +31,10 @@ where
     /// Prompts the user to update this type, can be skipped, if skipped, the result will be the old
     /// value
     fn update_by_prompt_skippable(&self, prompt: &str) -> anyhow::Result<Self> {
-        match Self::create_by_prompt_skippable(&format!("{} (Currently {})", prompt, self), Some(self))? {
+        match Self::create_by_prompt_skippable(
+            &format!("{} (Currently {})", prompt, self),
+            Some(self),
+        )? {
             Some(new) => Ok(new),
             None => Ok(self.clone()),
         }
