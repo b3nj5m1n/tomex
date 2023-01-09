@@ -11,7 +11,7 @@ use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use crate::traits::Removeable;
 use crate::traits::{Id, PromptType};
 use crate::{
-    traits::{CreateByPrompt, CreateTable, Names, DisplayTerminal, Insertable, Queryable},
+    traits::{CreateTable, Names, DisplayTerminal, Insertable, Queryable},
     types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
 };
 
@@ -102,30 +102,6 @@ impl DisplayTerminal for Book {
         Ok(())
     }
 }
-impl CreateByPrompt for Book {
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let title = Text::create_by_prompt("What is the title of the book?", None)?;
-        let author = Author::query_or_create_by_prompt_skippable(conn).await?;
-        let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-            "When was the book released?",
-            None,
-        )?);
-        Ok(Self {
-            id,
-            title,
-            author_id: author.map(|x| x.id),
-            release_date,
-            editions: vec![],
-            reviews: vec![],
-            genres: vec![],
-            deleted: false,
-        })
-    }
-}
 impl Insertable for Book {
     async fn insert(
         &self,
@@ -147,6 +123,28 @@ impl Insertable for Book {
         .bind(&self.deleted)
         .execute(conn)
         .await?)
+    }
+    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Sized,
+    {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let title = Text::create_by_prompt("What is the title of the book?", None)?;
+        let author = Author::query_or_create_by_prompt_skippable(conn).await?;
+        let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
+            "When was the book released?",
+            None,
+        )?);
+        Ok(Self {
+            id,
+            title,
+            author_id: author.map(|x| x.id),
+            release_date,
+            editions: vec![],
+            reviews: vec![],
+            genres: vec![],
+            deleted: false,
+        })
     }
 }
 impl FromRow<'_, SqliteRow> for Book {

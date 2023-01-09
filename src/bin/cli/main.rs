@@ -32,10 +32,10 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
     match matches.subcommand() {
         Some(("add", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                Book::create_by_prompt_insert(conn).await?;
+                Book::insert_by_prompt(conn).await?;
             }
             Some(("author", _matches)) => {
-                Author::create_by_prompt_insert(conn).await?;
+                Author::insert_by_prompt(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -45,17 +45,17 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
                 todo!()
             }
             Some(("author", _matches)) => {
-                Author::update_by_query(conn).await?;
+                Author::update_by_query_by_query(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
         Some(("remove", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                Book::remove_by_query(conn).await?;
+                Book::remove_by_prompt(conn).await?;
             }
             Some(("author", _matches)) => {
-                Author::remove_by_query(conn).await?;
+                Author::remove_by_prompt(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),

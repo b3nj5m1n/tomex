@@ -13,7 +13,7 @@ use crate::traits::PromptType;
 use crate::traits::Updateable;
 use crate::{
     traits::{
-        CreateByPrompt, CreateTable, DisplayTerminal, Id, Insertable, Names, Queryable, Removeable,
+        CreateTable, DisplayTerminal, Id, Insertable, Names, Queryable, Removeable,
         CRUD,
     },
     types::{timestamp::Timestamp, uuid::Uuid},
@@ -57,27 +57,25 @@ impl Updateable for Author {
         .await?)
     }
 
-    async fn update_by_query(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
+    async fn update_by_query(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
         Self: Queryable,
     {
-        let old = Self::query_by_prompt(conn).await?;
-
-        let name_first = match &old.name_first {
+        let name_first = match &self.name_first {
             Some(name_first) => name_first.update_by_prompt_skippable_deleteable(
                 "Do you want to delete the authors first name?",
                 "Change authors first name to:",
             )?,
             None => Text::create_by_prompt_skippable("What is the authors first name?", None)?,
         };
-        let name_last = match &old.name_last {
+        let name_last = match &self.name_last {
             Some(name_last) => name_last.update_by_prompt_skippable_deleteable(
                 "Do you want to delete the authors last name?",
                 "Change authors last name to:",
             )?,
             None => Text::create_by_prompt_skippable("What is the authors last name?", None)?,
         };
-        let date_born = match &old.date_born {
+        let date_born = match &self.date_born {
             OptionalTimestamp(Some(ts)) => {
                 OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
                     "Delete date of birth?",
@@ -89,7 +87,7 @@ impl Updateable for Author {
                 None,
             )?),
         };
-        let date_died = match &old.date_died {
+        let date_died = match &self.date_died {
             OptionalTimestamp(Some(ts)) => {
                 OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
                     "Delete date of death?",
@@ -115,9 +113,9 @@ impl Updateable for Author {
             name_last,
             date_born,
             date_died,
-            deleted: old.deleted,
+            deleted: self.deleted,
         };
-        Self::update(&old, conn, new).await
+        Self::update(&self, conn, new).await
     }
 }
 impl CreateTable for Author {
@@ -172,17 +170,27 @@ impl DisplayTerminal for Author {
         Ok(())
     }
 }
-impl CreateByPrompt for Author {
+impl Insertable for Author {
+    async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult> {
+        Ok(sqlx::query(
+            r#"
+                    INSERT INTO authors ( id, name_first, name_last, date_born, date_died, deleted )
+                    VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 )
+                    "#,
+        )
+        .bind(&self.id)
+        .bind(&self.name_first)
+        .bind(&self.name_last)
+        .bind(&self.date_born)
+        .bind(&self.date_died)
+        .bind(&self.deleted)
+        .execute(conn)
+        .await?)
+    }
     async fn create_by_prompt(_conn: &sqlx::SqlitePool) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
-        /* let name_first = inquire::Text::new("What is the authors first name?")
-        .prompt_skippable()?
-        .filter(|x| !x.is_empty()); */
         let name_first = Text::create_by_prompt_skippable("What is the authors first name?", None)?;
         let name_last = Text::create_by_prompt_skippable("What is the authors last name?", None)?;
-        /* let name_last = inquire::Text::new("What is the authors last name?")
-        .prompt_skippable()?
-        .filter(|x| !x.is_empty()); */
         let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
             "When was the author born?",
             None,
@@ -200,23 +208,5 @@ impl CreateByPrompt for Author {
             date_died,
             deleted: false,
         })
-    }
-}
-impl Insertable for Author {
-    async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult> {
-        Ok(sqlx::query(
-            r#"
-                    INSERT INTO authors ( id, name_first, name_last, date_born, date_died, deleted )
-                    VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 )
-                    "#,
-        )
-        .bind(&self.id)
-        .bind(&self.name_first)
-        .bind(&self.name_last)
-        .bind(&self.date_born)
-        .bind(&self.date_died)
-        .bind(&self.deleted)
-        .execute(conn)
-        .await?)
     }
 }
