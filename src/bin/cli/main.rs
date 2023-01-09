@@ -39,10 +39,10 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
         },
         Some(("edit", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                todo!()
+                Book::update_by_prompt_by_prompt(conn).await?;
             }
             Some(("author", _matches)) => {
-                Author::update_by_query_by_query(conn).await?;
+                Author::update_by_prompt_by_prompt(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),

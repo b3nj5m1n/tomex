@@ -147,6 +147,67 @@ impl Insertable for Book {
         })
     }
 }
+impl Updateable for Book {
+    async fn update(
+        &self,
+        conn: &sqlx::SqlitePool,
+        new: Self,
+    ) -> Result<sqlx::sqlite::SqliteQueryResult> {
+        Ok(sqlx::query(&format!(
+            r#"
+            UPDATE {}
+            SET 
+                title = ?2,
+                author = ?3,
+                release_date = ?4,
+                deleted = ?5
+            WHERE
+                id = ?1;
+            "#,
+            Self::TABLE_NAME
+        ))
+        .bind(&self.id)
+        .bind(&new.title)
+        .bind(&new.author_id)
+        .bind(&new.release_date)
+        .bind(&new.deleted)
+        .execute(conn)
+        .await?)
+    }
+
+    async fn update_by_prompt(
+        &self,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<sqlx::sqlite::SqliteQueryResult>
+    where
+        Self: Queryable,
+    {
+        let title = self.title.update_by_prompt_skippable("Change title to:")?;
+        let release_date = match &self.release_date {
+            OptionalTimestamp(Some(ts)) => {
+                OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
+                    "Delete release date?",
+                    "When was the book released?",
+                )?)
+            }
+            OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
+                "When was the book released?",
+                None,
+            )?),
+        };
+        let new = Self {
+            id: Uuid(uuid::Uuid::nil()),
+            title,
+            author_id: self.author_id.clone(), // TODO
+            release_date,
+            editions: self.editions.clone(),
+            reviews: self.reviews.clone(),
+            genres: self.genres.clone(),
+            deleted: self.deleted,
+        };
+        Self::update(&self, conn, new).await
+    }
+}
 
 impl FromRow<'_, SqliteRow> for Book {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {

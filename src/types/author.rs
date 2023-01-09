@@ -142,7 +142,7 @@ impl Updateable for Author {
         .await?)
     }
 
-    async fn update_by_query(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
+    async fn update_by_prompt(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
         Self: Queryable,
     {
