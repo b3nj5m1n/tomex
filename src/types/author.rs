@@ -140,15 +140,15 @@ impl CreateTable for Author {
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match (&self.name_first, &self.name_last) {
-            (None, None) => write!(f, "{}", self.id.0),
+            (None, None) => write!(f, "{}", self.id),
             (None, Some(name_last)) => {
-                write!(f, "{}, (First name unknown) ({})", name_last, self.id.0)
+                write!(f, "{}, (First name unknown) ({})", name_last, self.id)
             }
             (Some(name_first), None) => {
-                write!(f, "(Last name unknown), {} ({})", name_first, self.id.0)
+                write!(f, "(Last name unknown), {} ({})", name_first, self.id)
             }
             (Some(name_first), Some(name_last)) => {
-                write!(f, "{}, {} ({})", name_last, name_first, self.id.0)
+                write!(f, "{}, {} ({})", name_last, name_first, self.id)
             }
         }
     }
@@ -156,15 +156,15 @@ impl Display for Author {
 impl DisplayTerminal for Author {
     async fn fmt(&self, f: &mut String, _conn: &sqlx::SqlitePool) -> Result<()> {
         match (&self.name_first, &self.name_last) {
-            (None, None) => write!(f, "{}", self.id.0)?,
+            (None, None) => write!(f, "{}", self.id)?,
             (None, Some(name_last)) => {
-                write!(f, "{}, (First name unknown) ({})", name_last, self.id.0)?
+                write!(f, "{}, (First name unknown) ({})", name_last, self.id)?
             }
             (Some(name_first), None) => {
-                write!(f, "(Last name unknown), {} ({})", name_first, self.id.0)?
+                write!(f, "(Last name unknown), {} ({})", name_first, self.id)?
             }
             (Some(name_first), Some(name_last)) => {
-                write!(f, "{}, {} ({})", name_last, name_first, self.id.0)?
+                write!(f, "{}, {} ({})", name_last, name_first, self.id)?
             }
         }
         Ok(())

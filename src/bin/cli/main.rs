@@ -1,14 +1,12 @@
-use std::{env, process::exit};
-
 use anyhow::Result;
-
+use crossterm::style::Stylize;
 use dotenvy::{dotenv, var as envar};
 use reedline::Signal;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
     Pool, SqlitePool,
 };
-// use uuid::Uuid;
+use std::{env, process::exit};
 
 mod command_parser;
 mod prompt;
