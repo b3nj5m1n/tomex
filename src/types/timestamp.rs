@@ -1,3 +1,4 @@
+use crossterm::style::Stylize;
 use std::fmt::Display;
 
 use crate::traits::PromptType;
@@ -7,7 +8,15 @@ pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
 
 impl Display for Timestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        use chrono_humanize::{Accuracy, HumanTime, Tense};
+        let ht = HumanTime::from(self.0);
+        let s = format!("{}", ht.to_text_en(Accuracy::Rough, Tense::Past));
+        let s = s.with(crossterm::style::Color::Rgb {
+            r: 138,
+            g: 173,
+            b: 244,
+        });
+        write!(f, "{}", s)
     }
 }
 
@@ -21,7 +30,13 @@ impl Display for OptionalTimestamp {
             "{}",
             &match &self.0 {
                 Some(ts) => ts.0.to_string(),
-                None => "Not specified".to_string(),
+                None => "Not specified"
+                    .with(crossterm::style::Color::Rgb {
+                        r: 110,
+                        g: 115,
+                        b: 141,
+                    })
+                    .to_string(),
             }
         )
     }
@@ -45,7 +60,7 @@ impl PromptType for Timestamp {
         Ok(Timestamp(chrono::DateTime::from_utc(
             chrono::NaiveDateTime::new(
                 prompt.prompt()?,
-                chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
+                chrono::NaiveTime::from_hms_opt(12, 0, 0).unwrap(),
             ),
             chrono::Utc,
         )))

@@ -15,6 +15,7 @@ strip = true
 [dependencies]
 anyhow = "1.0.68"
 chrono = "0.4.23"
+chrono-humanize = "0.2.2"
 clap = "4.0.32"
 crossterm = "0.25.0"
 derive_builder = "0.12.0"

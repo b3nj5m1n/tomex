@@ -74,7 +74,7 @@ impl DisplayTerminal for Book {
             write!(f, " ")?; // TODO see above
         }
         if let Some(release_date) = &self.release_date.0 {
-            write!(f, "[released by {}]", release_date.0)?;
+            write!(f, "[released {}]", release_date)?;
             write!(f, " ")?; // TODO see above
         }
         write!(f, "({})", self.id)?;
