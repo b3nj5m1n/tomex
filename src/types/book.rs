@@ -1,23 +1,21 @@
 use anyhow::Result;
-
-use derives::{Names, Queryable};
-use derives::{Id, Removeable};
-use std::fmt::Display;
-use std::fmt::Write;
-
 use derive_builder::Builder;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
+use std::fmt::{Display, Write};
 
-use crate::traits::Removeable;
-use crate::traits::{Id, PromptType};
 use crate::{
-    traits::{CreateTable, Names, DisplayTerminal, Insertable, Queryable},
-    types::{edition::Edition, genre::Genre, review::Review, timestamp::Timestamp, uuid::Uuid},
+    traits::*,
+    types::{
+        author::Author,
+        edition::Edition,
+        genre::Genre,
+        review::Review,
+        text::Text,
+        timestamp::{OptionalTimestamp, Timestamp},
+        uuid::Uuid,
+    },
 };
-
-use super::author::Author;
-use super::text::Text;
-use super::timestamp::OptionalTimestamp;
+use derives::*;
 
 #[derive(Default, Builder, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable)]
 #[builder(setter(into))]
@@ -50,25 +48,6 @@ impl Book {
     }
 }
 
-impl CreateTable for Book {
-    async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
-        sqlx::query(&format!(
-            r#"
-            CREATE TABLE IF NOT EXISTS {} (
-                id TEXT PRIMARY KEY NOT NULL,
-                title TEXT NOT NULL,
-                author TEXT,
-                release_date INTEGER,
-                deleted BOOL DEFAULT FALSE,
-                FOREIGN KEY (author) REFERENCES authors (id)
-            );"#,
-            Self::TABLE_NAME
-        ))
-        .execute(conn)
-        .await?;
-        Ok(())
-    }
-}
 impl Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.release_date.0 {
@@ -102,6 +81,27 @@ impl DisplayTerminal for Book {
         Ok(())
     }
 }
+
+impl CreateTable for Book {
+    async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            CREATE TABLE IF NOT EXISTS {} (
+                id TEXT PRIMARY KEY NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT,
+                release_date INTEGER,
+                deleted BOOL DEFAULT FALSE,
+                FOREIGN KEY (author) REFERENCES authors (id)
+            );"#,
+            Self::TABLE_NAME
+        ))
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+}
+
 impl Insertable for Book {
     async fn insert(
         &self,
@@ -147,6 +147,7 @@ impl Insertable for Book {
         })
     }
 }
+
 impl FromRow<'_, SqliteRow> for Book {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         Ok(Self {

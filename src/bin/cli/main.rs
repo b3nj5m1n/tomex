@@ -1,5 +1,4 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use dotenvy::{dotenv, var as envar};
 use reedline::Signal;
 use sqlx::{

@@ -308,7 +308,10 @@ where
     where
         Self: Queryable,
     {
-        Self::query_by_prompt(conn).await?.update_by_query(conn).await
+        Self::query_by_prompt(conn)
+            .await?
+            .update_by_query(conn)
+            .await
     }
     // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
 }

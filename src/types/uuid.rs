@@ -1,14 +1,17 @@
-use std::fmt::Display;
 use crossterm::style::Stylize;
+use std::fmt::Display;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Uuid(pub uuid::Uuid);
 
-
 impl Display for Uuid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = format!("{}", self.0);
-        let s = s.with(crossterm::style::Color::Rgb { r: 110, g: 115, b: 141 });
+        let s = s.with(crossterm::style::Color::Rgb {
+            r: 110,
+            g: 115,
+            b: 141,
+        });
         write!(f, "{}", s)
     }
 }
