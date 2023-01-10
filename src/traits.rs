@@ -100,8 +100,29 @@ pub trait CreateTable
 where
     Self: Sized,
     Self: Names,
+    Self: Insertable,
 {
-    /// Creates the table (if it doesn't already exist)
+    /// Check if the table currently exists
+    async fn table_exists(conn: &sqlx::SqlitePool) -> Result<bool> {
+        Ok(sqlx::query(&format!(
+            r#"
+            SELECT name FROM sqlite_master WHERE type='table' AND name='{}';
+            "#,
+            Self::TABLE_NAME
+        ))
+        .fetch_all(conn)
+        .await?
+        .len()
+            != 0)
+    }
+    /// Initialise table, i.e. create and potentially insert data if the table doesn't already exist
+    async fn init_table(conn: &sqlx::SqlitePool) -> Result<()> {
+        if !Self::table_exists(conn).await? {
+            return Self::create_table(conn).await;
+        }
+        Ok(())
+    }
+    /// Create the table and potentially insert data (like default genre names) (will insert duplicate data if the table already exists)
     async fn create_table(conn: &sqlx::SqlitePool) -> Result<()>;
 }
 

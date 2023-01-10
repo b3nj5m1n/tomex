@@ -1,7 +1,11 @@
 use clap::Command;
 
 pub fn arg_parser_types() -> Vec<Command> {
-    vec![Command::new("book"), Command::new("author")]
+    vec![
+        Command::new("book"),
+        Command::new("author"),
+        Command::new("genre"),
+    ]
 }
 
 pub fn arg_parser() -> Command {

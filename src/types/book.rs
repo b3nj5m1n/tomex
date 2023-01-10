@@ -17,7 +17,7 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable)]
+#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
 #[builder(setter(into))]
 pub struct Book {
     pub id: Uuid,
@@ -26,12 +26,12 @@ pub struct Book {
     pub author_id: Option<Uuid>,
     #[builder(setter(into, strip_option), default = "OptionalTimestamp(None)")]
     pub release_date: OptionalTimestamp,
-    #[builder(default = "vec![]")]
-    pub editions: Vec<Edition>,
-    #[builder(default = "vec![]")]
-    pub reviews: Vec<Review>,
-    #[builder(default = "vec![]")]
-    pub genres: Vec<Genre>,
+    #[builder(default = "None")]
+    pub editions: Option<Vec<Edition>>,
+    #[builder(default = "None")]
+    pub reviews: Option<Vec<Review>>,
+    #[builder(default = "None")]
+    pub genres: Option<Vec<Genre>>,
     #[builder(default = "false")]
     pub deleted: bool,
 }
@@ -51,12 +51,12 @@ impl Book {
 impl Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.release_date.0 {
-            None => write!(f, "{} ({})", self.title, self.id.0),
+            None => write!(f, "{} ({})", self.title, self.id),
             Some(release_date) => {
                 write!(
                     f,
                     "{}, released {} ({})",
-                    self.title, release_date.0, self.id.0
+                    self.title, release_date.0, self.id
                 )
             }
         }
@@ -140,9 +140,9 @@ impl Insertable for Book {
             title,
             author_id: author.map(|x| x.id),
             release_date,
-            editions: vec![],
-            reviews: vec![],
-            genres: vec![],
+            editions: None, // TODO
+            reviews: None,  // TODO
+            genres: None,   // TODO
             deleted: false,
         })
     }
@@ -216,9 +216,9 @@ impl FromRow<'_, SqliteRow> for Book {
             title: row.try_get("title")?,
             author_id: row.try_get("author")?,
             release_date: row.try_get("release_date")?,
-            editions: vec![], // TODO
-            reviews: vec![],
-            genres: vec![],
+            editions: None, // TODO
+            reviews: None,
+            genres: None,
             deleted: row.try_get("deleted")?,
         })
     }

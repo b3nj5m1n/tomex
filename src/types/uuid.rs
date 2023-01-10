@@ -7,6 +7,7 @@ pub struct Uuid(pub uuid::Uuid);
 impl Display for Uuid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = format!("{}", self.0);
+        let s = s.chars().take(8).collect::<String>();
         let s = s.with(crossterm::style::Color::Rgb {
             r: 110,
             g: 115,

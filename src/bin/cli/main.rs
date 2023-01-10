@@ -11,7 +11,7 @@ mod command_parser;
 mod prompt;
 mod repl;
 
-use bokhylle::types::author::Author;
+use bokhylle::types::{author::Author, genre::Genre};
 use bokhylle::{traits::*, types::book::Book};
 
 async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
@@ -34,6 +34,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("author", _matches)) => {
                 Author::insert_by_prompt(conn).await?;
             }
+            Some(("genre", _matches)) => {
+                Genre::insert_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
@@ -43,6 +46,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("author", _matches)) => {
                 Author::update_by_prompt_by_prompt(conn).await?;
+            }
+            Some(("genre", _matches)) => {
+                Genre::update_by_prompt_by_prompt(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -54,6 +60,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("author", _matches)) => {
                 Author::remove_by_prompt(conn).await?;
             }
+            Some(("genre", _matches)) => {
+                Genre::remove_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
@@ -63,6 +72,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("author", _matches)) => {
                 Author::query_by_clap(conn, _matches).await?;
+            }
+            Some(("genre", _matches)) => {
+                Genre::query_by_clap(conn, _matches).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -100,7 +112,11 @@ async fn connect_to_db(db_url: Option<String>) -> Result<SqlitePool> {
 }
 
 async fn create_tables(conn: &SqlitePool) -> Result<()> {
-    tokio::try_join!(Author::create_table(conn), Book::create_table(conn))?;
+    tokio::try_join!(
+        Author::init_table(conn),
+        Book::init_table(conn),
+        Genre::init_table(conn)
+    )?;
     Ok(())
 }
 
