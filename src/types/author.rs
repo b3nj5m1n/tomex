@@ -97,21 +97,21 @@ impl Insertable for Author {
         let id = Uuid(uuid::Uuid::new_v4());
         let name_first = Text::create_by_prompt_skippable("What is the authors first name?", None)?;
         let name_last = Text::create_by_prompt_skippable("What is the authors last name?", None)?;
-        let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-            "When was the author born?",
-            None,
-        )?);
-        let date_died = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-            "When did the author die?",
-            None,
-        )?);
+        // let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
+        //     "When was the author born?",
+        //     None,
+        // )?);
+        // let date_died = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
+        //     "When did the author die?",
+        //     None,
+        // )?);
 
         Ok(Self {
             id,
             name_first,
             name_last,
-            date_born,
-            date_died,
+            date_born: OptionalTimestamp(None),
+            date_died: OptionalTimestamp(None),
             deleted: false,
         })
     }

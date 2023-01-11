@@ -283,9 +283,17 @@ where
 {
     /// Format self to the provided string buffer
     async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()>;
-    /// Format self and return the result as a string
-    async fn fmt_to_string(&self, conn: &sqlx::SqlitePool) -> Result<String> {
-        let mut buf = String::new();
+    /// Format self and return the result as a string, provide optional string as prefix
+    async fn fmt_to_string(
+        &self,
+        conn: &sqlx::SqlitePool,
+        prefix: Option<impl ToString>,
+    ) -> Result<String> {
+        let mut buf = if let Some(s) = prefix {
+            s.to_string()
+        } else {
+            String::new()
+        };
         self.fmt(&mut buf, conn).await?;
         Ok(buf)
     }
@@ -462,7 +470,10 @@ where
         if let Some(clap::parser::ValueSource::CommandLine) = matches.value_source("interactive") {
             match Self::query_by_prompt_skippable(conn).await? {
                 Some(x) => {
-                    println!("{}", DisplayTerminal::fmt_to_string(&x, conn).await?)
+                    println!(
+                        "{}",
+                        DisplayTerminal::fmt_to_string(&x, conn, Some(" ")).await?
+                    )
                 }
                 None => println!("No {} selected.", Self::NAME_SINGULAR),
             }
@@ -476,7 +487,8 @@ where
                             "{}",
                             DisplayTerminal::fmt_to_string(
                                 &Self::get_by_id(conn, &uuid).await?,
-                                conn
+                                conn,
+                                Some(" ")
                             )
                             .await?
                         );
@@ -500,7 +512,10 @@ where
             );
             let xs = Self::get_all(conn).await?;
             for x in xs {
-                println!("{}", DisplayTerminal::fmt_to_string(&x, conn).await?);
+                println!(
+                    "{}",
+                    DisplayTerminal::fmt_to_string(&x, conn, Some(" • ")).await?
+                );
             }
         }
         Ok(())

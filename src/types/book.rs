@@ -1,4 +1,5 @@
 use anyhow::Result;
+use crossterm::style::Stylize;
 use derive_builder::Builder;
 use inquire::MultiSelect;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
@@ -81,21 +82,32 @@ impl DisplayTerminal for Book {
     async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
-        write!(f, "{}", s.title)?;
+        let title = format!("{}", self.title);
+        let title = title
+            .with(crossterm::style::Color::Rgb {
+                r: 245,
+                g: 169,
+                b: 127,
+            })
+            .bold();
+        write!(f, "{}", title)?;
         write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
         if let Some(author) = Book::author(&s, conn).await? {
-            write!(f, "[written by",)?;
+            let str = "written by".italic();
+            write!(f, "[{}", str)?;
             write!(f, " ")?; // TODO see above
             DisplayTerminal::fmt(&author, f, conn).await?;
             write!(f, "]",)?;
             write!(f, " ")?; // TODO see above
         }
         if let Some(release_date) = &s.release_date.0 {
-            write!(f, "[released {}]", release_date)?;
+            let str = "released".italic();
+            write!(f, "[{} {}]", str, release_date)?;
             write!(f, " ")?; // TODO see above
         }
         if let Some(genres) = s.genres {
-            write!(f, "[genres: ",)?;
+            let str = "genres".italic();
+            write!(f, "[{}: ", str)?;
             write!(
                 f,
                 "{}",
@@ -170,18 +182,25 @@ impl Insertable for Book {
         let id = Uuid(uuid::Uuid::new_v4());
         let title = Text::create_by_prompt("What is the title of the book?", None)?;
         let author = Author::query_or_create_by_prompt_skippable(conn).await?;
-        let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-            "When was the book released?",
-            None,
-        )?);
+        // let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
+        //     "When was the book released?",
+        //     None,
+        // )?);
         let all_genres = Genre::get_all(conn).await?;
-        let genres = MultiSelect::new("Select genres for this book:", all_genres).prompt()?;
-        let genres = if genres.len() > 0 { Some(genres) } else { None };
+        let mut genres =
+            MultiSelect::new("Select genres for this book:", all_genres).prompt_skippable()?;
+        if let Some(genres_) = genres {
+            genres = if genres_.len() > 0 {
+                Some(genres_)
+            } else {
+                None
+            };
+        }
         Ok(Self {
             id,
             title,
             author_id: author.map(|x| x.id),
-            release_date,
+            release_date: OptionalTimestamp(None),
             editions: None, // TODO
             reviews: None,  // TODO
             genres,
@@ -251,10 +270,16 @@ impl Updateable for Book {
         } else {
             vec![]
         };
-        let genres = MultiSelect::new("Select genres for this book:", all_genres)
+        let mut genres = MultiSelect::new("Select genres for this book:", all_genres)
             .with_default(&indicies_selected)
-            .prompt()?;
-        let genres = if genres.len() > 0 { Some(genres) } else { None };
+            .prompt_skippable()?;
+        if let Some(genres_) = genres {
+            genres = if genres_.len() > 0 {
+                Some(genres_)
+            } else {
+                None
+            };
+        }
         let new = Self {
             id: self.id.clone(),
             title,
