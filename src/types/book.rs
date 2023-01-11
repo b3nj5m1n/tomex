@@ -53,11 +53,12 @@ impl Book {
         self.hydrate_genres(conn).await?;
         Ok(())
     }
-    pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Vec<Genre>> {
-        BookGenre::get_all_for_a(conn, self).await
+    pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Genre>>> {
+        let result = BookGenre::get_all_for_a(conn, self).await?;
+        Ok(if result.len() > 0 { Some(result) } else { None })
     }
     pub async fn hydrate_genres(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
-        self.genres = Some(self.get_genres(conn).await?);
+        self.genres = self.get_genres(conn).await?;
         Ok(())
     }
 }
@@ -78,21 +79,22 @@ impl Display for Book {
 }
 impl DisplayTerminal for Book {
     async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
-        write!(f, "{}", self.title)?;
+        let mut s = self.clone();
+        s.hydrate(conn).await?;
+        write!(f, "{}", s.title)?;
         write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
-        if let Some(author) = Book::author(&self, conn).await? {
+        if let Some(author) = Book::author(&s, conn).await? {
             write!(f, "[written by",)?;
             write!(f, " ")?; // TODO see above
             DisplayTerminal::fmt(&author, f, conn).await?;
             write!(f, "]",)?;
             write!(f, " ")?; // TODO see above
         }
-        if let Some(release_date) = &self.release_date.0 {
+        if let Some(release_date) = &s.release_date.0 {
             write!(f, "[released {}]", release_date)?;
             write!(f, " ")?; // TODO see above
         }
-        let genres = self.get_genres(conn).await?;
-        if genres.len() > 0 {
+        if let Some(genres) = s.genres {
             write!(f, "[genres: ",)?;
             write!(
                 f,
@@ -106,7 +108,7 @@ impl DisplayTerminal for Book {
             write!(f, "]",)?;
             write!(f, " ")?;
         }
-        write!(f, "({})", self.id)?;
+        write!(f, "({})", s.id)?;
         Ok(())
     }
 }
@@ -194,38 +196,7 @@ impl Updateable for Book {
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
         self.hydrate(conn).await?;
-        // There are no genres in new, remove all existing genre links
-        if let None = new.genres {
-            let existing = BookGenre::get_all_for_a(conn, self).await?;
-            for x in existing {
-                BookGenre::remove(conn, self, &x).await?;
-            }
-        }
-        // There were no genres in old, simply add all new ones
-        else if let None = self.genres {
-            if let Some(genres) = &new.genres {
-                for genre in genres {
-                    BookGenre::insert(conn, &new, genre).await?;
-                }
-            }
-        }
-        // Merge old and new genres
-        else {
-            let genres_old = self.get_genres(conn).await?;
-            let genres_new = self.genres.clone().expect("Unreachable");
-            for genre in &genres_new {
-                // If the genre didn't exist before, add it
-                if !genres_old.contains(&genre) {
-                    BookGenre::insert(conn, &new, genre).await?;
-                }
-            }
-            for genre in &genres_old {
-                // If the genre isn't in new, remove it
-                if !genres_new.contains(&genre) {
-                    BookGenre::remove(conn, &new, genre).await?;
-                }
-            }
-        }
+        BookGenre::update(conn, self, &self.genres, &new.genres).await?;
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -270,12 +241,16 @@ impl Updateable for Book {
         };
         let all_genres = Genre::get_all(conn).await?;
         let current_genres = self.get_genres(conn).await?;
-        let indicies_selected = all_genres
-            .iter()
-            .enumerate()
-            .filter(|(_, genre)| current_genres.contains(genre))
-            .map(|(i, _)| i)
-            .collect::<Vec<usize>>();
+        let indicies_selected = if let Some(current_genres) = current_genres {
+            all_genres
+                .iter()
+                .enumerate()
+                .filter(|(_, genre)| current_genres.contains(genre))
+                .map(|(i, _)| i)
+                .collect::<Vec<usize>>()
+        } else {
+            vec![]
+        };
         let genres = MultiSelect::new("Select genres for this book:", all_genres)
             .with_default(&indicies_selected)
             .prompt()?;

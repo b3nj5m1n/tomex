@@ -11,14 +11,20 @@ use crate::types::{option_to_create::OptionToCreate, uuid::Uuid};
 /// A trait which corresponds to a junction table between two other types in the database
 pub trait JunctionTable<A, B>
 where
-    A: CRUD,
-    B: CRUD,
+    A: CRUD + Eq,
+    B: CRUD + Eq,
+    Self: Sized + Send + Unpin,
+    Self: for<'r> FromRow<'r, SqliteRow>,
 {
+    /// The name of the junction table in the database
     const TABLE_NAME: &'static str;
 
+    /// Should return the Uuid of the first element
     async fn get_id_a(&self) -> &Uuid;
+    /// Should return the Uuid of the second element
     async fn get_id_b(&self) -> &Uuid;
 
+    /// Create the junction table
     async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
         sqlx::query(&format!(
             r#"
@@ -42,6 +48,7 @@ where
         Ok(())
     }
 
+    /// Insert a new link between `a` and `b`
     async fn insert(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<()> {
         sqlx::query(&format!(
             r#"
@@ -61,6 +68,7 @@ where
         Ok(())
     }
 
+    /// Remove the link between `a` and `b`
     async fn remove(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<()> {
         sqlx::query(&format!(
             r#"
@@ -81,11 +89,8 @@ where
         Ok(())
     }
 
-    async fn get_all_for_a(conn: &sqlx::SqlitePool, a: &A) -> Result<Vec<B>>
-    where
-        Self: Sized + Send + Unpin,
-        Self: for<'r> FromRow<'r, SqliteRow>,
-    {
+    /// Get all B's that `a` is linked with
+    async fn get_all_for_a(conn: &sqlx::SqlitePool, a: &A) -> Result<Vec<B>> {
         let results = sqlx::query_as::<_, Self>(&format!(
             r#"
             SELECT * FROM {table_name_self}
@@ -106,6 +111,7 @@ where
 
         Ok(b_s)
     }
+    /// Get all A's that `b` is linked with
     async fn get_all_for_b(conn: &sqlx::SqlitePool, b: &B) -> Result<Vec<A>>
     where
         Self: Sized + Send + Unpin,
@@ -132,11 +138,8 @@ where
         Ok(a_s)
     }
 
-    async fn exists(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<bool>
-    where
-        Self: Sized + Send + Unpin,
-        Self: for<'r> FromRow<'r, SqliteRow>,
-    {
+    /// Check if a link between `a` and `b` exists
+    async fn exists(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<bool> {
         Ok(sqlx::query_as::<_, Self>(&format!(
             r#"
             SELECT 1 FROM {table_name_self}
@@ -153,6 +156,48 @@ where
         .fetch_optional(conn)
         .await?
         .is_some())
+    }
+
+    /// Given an element `a`, update all links from old to new, removing links that no longer exist and adding new ones
+    async fn update(
+        conn: &sqlx::SqlitePool,
+        a: &A,
+        old: &Option<Vec<B>>,
+        new: &Option<Vec<B>>,
+    ) -> Result<()> {
+        // There are no B's in new, remove all existing a <-> B links
+        if let None = new {
+            let existing = Self::get_all_for_a(conn, a).await?;
+            for x in existing {
+                Self::remove(conn, a, &x).await?;
+            }
+        }
+        // There were no B's in old, simply add all new ones
+        else if let None = old {
+            if let Some(b_s) = new {
+                for b in b_s {
+                    Self::insert(conn, a, b).await?;
+                }
+            }
+        }
+        // Merge old and new B's
+        else {
+            let old = old.as_ref().expect("Unreachable");
+            let new = new.as_ref().expect("Unreachable");
+            for b in new {
+                // If the B didn't exist before, add it
+                if !old.contains(b) {
+                    Self::insert(conn, a, b).await?;
+                }
+            }
+            for b in old {
+                // If the B isn't in new, remove it
+                if !new.contains(b) {
+                    Self::remove(conn, a, b).await?;
+                }
+            }
+        }
+        Ok(())
     }
 }
 
@@ -372,7 +417,7 @@ where
         )
         .prompt()?)
     }
-    /// Like [query_by_prompt] or create and insert a new record
+    /// Like `query_by_prompt` or create and insert a new record
     async fn query_or_create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self>
     where
         Self: Insertable,
@@ -385,7 +430,7 @@ where
             OptionToCreate::Create => Self::create_by_prompt(conn).await,
         }
     }
-    /// Like [query_by_prompt] but can be skipped
+    /// Like `query_by_prompt` but can be skipped
     async fn query_by_prompt_skippable(conn: &sqlx::SqlitePool) -> Result<Option<Self>> {
         Ok(inquire::Select::new(
             &format!("Select {}:", Self::NAME_SINGULAR),
@@ -393,7 +438,7 @@ where
         )
         .prompt_skippable()?)
     }
-    /// Like [query_or_create_by_prompt] but can be skipped
+    /// Like `query_or_create_by_prompt` but can be skipped
     async fn query_or_create_by_prompt_skippable(conn: &sqlx::SqlitePool) -> Result<Option<Self>>
     where
         Self: Insertable,
