@@ -174,6 +174,7 @@ impl Insertable for Book {
         )?);
         let all_genres = Genre::get_all(conn).await?;
         let genres = MultiSelect::new("Select genres for this book:", all_genres).prompt()?;
+        let genres = if genres.len() > 0 { Some(genres) } else { None };
         Ok(Self {
             id,
             title,
@@ -181,7 +182,7 @@ impl Insertable for Book {
             release_date,
             editions: None, // TODO
             reviews: None,  // TODO
-            genres: Some(genres),
+            genres,
             deleted: false,
         })
     }
@@ -278,6 +279,7 @@ impl Updateable for Book {
         let genres = MultiSelect::new("Select genres for this book:", all_genres)
             .with_default(&indicies_selected)
             .prompt()?;
+        let genres = if genres.len() > 0 { Some(genres) } else { None };
         let new = Self {
             id: self.id.clone(),
             title,
@@ -285,7 +287,7 @@ impl Updateable for Book {
             release_date,
             editions: self.editions.clone(),
             reviews: self.reviews.clone(),
-            genres: Some(genres),
+            genres,
             deleted: self.deleted,
         };
         Self::update(self, conn, new).await
