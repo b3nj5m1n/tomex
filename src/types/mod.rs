@@ -14,3 +14,6 @@ pub mod pace;
 pub mod progress;
 pub mod publisher;
 pub mod review;
+
+// Junction tables
+pub mod book_genre;

@@ -1,5 +1,6 @@
 use anyhow::Result;
 use derive_builder::Builder;
+use inquire::MultiSelect;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
@@ -16,6 +17,8 @@ use crate::{
     },
 };
 use derives::*;
+
+use super::book_genre::BookGenre;
 
 #[derive(Default, Builder, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
 #[builder(setter(into))]
@@ -40,11 +43,18 @@ impl Book {
     pub async fn author(&self, conn: &sqlx::SqlitePool) -> Result<Option<Author>> {
         match &self.author_id {
             Some(id) => {
-                let author = Author::get_by_id(conn, id.clone()).await?;
+                let author = Author::get_by_id(conn, &id).await?;
                 Ok(Some(author))
             }
             None => Ok(None),
         }
+    }
+    pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Vec<Genre>> {
+        BookGenre::get_all_for_a(conn, self).await
+    }
+    pub async fn hydrate_genres(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.genres = Some(self.get_genres(conn).await?);
+        Ok(())
     }
 }
 
@@ -76,6 +86,21 @@ impl DisplayTerminal for Book {
         if let Some(release_date) = &self.release_date.0 {
             write!(f, "[released {}]", release_date)?;
             write!(f, " ")?; // TODO see above
+        }
+        let genres = self.get_genres(conn).await?;
+        if genres.len() > 0 {
+            write!(f, "[genres: ",)?;
+            write!(
+                f,
+                "{}",
+                genres
+                    .into_iter()
+                    .map(|genre| genre.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+            write!(f, "]",)?;
+            write!(f, " ")?;
         }
         write!(f, "({})", self.id)?;
         Ok(())
@@ -110,7 +135,7 @@ impl Insertable for Book {
     where
         Self: Sized,
     {
-        Ok(sqlx::query(
+        let result = sqlx::query(
             r#"
                     INSERT INTO books ( id, title, author, release_date, deleted )
                     VALUES ( ?1, ?2, ?3, ?4, ?5 )
@@ -122,7 +147,15 @@ impl Insertable for Book {
         .bind(&self.release_date)
         .bind(&self.deleted)
         .execute(conn)
-        .await?)
+        .await?;
+
+        if let Some(genres) = &self.genres {
+            for genre in genres {
+                BookGenre::insert(conn, self, genre).await?;
+            }
+        }
+
+        Ok(result)
     }
     async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
@@ -135,14 +168,16 @@ impl Insertable for Book {
             "When was the book released?",
             None,
         )?);
+        let all_genres = Genre::get_all(conn).await?;
+        let genres = MultiSelect::new("Select genres for this book:", all_genres).prompt()?;
         Ok(Self {
             id,
             title,
             author_id: author.map(|x| x.id),
             release_date,
-            editions: None, // TODO
-            reviews: None,  // TODO
-            genres: None,   // TODO
+            editions: None,       // TODO
+            reviews: None,        // TODO
+            genres: Some(genres), // TODO
             deleted: false,
         })
     }
@@ -153,6 +188,38 @@ impl Updateable for Book {
         conn: &sqlx::SqlitePool,
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
+        // There are no genres in new, remove all existing genre links
+        if let None = new.genres {
+            let existing = BookGenre::get_all_for_a(conn, self).await?;
+            for x in existing {
+                BookGenre::remove(conn, self, &x).await?;
+            }
+        }
+        // There were no genres in old, simply add all new ones
+        else if self.get_genres(conn).await?.len() == 0 {
+            if let Some(genres) = &new.genres {
+                for genre in genres {
+                    BookGenre::insert(conn, &new, genre).await?;
+                }
+            }
+        }
+        // Merge old and new genres
+        else {
+            let genres_old = self.get_genres(conn).await?;
+            let genres_new = new.genres.clone().expect("Unreachable");
+            for genre in &genres_new {
+                // If the genre didn't exist before, add it
+                if !genres_old.contains(&genre) {
+                    BookGenre::insert(conn, &new, genre).await?;
+                }
+            }
+            for genre in &genres_old {
+                // If the genre isn't in new, remove it
+                if !genres_new.contains(&genre) {
+                    BookGenre::remove(conn, &new, genre).await?;
+                }
+            }
+        }
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -195,14 +262,25 @@ impl Updateable for Book {
                 None,
             )?),
         };
+        let all_genres = Genre::get_all(conn).await?;
+        let current_genres = self.get_genres(conn).await?;
+        let indicies_selected = all_genres
+            .iter()
+            .enumerate()
+            .filter(|(_, genre)| current_genres.contains(genre))
+            .map(|(i, _)| i)
+            .collect::<Vec<usize>>();
+        let genres = MultiSelect::new("Select genres for this book:", all_genres)
+            .with_default(&indicies_selected)
+            .prompt()?;
         let new = Self {
-            id: Uuid(uuid::Uuid::nil()),
+            id: self.id.clone(),
             title,
             author_id: self.author_id.clone(), // TODO
             release_date,
             editions: self.editions.clone(),
             reviews: self.reviews.clone(),
-            genres: self.genres.clone(),
+            genres: Some(genres),
             deleted: self.deleted,
         };
         Self::update(&self, conn, new).await

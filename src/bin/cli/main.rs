@@ -11,7 +11,7 @@ mod command_parser;
 mod prompt;
 mod repl;
 
-use bokhylle::types::{author::Author, genre::Genre};
+use bokhylle::types::{author::Author, book_genre::BookGenre, genre::Genre};
 use bokhylle::{traits::*, types::book::Book};
 
 async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
@@ -115,7 +115,8 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
     tokio::try_join!(
         Author::init_table(conn),
         Book::init_table(conn),
-        Genre::init_table(conn)
+        Genre::init_table(conn),
+        BookGenre::create_table(conn),
     )?;
     Ok(())
 }

@@ -1,9 +1,160 @@
 use std::fmt::Display;
 
 use anyhow::Result;
-use sqlx::{sqlite::SqliteQueryResult, FromRow};
+use sqlx::{
+    sqlite::{SqliteQueryResult, SqliteRow},
+    FromRow,
+};
 
 use crate::types::{option_to_create::OptionToCreate, uuid::Uuid};
+
+/// A trait which corresponds to a junction table between two other types in the database
+pub trait JunctionTable<A, B>
+where
+    A: CRUD,
+    B: CRUD,
+{
+    const TABLE_NAME: &'static str;
+
+    async fn get_id_a(&self) -> &Uuid;
+    async fn get_id_b(&self) -> &Uuid;
+
+    async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            CREATE TABLE IF NOT EXISTS {table_name_self} (
+            	{singular_name_b}_id	INT NOT NULL,
+            	{singular_name_a}_id	INT	NOT NULL,
+                deleted BOOL DEFAULT FALSE,
+            	FOREIGN KEY ({singular_name_a}_id) REFERENCES {table_name_a} (id),
+            	FOREIGN KEY ({singular_name_b}_id) REFERENCES {table_name_b} (id),
+            	PRIMARY KEY ({singular_name_a}_id, {singular_name_b}_id)
+            );
+            "#,
+            table_name_self = Self::TABLE_NAME,
+            table_name_a = A::TABLE_NAME,
+            table_name_b = B::TABLE_NAME,
+            singular_name_a = A::NAME_SINGULAR,
+            singular_name_b = B::NAME_SINGULAR,
+        ))
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+
+    async fn insert(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            INSERT INTO {table_name_self} 
+                ( {singular_name_a}_id, {singular_name_b}_id, deleted ) 
+                VALUES ( ?1, ?2, ?3 );
+            "#,
+            table_name_self = Self::TABLE_NAME,
+            singular_name_a = A::NAME_SINGULAR,
+            singular_name_b = B::NAME_SINGULAR,
+        ))
+        .bind(a.id().await)
+        .bind(b.id().await)
+        .bind(false)
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+
+    async fn remove(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+            UPDATE {table_name_self} 
+                SET deleted = 1
+            WHERE
+                {singular_name_a}_id = ?1 AND {singular_name_b}_id = ?2 ;
+            "#,
+            table_name_self = Self::TABLE_NAME,
+            singular_name_a = A::NAME_SINGULAR,
+            singular_name_b = B::NAME_SINGULAR,
+        ))
+        .bind(a.id().await)
+        .bind(b.id().await)
+        .bind(false)
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+
+    async fn get_all_for_a(conn: &sqlx::SqlitePool, a: &A) -> Result<Vec<B>>
+    where
+        Self: Sized + Send + Unpin,
+        Self: for<'r> FromRow<'r, SqliteRow>,
+    {
+        let results = sqlx::query_as::<_, Self>(&format!(
+            r#"
+            SELECT * FROM {table_name_self}
+                WHERE {singular_name_a}_id = ?1 AND deleted = 0;
+            "#,
+            table_name_self = Self::TABLE_NAME,
+            singular_name_a = A::NAME_SINGULAR,
+        ))
+        .bind(a.id().await)
+        .fetch_all(conn)
+        .await?;
+
+        let mut b_s = vec![];
+        for result in results {
+            let id = result.get_id_b().await;
+            b_s.push(B::get_by_id(conn, id).await?);
+        }
+
+        Ok(b_s)
+    }
+    async fn get_all_for_b(conn: &sqlx::SqlitePool, b: &B) -> Result<Vec<A>>
+    where
+        Self: Sized + Send + Unpin,
+        Self: for<'r> FromRow<'r, SqliteRow>,
+    {
+        let results = sqlx::query_as::<_, Self>(&format!(
+            r#"
+            SELECT * FROM {table_name_self}
+                WHERE {singular_name_b}_id = ?1 AND deleted = 0;
+            "#,
+            table_name_self = Self::TABLE_NAME,
+            singular_name_b = B::NAME_SINGULAR,
+        ))
+        .bind(b.id().await)
+        .fetch_all(conn)
+        .await?;
+
+        let mut a_s = vec![];
+        for result in results {
+            let id = result.get_id_a().await;
+            a_s.push(A::get_by_id(conn, id).await?);
+        }
+
+        Ok(a_s)
+    }
+
+    async fn exists(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<bool>
+    where
+        Self: Sized + Send + Unpin,
+        Self: for<'r> FromRow<'r, SqliteRow>,
+    {
+        Ok(sqlx::query_as::<_, Self>(&format!(
+            r#"
+            SELECT 1 FROM {table_name_self}
+                WHERE {singular_name_a}_id = ?1
+                    AND {singular_name_b}_id = ?2
+                    AND deleted = 0;
+            "#,
+            table_name_self = Self::TABLE_NAME,
+            singular_name_a = A::NAME_SINGULAR,
+            singular_name_b = B::NAME_SINGULAR,
+        ))
+        .bind(a.id().await)
+        .bind(b.id().await)
+        .fetch_optional(conn)
+        .await?
+        .is_some())
+    }
+}
 
 /// A (more or less primitive) type which can be created and updated by command line prompts
 /// This is for things like Text, Timestamps, etc., while [Insertable] is for structs
@@ -195,7 +346,7 @@ where
     Self: Unpin,
 {
     /// Return record with id from database
-    async fn get_by_id(conn: &sqlx::SqlitePool, id: Uuid) -> Result<Self> {
+    async fn get_by_id(conn: &sqlx::SqlitePool, id: &Uuid) -> Result<Self> {
         Ok(sqlx::query_as::<_, Self>(&format!(
             "SELECT * FROM {} WHERE id = ?1 AND deleted = 0;",
             Self::TABLE_NAME
@@ -279,7 +430,7 @@ where
                         println!(
                             "{}",
                             DisplayTerminal::fmt_to_string(
-                                &Self::get_by_id(conn, uuid).await?,
+                                &Self::get_by_id(conn, &uuid).await?,
                                 conn
                             )
                             .await?
