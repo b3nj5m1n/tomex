@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
-use sqlx::{sqlite::SqliteRow, FromRow, Row};
+use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
@@ -132,7 +132,7 @@ impl Insertable for Genre {
 }
 impl Updateable for Genre {
     async fn update(
-        &self,
+        &mut self,
         conn: &sqlx::SqlitePool,
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
@@ -155,7 +155,7 @@ impl Updateable for Genre {
     }
 
     async fn update_by_prompt(
-        &self,
+        &mut self,
         conn: &sqlx::SqlitePool,
     ) -> Result<sqlx::sqlite::SqliteQueryResult>
     where
@@ -169,6 +169,6 @@ impl Updateable for Genre {
             name,
             deleted: self.deleted,
         };
-        Self::update(&self, conn, new).await
+        Self::update(self, conn, new).await
     }
 }

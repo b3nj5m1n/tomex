@@ -49,6 +49,10 @@ impl Book {
             None => Ok(None),
         }
     }
+    pub async fn hydrate(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.hydrate_genres(conn).await?;
+        Ok(())
+    }
     pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Vec<Genre>> {
         BookGenre::get_all_for_a(conn, self).await
     }
@@ -175,19 +179,20 @@ impl Insertable for Book {
             title,
             author_id: author.map(|x| x.id),
             release_date,
-            editions: None,       // TODO
-            reviews: None,        // TODO
-            genres: Some(genres), // TODO
+            editions: None, // TODO
+            reviews: None,  // TODO
+            genres: Some(genres),
             deleted: false,
         })
     }
 }
 impl Updateable for Book {
     async fn update(
-        &self,
+        &mut self,
         conn: &sqlx::SqlitePool,
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
+        self.hydrate(conn).await?;
         // There are no genres in new, remove all existing genre links
         if let None = new.genres {
             let existing = BookGenre::get_all_for_a(conn, self).await?;
@@ -196,7 +201,7 @@ impl Updateable for Book {
             }
         }
         // There were no genres in old, simply add all new ones
-        else if self.get_genres(conn).await?.len() == 0 {
+        else if let None = self.genres {
             if let Some(genres) = &new.genres {
                 for genre in genres {
                     BookGenre::insert(conn, &new, genre).await?;
@@ -206,7 +211,7 @@ impl Updateable for Book {
         // Merge old and new genres
         else {
             let genres_old = self.get_genres(conn).await?;
-            let genres_new = new.genres.clone().expect("Unreachable");
+            let genres_new = self.genres.clone().expect("Unreachable");
             for genre in &genres_new {
                 // If the genre didn't exist before, add it
                 if !genres_old.contains(&genre) {
@@ -243,7 +248,7 @@ impl Updateable for Book {
     }
 
     async fn update_by_prompt(
-        &self,
+        &mut self,
         conn: &sqlx::SqlitePool,
     ) -> Result<sqlx::sqlite::SqliteQueryResult>
     where
@@ -283,7 +288,7 @@ impl Updateable for Book {
             genres: Some(genres),
             deleted: self.deleted,
         };
-        Self::update(&self, conn, new).await
+        Self::update(self, conn, new).await
     }
 }
 

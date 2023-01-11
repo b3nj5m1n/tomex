@@ -117,7 +117,7 @@ impl Insertable for Author {
     }
 }
 impl Updateable for Author {
-    async fn update(&self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult> {
+    async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult> {
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -142,7 +142,7 @@ impl Updateable for Author {
         .await?)
     }
 
-    async fn update_by_prompt(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
+    async fn update_by_prompt(&mut self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
         Self: Queryable,
     {
@@ -200,6 +200,6 @@ impl Updateable for Author {
             date_died,
             deleted: self.deleted,
         };
-        Self::update(&self, conn, new).await
+        Self::update(self, conn, new).await
     }
 }

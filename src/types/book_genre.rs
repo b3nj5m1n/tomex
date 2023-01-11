@@ -1,14 +1,7 @@
-use anyhow::Result;
 use const_format::formatcp;
-use crossterm::style::Stylize;
-use sqlx::{sqlite::SqliteRow, FromRow, Row};
-use std::fmt::{Display, Write};
+use sqlx::FromRow;
 
-use crate::{
-    traits::*,
-    types::{text::Text, uuid::Uuid},
-};
-use derives::*;
+use crate::{traits::*, types::uuid::Uuid};
 
 use super::{book::Book, genre::Genre};
 

@@ -470,9 +470,9 @@ where
     Self: Id,
 {
     /// Update self to new values in `new`
-    async fn update(&self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
+    async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
     /// Update self by prompting for new values
-    async fn update_by_prompt(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
+    async fn update_by_prompt(&mut self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
         Self: Queryable;
     /// Update self by prompting for which record to update and prompting for new values
