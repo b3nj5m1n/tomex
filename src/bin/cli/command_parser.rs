@@ -2,9 +2,10 @@ use clap::Command;
 
 pub fn arg_parser_types() -> Vec<Command> {
     vec![
-        Command::new("book"),
-        Command::new("author"),
-        Command::new("genre"),
+        Command::new("book").about("A book"),
+        Command::new("author").about("An author"),
+        Command::new("genre").about("Genres of a book"),
+        Command::new("mood").about("Mood of a book"),
     ]
 }
 
