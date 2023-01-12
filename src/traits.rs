@@ -31,7 +31,6 @@ where
             CREATE TABLE IF NOT EXISTS {table_name_self} (
             	{singular_name_b}_id	INT NOT NULL,
             	{singular_name_a}_id	INT	NOT NULL,
-                deleted BOOL DEFAULT FALSE,
             	FOREIGN KEY ({singular_name_a}_id) REFERENCES {table_name_a} (id),
             	FOREIGN KEY ({singular_name_b}_id) REFERENCES {table_name_b} (id),
             	PRIMARY KEY ({singular_name_a}_id, {singular_name_b}_id)
@@ -53,8 +52,8 @@ where
         sqlx::query(&format!(
             r#"
             INSERT INTO {table_name_self} 
-                ( {singular_name_a}_id, {singular_name_b}_id, deleted ) 
-                VALUES ( ?1, ?2, ?3 );
+                ( {singular_name_a}_id, {singular_name_b}_id ) 
+                VALUES ( ?1, ?2 );
             "#,
             table_name_self = Self::TABLE_NAME,
             singular_name_a = A::NAME_SINGULAR,
@@ -62,7 +61,6 @@ where
         ))
         .bind(a.id().await)
         .bind(b.id().await)
-        .bind(false)
         .execute(conn)
         .await?;
         Ok(())
@@ -72,8 +70,7 @@ where
     async fn remove(conn: &sqlx::SqlitePool, a: &A, b: &B) -> Result<()> {
         sqlx::query(&format!(
             r#"
-            UPDATE {table_name_self} 
-                SET deleted = 1
+            DELETE FROM {table_name_self} 
             WHERE
                 {singular_name_a}_id = ?1 AND {singular_name_b}_id = ?2 ;
             "#,
@@ -83,7 +80,6 @@ where
         ))
         .bind(a.id().await)
         .bind(b.id().await)
-        .bind(false)
         .execute(conn)
         .await?;
         Ok(())
@@ -94,7 +90,7 @@ where
         let results = sqlx::query_as::<_, Self>(&format!(
             r#"
             SELECT * FROM {table_name_self}
-                WHERE {singular_name_a}_id = ?1 AND deleted = 0;
+                WHERE {singular_name_a}_id = ?1;
             "#,
             table_name_self = Self::TABLE_NAME,
             singular_name_a = A::NAME_SINGULAR,
@@ -120,7 +116,7 @@ where
         let results = sqlx::query_as::<_, Self>(&format!(
             r#"
             SELECT * FROM {table_name_self}
-                WHERE {singular_name_b}_id = ?1 AND deleted = 0;
+                WHERE {singular_name_b}_id = ?1;
             "#,
             table_name_self = Self::TABLE_NAME,
             singular_name_b = B::NAME_SINGULAR,
@@ -144,8 +140,7 @@ where
             r#"
             SELECT 1 FROM {table_name_self}
                 WHERE {singular_name_a}_id = ?1
-                    AND {singular_name_b}_id = ?2
-                    AND deleted = 0;
+                    AND {singular_name_b}_id = ?2;
             "#,
             table_name_self = Self::TABLE_NAME,
             singular_name_a = A::NAME_SINGULAR,

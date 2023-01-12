@@ -9,7 +9,6 @@ use super::{book::Book, genre::Genre};
 pub struct BookGenre {
     pub book_id: Uuid,
     pub genre_id: Uuid,
-    pub deleted: bool,
 }
 
 impl JunctionTable<Book, Genre> for BookGenre {
