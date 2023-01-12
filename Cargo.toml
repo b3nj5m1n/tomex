@@ -19,7 +19,6 @@ chrono-humanize = "0.2.2"
 clap = "4.0.32"
 const_format = "0.2.30"
 crossterm = "0.25.0"
-derive_builder = "0.12.0"
 derives = { version = "0.1.0", path = "src/derives" }
 dotenvy = "0.15.6"
 inquire = { version = "0.5.2", features = ["date"] }

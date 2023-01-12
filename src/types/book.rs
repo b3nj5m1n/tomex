@@ -1,6 +1,5 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
-use derive_builder::Builder;
 use inquire::MultiSelect;
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
@@ -19,44 +18,37 @@ use crate::{
 };
 use derives::*;
 
-use super::book_genre::BookGenre;
+use super::{book_author::BookAuthor, book_genre::BookGenre};
 
-#[derive(Default, Builder, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
-#[builder(setter(into))]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
 pub struct Book {
     pub id: Uuid,
     pub title: Text,
-    #[builder(setter(into, strip_option), default = "None")]
-    pub author_id: Option<Uuid>,
-    #[builder(setter(into, strip_option), default = "OptionalTimestamp(None)")]
+    pub authors: Option<Vec<Author>>,
     pub release_date: OptionalTimestamp,
-    #[builder(default = "None")]
     pub editions: Option<Vec<Edition>>,
-    #[builder(default = "None")]
     pub reviews: Option<Vec<Review>>,
-    #[builder(default = "None")]
     pub genres: Option<Vec<Genre>>,
-    #[builder(default = "false")]
     pub deleted: bool,
 }
 
 impl Book {
-    pub async fn author(&self, conn: &sqlx::SqlitePool) -> Result<Option<Author>> {
-        match &self.author_id {
-            Some(id) => {
-                let author = Author::get_by_id(conn, &id).await?;
-                Ok(Some(author))
-            }
-            None => Ok(None),
-        }
-    }
     pub async fn hydrate(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.hydrate_authors(conn).await?;
         self.hydrate_genres(conn).await?;
         Ok(())
+    }
+    pub async fn get_authors(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Author>>> {
+        let result = BookAuthor::get_all_for_a(conn, self).await?;
+        Ok(if result.len() > 0 { Some(result) } else { None })
     }
     pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Genre>>> {
         let result = BookGenre::get_all_for_a(conn, self).await?;
         Ok(if result.len() > 0 { Some(result) } else { None })
+    }
+    pub async fn hydrate_authors(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.authors = self.get_authors(conn).await?;
+        Ok(())
     }
     pub async fn hydrate_genres(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.genres = self.get_genres(conn).await?;
@@ -92,13 +84,20 @@ impl DisplayTerminal for Book {
             .bold();
         write!(f, "{}", title)?;
         write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
-        if let Some(author) = Book::author(&s, conn).await? {
+        if let Some(authors) = s.authors {
             let str = "written by".italic();
-            write!(f, "[{}", str)?;
-            write!(f, " ")?; // TODO see above
-            DisplayTerminal::fmt(&author, f, conn).await?;
+            write!(f, "[{}: ", str)?;
+            write!(
+                f,
+                "{}",
+                authors
+                    .into_iter()
+                    .map(|author| author.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
             write!(f, "]",)?;
-            write!(f, " ")?; // TODO see above
+            write!(f, " ")?;
         }
         if let Some(release_date) = &s.release_date.0 {
             let str = "released".italic();
@@ -132,10 +131,8 @@ impl CreateTable for Book {
             CREATE TABLE IF NOT EXISTS {} (
                 id TEXT PRIMARY KEY NOT NULL,
                 title TEXT NOT NULL,
-                author TEXT,
                 release_date INTEGER,
-                deleted BOOL DEFAULT FALSE,
-                FOREIGN KEY (author) REFERENCES authors (id)
+                deleted BOOL DEFAULT FALSE
             );"#,
             Self::TABLE_NAME
         ))
@@ -155,18 +152,22 @@ impl Insertable for Book {
     {
         let result = sqlx::query(
             r#"
-                    INSERT INTO books ( id, title, author, release_date, deleted )
-                    VALUES ( ?1, ?2, ?3, ?4, ?5 )
-                    "#,
+            INSERT INTO books ( id, title, release_date, deleted )
+            VALUES ( ?1, ?2, ?3, ?4 );
+            "#,
         )
         .bind(&self.id)
         .bind(&self.title)
-        .bind(&self.author_id)
         .bind(&self.release_date)
         .bind(&self.deleted)
         .execute(conn)
         .await?;
 
+        if let Some(authors) = &self.authors {
+            for author in authors {
+                BookAuthor::insert(conn, self, author).await?;
+            }
+        }
         if let Some(genres) = &self.genres {
             for genre in genres {
                 BookGenre::insert(conn, self, genre).await?;
@@ -199,7 +200,7 @@ impl Insertable for Book {
         Ok(Self {
             id,
             title,
-            author_id: author.map(|x| x.id),
+            authors: author.map(|x| vec![x]),
             release_date: OptionalTimestamp(None),
             editions: None, // TODO
             reviews: None,  // TODO
@@ -215,13 +216,13 @@ impl Updateable for Book {
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
         self.hydrate(conn).await?;
+        BookAuthor::update(conn, self, &self.authors, &new.authors).await?;
         BookGenre::update(conn, self, &self.genres, &new.genres).await?;
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
             SET 
                 title = ?2,
-                author = ?3,
                 release_date = ?4,
                 deleted = ?5
             WHERE
@@ -231,7 +232,6 @@ impl Updateable for Book {
         ))
         .bind(&self.id)
         .bind(&new.title)
-        .bind(&new.author_id)
         .bind(&new.release_date)
         .bind(&new.deleted)
         .execute(conn)
@@ -283,7 +283,7 @@ impl Updateable for Book {
         let new = Self {
             id: self.id.clone(),
             title,
-            author_id: self.author_id.clone(), // TODO
+            authors: self.authors.clone(), // TODO
             release_date,
             editions: self.editions.clone(),
             reviews: self.reviews.clone(),
@@ -299,7 +299,7 @@ impl FromRow<'_, SqliteRow> for Book {
         Ok(Self {
             id: row.try_get("id")?,
             title: row.try_get("title")?,
-            author_id: row.try_get("author")?,
+            authors: None,
             release_date: row.try_get("release_date")?,
             editions: None, // TODO
             reviews: None,

@@ -16,4 +16,5 @@ pub mod publisher;
 pub mod review;
 
 // Junction tables
+pub mod book_author;
 pub mod book_genre;

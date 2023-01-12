@@ -1,5 +1,9 @@
 use anyhow::Result;
-use sqlx::{sqlite::SqliteQueryResult, FromRow};
+use crossterm::style::Stylize;
+use sqlx::{
+    sqlite::{SqliteQueryResult, SqliteRow},
+    FromRow, Row,
+};
 use std::fmt::{Display, Write};
 
 use crate::{
@@ -12,7 +16,7 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Names, CRUD, Queryable, Removeable, Id)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Removeable, Id)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<Text>,
@@ -20,36 +24,53 @@ pub struct Author {
     pub date_born: OptionalTimestamp,
     pub date_died: OptionalTimestamp,
     pub deleted: bool,
+    pub special: bool,
 }
+
+const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
 
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match (&self.name_first, &self.name_last) {
-            (None, None) => write!(f, "{}", self.id),
-            (None, Some(name_last)) => {
-                write!(f, "{}, (First name unknown) ({})", name_last, self.id)
+        if self.special {
+            match self.id {
+                UUID_UNKOWN => write!(f, "{}", "UNKOWN AUTHOR".bold()),
+                _ => Err(std::fmt::Error),
             }
-            (Some(name_first), None) => {
-                write!(f, "(Last name unknown), {} ({})", name_first, self.id)
-            }
-            (Some(name_first), Some(name_last)) => {
-                write!(f, "{}, {} ({})", name_last, name_first, self.id)
+        } else {
+            match (&self.name_first, &self.name_last) {
+                (None, None) => write!(f, "{}", self.id),
+                (None, Some(name_last)) => {
+                    write!(f, "{}, (First name unknown) ({})", name_last, self.id)
+                }
+                (Some(name_first), None) => {
+                    write!(f, "(Last name unknown), {} ({})", name_first, self.id)
+                }
+                (Some(name_first), Some(name_last)) => {
+                    write!(f, "{}, {} ({})", name_last, name_first, self.id)
+                }
             }
         }
     }
 }
 impl DisplayTerminal for Author {
     async fn fmt(&self, f: &mut String, _conn: &sqlx::SqlitePool) -> Result<()> {
-        match (&self.name_first, &self.name_last) {
-            (None, None) => write!(f, "{}", self.id)?,
-            (None, Some(name_last)) => {
-                write!(f, "{}, (First name unknown) ({})", name_last, self.id)?
+        if self.special {
+            match self.id {
+                UUID_UNKOWN => write!(f, "{}", "UNKOWN AUTHOR".bold())?,
+                _ => anyhow::bail!("Unkown special author"),
             }
-            (Some(name_first), None) => {
-                write!(f, "(Last name unknown), {} ({})", name_first, self.id)?
-            }
-            (Some(name_first), Some(name_last)) => {
-                write!(f, "{}, {} ({})", name_last, name_first, self.id)?
+        } else {
+            match (&self.name_first, &self.name_last) {
+                (None, None) => write!(f, "{}", self.id)?,
+                (None, Some(name_last)) => {
+                    write!(f, "{}, (First name unknown) ({})", name_last, self.id)?
+                }
+                (Some(name_first), None) => {
+                    write!(f, "(Last name unknown), {} ({})", name_first, self.id)?
+                }
+                (Some(name_first), Some(name_last)) => {
+                    write!(f, "{}, {} ({})", name_last, name_first, self.id)?
+                }
             }
         }
         Ok(())
@@ -71,6 +92,19 @@ impl CreateTable for Author {
             Self::TABLE_NAME
         ))
         .execute(conn)
+        .await?;
+        Self::insert(
+            &Self {
+                id: UUID_UNKOWN,
+                name_first: None,
+                name_last: None,
+                date_born: OptionalTimestamp(None),
+                date_died: OptionalTimestamp(None),
+                deleted: false,
+                special: true,
+            },
+            conn,
+        )
         .await?;
         Ok(())
     }
@@ -113,11 +147,15 @@ impl Insertable for Author {
             date_born: OptionalTimestamp(None),
             date_died: OptionalTimestamp(None),
             deleted: false,
+            special: false,
         })
     }
 }
 impl Updateable for Author {
     async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult> {
+        if self.special {
+            anyhow::bail!("Can't update special author");
+        }
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -146,6 +184,9 @@ impl Updateable for Author {
     where
         Self: Queryable,
     {
+        if self.special {
+            anyhow::bail!("Can't update special author");
+        }
         let name_first = match &self.name_first {
             Some(name_first) => name_first.update_by_prompt_skippable_deleteable(
                 "Do you want to delete the authors first name?",
@@ -199,7 +240,30 @@ impl Updateable for Author {
             date_born,
             date_died,
             deleted: self.deleted,
+            special: self.special,
         };
         Self::update(self, conn, new).await
+    }
+}
+
+impl FromRow<'_, SqliteRow> for Author {
+    fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
+        let s = Self {
+            id: row.try_get("id")?,
+            deleted: row.try_get("deleted")?,
+            name_first: row.try_get("name_first")?,
+            name_last: row.try_get("name_last")?,
+            date_born: row.try_get("date_born")?,
+            date_died: row.try_get("date_died")?,
+            special: false,
+        };
+        if s.id == UUID_UNKOWN {
+            return Ok(Self {
+                id: s.id,
+                special: true,
+                ..Self::default()
+            });
+        }
+        Ok(s)
     }
 }
