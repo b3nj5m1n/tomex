@@ -21,7 +21,7 @@ const_format = "0.2.30"
 crossterm = "0.25.0"
 derives = { version = "0.1.0", path = "src/derives" }
 dotenvy = "0.15.6"
-inquire = { version = "0.5.2", features = ["date"] }
+inquire = { version = "0.5.2", features = ["date", "editor"] }
 reedline = "0.14.0"
 shlex = "1.1.0"
 sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "postgres", "sqlite", "macros", "chrono", "offline"] }

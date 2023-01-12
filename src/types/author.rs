@@ -256,13 +256,11 @@ impl Updateable for Author {
         };
 
         let new = Self {
-            id: Uuid(uuid::Uuid::nil()),
             name_first,
             name_last,
             date_born,
             date_died,
-            deleted: self.deleted,
-            special: self.special,
+            ..self.clone()
         };
         Self::update(self, conn, new).await
     }

@@ -3,6 +3,7 @@ use clap::Command;
 pub fn arg_parser_types() -> Vec<Command> {
     vec![
         Command::new("book").about("A book"),
+        Command::new("review").about("A book review"),
         Command::new("edition").about("An edition of a book"),
         Command::new("author").about("An author"),
         Command::new("publisher").about("A publisher"),
