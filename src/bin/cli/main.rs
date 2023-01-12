@@ -12,8 +12,8 @@ mod prompt;
 mod repl;
 
 use bokhylle::types::{
-    author::Author, book_author::BookAuthor, book_genre::BookGenre, genre::Genre, mood::Mood,
-    pace::Pace,
+    author::Author, book_author::BookAuthor, book_genre::BookGenre, genre::Genre,
+    language::Language, mood::Mood, pace::Pace,
 };
 use bokhylle::{traits::*, types::book::Book};
 
@@ -46,6 +46,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("pace", _matches)) => {
                 Pace::insert_by_prompt(conn).await?;
             }
+            Some(("language", _matches)) => {
+                Language::insert_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
@@ -64,6 +67,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("pace", _matches)) => {
                 Pace::update_by_prompt_by_prompt(conn).await?;
+            }
+            Some(("language", _matches)) => {
+                Language::update_by_prompt_by_prompt(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -84,6 +90,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("pace", _matches)) => {
                 Pace::remove_by_prompt(conn).await?;
             }
+            Some(("language", _matches)) => {
+                Language::remove_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
@@ -102,6 +111,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("pace", _matches)) => {
                 Pace::query_by_clap(conn, _matches).await?;
+            }
+            Some(("language", _matches)) => {
+                Language::query_by_clap(conn, _matches).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -145,6 +157,7 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
         Genre::init_table(conn),
         Mood::init_table(conn),
         Pace::init_table(conn),
+        Language::init_table(conn),
         BookAuthor::create_table(conn),
         BookGenre::create_table(conn),
     )?;

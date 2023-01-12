@@ -7,6 +7,7 @@ pub fn arg_parser_types() -> Vec<Command> {
         Command::new("genre").about("Genres of a book"),
         Command::new("mood").about("Mood of a book"),
         Command::new("pace").about("Pace of a book"),
+        Command::new("language").about("Language of an edition of a book"),
     ]
 }
 
