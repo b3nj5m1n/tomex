@@ -7,13 +7,12 @@ use std::fmt::{Display, Write};
 use crate::{
     traits::*,
     types::{
-        book::Book, edition_review::EditionReview, language::Language, progress::Progress,
+        book::Book, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
+        edition_review::EditionReview, language::Language, progress::Progress,
         publisher::Publisher, text::Text, timestamp::OptionalTimestamp, uuid::Uuid,
     },
 };
 use derives::*;
-
-use super::{edition_language::EditionLanguage, edition_publisher::EditionPublisher};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
 pub struct Edition {
@@ -29,6 +28,7 @@ pub struct Edition {
     pub reviews: Option<Vec<EditionReview>>,
     pub progress: Option<Vec<Progress>>,
     pub deleted: bool,
+    pub book_title: Text,
 }
 
 impl Edition {
@@ -57,10 +57,14 @@ impl Edition {
 
 impl Display for Edition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.isbn {
-            None => write!(f, "{}", self.id),
-            Some(isbn) => {
-                write!(f, "{}", isbn)
+        match (&self.isbn, &self.edition_title) {
+            (None, None) => write!(f, "{} ({})", self.book_title, self.id),
+            (None, Some(title)) => write!(f, "{} ({})", title, self.id),
+            (Some(isbn), None) => {
+                write!(f, "{} ({})", self.book_title, isbn)
+            }
+            (Some(isbn), Some(title)) => {
+                write!(f, "{} ({})", title, isbn)
             }
         }
     }
@@ -171,6 +175,7 @@ impl CreateTable for Edition {
             	release_date	INTEGER,
             	cover	TEXT,
             	deleted BOOL DEFAULT FALSE,
+                book_title TEXT,
             	FOREIGN KEY (book_id) REFERENCES {} (id)
             );"#,
             Self::TABLE_NAME,
@@ -192,8 +197,8 @@ impl Insertable for Edition {
     {
         let result = sqlx::query(
             r#"
-            INSERT INTO editions ( id, book_id, edition_title, isbn, pages, release_date, cover, deleted )
-            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8 );
+            INSERT INTO editions ( id, book_id, edition_title, isbn, pages, release_date, cover, deleted, book_title )
+            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9 );
             "#,
         )
         .bind(&self.id)
@@ -204,6 +209,7 @@ impl Insertable for Edition {
         .bind(&self.release_date)
         .bind(&self.cover)
         .bind(&self.deleted)
+        .bind(&self.book_title)
         .execute(conn)
         .await?;
 
@@ -245,6 +251,7 @@ impl Insertable for Edition {
             reviews: None,
             progress: None,
             deleted: false,
+            book_title: book.title,
         })
     }
 }
@@ -267,7 +274,8 @@ impl Updateable for Edition {
                 pages = ?5,
                 release_date = ?6,
                 cover = ?7,
-                deleted = ?8
+                deleted = ?8,
+                book_title = ?9
             WHERE
                 id = ?1;
             "#,
@@ -281,6 +289,7 @@ impl Updateable for Edition {
         .bind(&new.release_date)
         .bind(&new.cover)
         .bind(&new.deleted)
+        .bind(&new.book_title)
         .execute(conn)
         .await?)
     }
@@ -292,6 +301,7 @@ impl Updateable for Edition {
     where
         Self: Queryable,
     {
+        let book = Book::get_by_id(conn, &self.book_id).await?;
         let edition_title = match &self.edition_title {
             Some(s) => s.update_by_prompt_skippable_deleteable(
                 "Delete edition_tittle date?",
@@ -309,7 +319,7 @@ impl Updateable for Edition {
         // Languages
         let all_languages = Language::get_all(conn).await?;
         let current_languages = self.get_languages(conn).await?;
-        let indicies_selected = if let Some(current_languages) = current_languages {
+        let indicies_selected = if let Some(current_languages) = &current_languages {
             all_languages
                 .iter()
                 .enumerate()
@@ -328,11 +338,13 @@ impl Updateable for Edition {
             } else {
                 None
             };
+        } else {
+            languages = current_languages;
         }
         // Publishers
         let all_publishers = Publisher::get_all(conn).await?;
         let current_publishers = self.get_publishers(conn).await?;
-        let indicies_selected = if let Some(current_publishers) = current_publishers {
+        let indicies_selected = if let Some(current_publishers) = &current_publishers {
             all_publishers
                 .iter()
                 .enumerate()
@@ -352,6 +364,8 @@ impl Updateable for Edition {
             } else {
                 None
             };
+        } else {
+            publishers = current_publishers;
         }
         let new = Self {
             edition_title,
@@ -359,6 +373,7 @@ impl Updateable for Edition {
             languages,
             publishers,
             deleted: self.deleted,
+            book_title: book.title,
             ..self.clone()
         };
         Self::update(self, conn, new).await
@@ -376,6 +391,7 @@ impl FromRow<'_, SqliteRow> for Edition {
             release_date: row.try_get("release_date")?,
             cover: row.try_get("cover")?,
             deleted: row.try_get("deleted")?,
+            book_title: row.try_get("book_title")?,
             ..Self::default()
         })
     }
