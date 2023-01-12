@@ -29,6 +29,12 @@ pub struct Author {
 
 const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
 
+const COLOR_AUTHOR: crossterm::style::Color = crossterm::style::Color::Rgb {
+    r: 125,
+    g: 196,
+    b: 228,
+};
+
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.special {
@@ -40,13 +46,29 @@ impl Display for Author {
             match (&self.name_first, &self.name_last) {
                 (None, None) => write!(f, "{}", self.id),
                 (None, Some(name_last)) => {
-                    write!(f, "{}, (First name unknown) ({})", name_last, self.id)
+                    write!(
+                        f,
+                        "{}, (First name unknown) ({})",
+                        name_last.to_string().with(COLOR_AUTHOR),
+                        self.id
+                    )
                 }
                 (Some(name_first), None) => {
-                    write!(f, "(Last name unknown), {} ({})", name_first, self.id)
+                    write!(
+                        f,
+                        "(Last name unknown), {} ({})",
+                        name_first.to_string().with(COLOR_AUTHOR),
+                        self.id
+                    )
                 }
                 (Some(name_first), Some(name_last)) => {
-                    write!(f, "{}, {} ({})", name_last, name_first, self.id)
+                    write!(
+                        f,
+                        "{}, {} ({})",
+                        name_last.to_string().with(COLOR_AUTHOR),
+                        name_first.to_string().with(COLOR_AUTHOR),
+                        self.id
+                    )
                 }
             }
         }

@@ -7,23 +7,13 @@ use std::fmt::{Display, Write};
 use crate::{
     traits::*,
     types::{
-        author::Author,
-        book::Book,
-        book_author::BookAuthor,
-        book_genre::BookGenre,
-        edition_review::EditionReview,
-        genre::Genre,
-        language::Language,
-        mood::Mood,
-        pace::Pace,
-        progress::Progress,
-        publisher::Publisher,
-        text::Text,
-        timestamp::{OptionalTimestamp, Timestamp},
-        uuid::Uuid,
+        book::Book, edition_review::EditionReview, language::Language, progress::Progress,
+        publisher::Publisher, text::Text, timestamp::OptionalTimestamp, uuid::Uuid,
     },
 };
 use derives::*;
+
+use super::{edition_language::EditionLanguage, edition_publisher::EditionPublisher};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
 pub struct Edition {
@@ -48,24 +38,20 @@ impl Edition {
         Ok(())
     }
     pub async fn get_languages(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Language>>> {
-        // let result = BookAuthor::get_all_for_a(conn, self).await?;
-        // Ok(if result.len() > 0 { Some(result) } else { None })
-        todo!()
+        let result = EditionLanguage::get_all_for_a(conn, self).await?;
+        Ok(if result.len() > 0 { Some(result) } else { None })
     }
     pub async fn hydrate_languages(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
-        // self.authors = self.get_authors(conn).await?;
-        // Ok(())
-        todo!()
+        self.languages = self.get_languages(conn).await?;
+        Ok(())
     }
     pub async fn get_publishers(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Publisher>>> {
-        // let result = BookAuthor::get_all_for_a(conn, self).await?;
-        // Ok(if result.len() > 0 { Some(result) } else { None })
-        todo!()
+        let result = EditionPublisher::get_all_for_a(conn, self).await?;
+        Ok(if result.len() > 0 { Some(result) } else { None })
     }
     pub async fn hydrate_publishers(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
-        // self.authors = self.get_authors(conn).await?;
-        // Ok(())
-        todo!()
+        self.publishers = self.get_publishers(conn).await?;
+        Ok(())
     }
 }
 
@@ -83,24 +69,91 @@ impl DisplayTerminal for Edition {
     async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
-        if let Some(edition_title) = s.edition_title {
-            let title = format!("{}", edition_title);
-            let title = title
-                .with(crossterm::style::Color::Rgb {
-                    r: 238,
-                    g: 153,
-                    b: 16,
-                })
-                .bold();
-            write!(f, "{}", title)?;
-            write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
-        }
-        if let Some(isbn) = s.isbn {
-            let str = isbn.to_string().italic();
-            write!(f, "[{}]", str)?;
+        let book = Book::get_by_id(conn, &s.book_id).await?;
+        // Edition/Book title
+        let title = match s.edition_title {
+            Some(t) => format!("{}", t),
+            None => format!("{}", book.title.to_string().italic()),
+        };
+        let title = title
+            .with(crossterm::style::Color::Rgb {
+                r: 238,
+                g: 153,
+                b: 16,
+            })
+            .bold();
+        write!(f, "{}", title)?;
+        write!(f, " ")?;
+        // Author
+        if let Some(authors) = book.get_authors(conn).await? {
+            let str = "written by".italic();
+            write!(f, "[{}: ", str)?;
+            write!(
+                f,
+                "{}",
+                authors
+                    .into_iter()
+                    .map(|author| author.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+            write!(f, "]",)?;
             write!(f, " ")?;
         }
-        write!(f, "({})", s.id)?;
+        // Page count
+        if let Some(pages) = s.pages {
+            let str = pages.to_string().with(crossterm::style::Color::Rgb {
+                r: 139,
+                g: 213,
+                b: 202,
+            });
+            write!(f, "[{} pages] ", str)?;
+        }
+        // Language
+        if let Some(languages) = s.languages {
+            let str = "written in".italic();
+            write!(f, "[{}: ", str)?;
+            write!(
+                f,
+                "{}",
+                languages
+                    .into_iter()
+                    .map(|language| language.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+            write!(f, "]",)?;
+            write!(f, " ")?;
+        }
+        // Release date
+        if let Some(release_date) = s.release_date.0 {
+            let str = "released".italic();
+            write!(f, "[{} {}]", str, release_date)?;
+            write!(f, " ")?; // TODO see above
+        }
+        // Publishers
+        if let Some(publishers) = s.publishers {
+            let str = "published by".italic();
+            write!(f, "[{}: ", str)?;
+            write!(
+                f,
+                "{}",
+                publishers
+                    .into_iter()
+                    .map(|publisher| publisher.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+            write!(f, "]",)?;
+            write!(f, " ")?;
+        }
+        // ISBN or ID
+        if let Some(isbn) = s.isbn {
+            let str = isbn.to_string().italic();
+            write!(f, "({})", str)?;
+        } else {
+            write!(f, "({})", s.id)?;
+        }
         Ok(())
     }
 }
@@ -154,9 +207,8 @@ impl Insertable for Edition {
         .execute(conn)
         .await?;
 
-        // TODO
-        // EditionLanguage::update(conn, &self, &None, self.languages).await?;
-        // EditionPublisher::update(conn, &self, &None, self.languages).await?;
+        EditionLanguage::update(conn, &self, &None, &self.languages).await?;
+        EditionPublisher::update(conn, &self, &None, &self.publishers).await?;
 
         Ok(result)
     }
@@ -171,7 +223,7 @@ impl Insertable for Edition {
             Text::create_by_prompt_skippable("What is the title of this edition?", None)?;
         let isbn = Text::create_by_prompt_skippable("What is the isbn of this edition?", None)?;
         let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => Ok(Validation::Valid),
+            Ok(_) => Ok(Validation::Valid),
             Err(_) => Ok(Validation::Invalid(
                 inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
             )),
@@ -203,20 +255,19 @@ impl Updateable for Edition {
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
         self.hydrate(conn).await?;
-        // TODO
-        // EditionLanguage::update(conn, &self, &None, self.languages).await?;
-        // EditionPublisher::update(conn, &self, &None, self.languages).await?;
+        EditionLanguage::update(conn, &self, &self.languages, &new.languages).await?;
+        EditionPublisher::update(conn, &self, &self.publishers, &new.publishers).await?;
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
             SET 
                 book_id = ?2,
-                edition_title = ?4,
-                isbn = ?5,
-                pages = ?6,
-                release_date = ?7,
-                cover = ?8,
-                deleted = ?10,
+                edition_title = ?3,
+                isbn = ?4,
+                pages = ?5,
+                release_date = ?6,
+                cover = ?7,
+                deleted = ?8
             WHERE
                 id = ?1;
             "#,

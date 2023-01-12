@@ -12,7 +12,8 @@ mod prompt;
 mod repl;
 
 use bokhylle::types::{
-    author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition, genre::Genre,
+    author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition,
+    edition_language::EditionLanguage, edition_publisher::EditionPublisher, genre::Genre,
     language::Language, mood::Mood, pace::Pace, progress::Progress, publisher::Publisher,
 };
 use bokhylle::{traits::*, types::book::Book};
@@ -199,6 +200,8 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
         Progress::init_table(conn),
         BookAuthor::create_table(conn),
         BookGenre::create_table(conn),
+        EditionLanguage::create_table(conn),
+        EditionPublisher::create_table(conn),
     )?;
     Ok(())
 }

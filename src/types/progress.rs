@@ -1,12 +1,11 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use inquire::validator::Validation;
 use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
     traits::*,
-    types::{edition::Edition, text::Text, timestamp::Timestamp, uuid::Uuid},
+    types::{edition::Edition, timestamp::Timestamp, uuid::Uuid},
 };
 use derives::*;
 
