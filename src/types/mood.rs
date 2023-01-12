@@ -192,21 +192,3 @@ impl Updateable for Mood {
         Self::update(self, conn, new).await
     }
 }
-
-// #[derive(Debug, Clone, PartialEq, Eq)]
-// pub enum Mood {
-//     Adventurous,
-//     Challenging,
-//     Dark,
-//     Emotional,
-//     Funny,
-//     Hopeful,
-//     Informative,
-//     Inspiring,
-//     Lighthearted,
-//     Mysterious,
-//     Reflective,
-//     Relaxing,
-//     Sad,
-//     Tense,
-// }

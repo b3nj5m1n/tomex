@@ -13,6 +13,7 @@ mod repl;
 
 use bokhylle::types::{
     author::Author, book_author::BookAuthor, book_genre::BookGenre, genre::Genre, mood::Mood,
+    pace::Pace,
 };
 use bokhylle::{traits::*, types::book::Book};
 
@@ -42,6 +43,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("mood", _matches)) => {
                 Mood::insert_by_prompt(conn).await?;
             }
+            Some(("pace", _matches)) => {
+                Pace::insert_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
@@ -57,6 +61,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("mood", _matches)) => {
                 Mood::update_by_prompt_by_prompt(conn).await?;
+            }
+            Some(("pace", _matches)) => {
+                Pace::update_by_prompt_by_prompt(conn).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -74,6 +81,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("mood", _matches)) => {
                 Mood::remove_by_prompt(conn).await?;
             }
+            Some(("pace", _matches)) => {
+                Pace::remove_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
@@ -89,6 +99,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("mood", _matches)) => {
                 Mood::query_by_clap(conn, _matches).await?;
+            }
+            Some(("pace", _matches)) => {
+                Pace::query_by_clap(conn, _matches).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -131,6 +144,7 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
         Book::init_table(conn),
         Genre::init_table(conn),
         Mood::init_table(conn),
+        Pace::init_table(conn),
         BookAuthor::create_table(conn),
         BookGenre::create_table(conn),
     )?;
