@@ -15,6 +15,5 @@ pub mod progress;
 pub mod publisher;
 pub mod review;
 
-// Junction tables
-pub mod book_author;
-pub mod book_genre;
+pub mod junction_tables;
+pub use junction_tables::*;

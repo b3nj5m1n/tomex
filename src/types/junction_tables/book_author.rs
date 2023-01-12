@@ -1,9 +1,10 @@
 use const_format::formatcp;
 use sqlx::FromRow;
 
-use crate::{traits::*, types::uuid::Uuid};
-
-use super::{author::Author, book::Book};
+use crate::{
+    traits::*,
+    types::{author::Author, book::Book, uuid::Uuid},
+};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, FromRow)]
 pub struct BookAuthor {
