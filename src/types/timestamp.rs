@@ -42,6 +42,11 @@ impl Display for OptionalTimestamp {
     }
 }
 
+impl sqlx::Type<sqlx::Sqlite> for Timestamp {
+    fn type_info() -> sqlx::sqlite::SqliteTypeInfo {
+        <&i8 as sqlx::Type<sqlx::Sqlite>>::type_info()
+    }
+}
 impl sqlx::Type<sqlx::Sqlite> for OptionalTimestamp {
     fn type_info() -> sqlx::sqlite::SqliteTypeInfo {
         <&i8 as sqlx::Type<sqlx::Sqlite>>::type_info()
@@ -92,17 +97,18 @@ impl PromptType for Timestamp {
     }
 }
 
-// TODO I'm not sure if it makes sense to implement this trait for OptionalTimestamp
-/* impl QueryType for OptionalTimestamp {
-    fn create_by_prompt(prompt: &str) -> anyhow::Result<Self> {
-        Ok(OptionalTimestamp(Some(Timestamp::create_by_prompt(prompt)?)))
-    }
+impl<'q> sqlx::Encode<'q, sqlx::Sqlite> for Timestamp {
+    fn encode_by_ref(
+        &self,
+        args: &mut Vec<sqlx::sqlite::SqliteArgumentValue<'q>>,
+    ) -> sqlx::encode::IsNull {
+        args.push(sqlx::sqlite::SqliteArgumentValue::Int64(
+            self.0.timestamp_millis(),
+        ));
 
-    fn create_by_prompt_skippable(prompt: &str) -> anyhow::Result<Option<Self>> {
-        Ok(OptionalTimestamp(Timestamp::create_by_prompt_skippable(prompt)?))
+        sqlx::encode::IsNull::No
     }
-} */
-
+}
 impl<'q> sqlx::Encode<'q, sqlx::Sqlite> for OptionalTimestamp {
     fn encode_by_ref(
         &self,
@@ -119,6 +125,24 @@ impl<'q> sqlx::Encode<'q, sqlx::Sqlite> for OptionalTimestamp {
     }
 }
 
+impl<'r, DB: sqlx::Database> sqlx::Decode<'r, DB> for Timestamp
+where
+    i64: sqlx::Decode<'r, DB>,
+{
+    fn decode(
+        value: <DB as sqlx::database::HasValueRef<'r>>::ValueRef,
+    ) -> Result<Self, Box<dyn std::error::Error + 'static + Send + Sync>> {
+        let value = <i64 as sqlx::Decode<DB>>::decode(value)?;
+        let ts = chrono::NaiveDateTime::from_timestamp_millis(value)
+            .map(|x| chrono::DateTime::from_utc(x, chrono::Utc));
+        match ts {
+            Some(ts) => Ok(Timestamp(ts)),
+            None => Err(Box::new(sqlx::Error::Protocol(
+                "Couldn't decode non-optional timestamp".to_string(),
+            ))),
+        }
+    }
+}
 impl<'r, DB: sqlx::Database> sqlx::Decode<'r, DB> for OptionalTimestamp
 where
     i64: sqlx::Decode<'r, DB>,

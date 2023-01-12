@@ -12,8 +12,8 @@ mod prompt;
 mod repl;
 
 use bokhylle::types::{
-    author::Author, book_author::BookAuthor, book_genre::BookGenre, genre::Genre,
-    language::Language, mood::Mood, pace::Pace, publisher::Publisher,
+    author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition, genre::Genre,
+    language::Language, mood::Mood, pace::Pace, progress::Progress, publisher::Publisher,
 };
 use bokhylle::{traits::*, types::book::Book};
 
@@ -34,6 +34,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("book", _matches)) => {
                 Book::insert_by_prompt(conn).await?;
             }
+            Some(("edition", _matches)) => {
+                Edition::insert_by_prompt(conn).await?;
+            }
             Some(("author", _matches)) => {
                 Author::insert_by_prompt(conn).await?;
             }
@@ -52,12 +55,18 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("publisher", _matches)) => {
                 Publisher::insert_by_prompt(conn).await?;
             }
+            Some(("progress", _matches)) => {
+                Progress::insert_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
         Some(("edit", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
                 Book::update_by_prompt_by_prompt(conn).await?;
+            }
+            Some(("edition", _matches)) => {
+                Edition::update_by_prompt_by_prompt(conn).await?;
             }
             Some(("author", _matches)) => {
                 Author::update_by_prompt_by_prompt(conn).await?;
@@ -77,12 +86,18 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("publisher", _matches)) => {
                 Publisher::update_by_prompt_by_prompt(conn).await?;
             }
+            Some(("progress", _matches)) => {
+                Progress::update_by_prompt_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
         Some(("remove", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
                 Book::remove_by_prompt(conn).await?;
+            }
+            Some(("edition", _matches)) => {
+                Edition::remove_by_prompt(conn).await?;
             }
             Some(("author", _matches)) => {
                 Author::remove_by_prompt(conn).await?;
@@ -102,12 +117,18 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             Some(("publisher", _matches)) => {
                 Publisher::remove_by_prompt(conn).await?;
             }
+            Some(("progress", _matches)) => {
+                Progress::remove_by_prompt(conn).await?;
+            }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
         Some(("query", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
                 Book::query_by_clap(conn, _matches).await?;
+            }
+            Some(("edition", _matches)) => {
+                Edition::query_by_clap(conn, _matches).await?;
             }
             Some(("author", _matches)) => {
                 Author::query_by_clap(conn, _matches).await?;
@@ -126,6 +147,9 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
             }
             Some(("publisher", _matches)) => {
                 Publisher::query_by_clap(conn, _matches).await?;
+            }
+            Some(("progress", _matches)) => {
+                Progress::query_by_clap(conn, _matches).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -166,11 +190,13 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
     tokio::try_join!(
         Author::init_table(conn),
         Book::init_table(conn),
+        Edition::init_table(conn),
         Publisher::init_table(conn),
         Genre::init_table(conn),
         Mood::init_table(conn),
         Pace::init_table(conn),
         Language::init_table(conn),
+        Progress::init_table(conn),
         BookAuthor::create_table(conn),
         BookGenre::create_table(conn),
     )?;
