@@ -2,16 +2,27 @@ use clap::Command;
 
 pub fn arg_parser_types() -> Vec<Command> {
     vec![
-        Command::new("book").about("A book"),
-        Command::new("review").about("A book review"),
-        Command::new("edition").about("An edition of a book"),
-        Command::new("author").about("An author"),
-        Command::new("publisher").about("A publisher"),
-        Command::new("genre").about("Genres of a book"),
-        Command::new("mood").about("Mood of a book"),
+        Command::new("book").about("A book").alias("b"),
+        Command::new("review")
+            .about("A review of a book")
+            .alias("r"),
+        Command::new("edition")
+            .about("An edition of a book")
+            .alias("e"),
+        Command::new("edition-review")
+            .about("A review of a specific edition of a book")
+            .alias("er"),
+        Command::new("author").about("An author").alias("a"),
+        Command::new("publisher").about("A publisher").alias("pub"),
+        Command::new("genre").about("Genres of a book").alias("g"),
+        Command::new("mood").about("Mood of a book").alias("m"),
         Command::new("pace").about("Pace of a book"),
-        Command::new("language").about("Language of an edition of a book"),
-        Command::new("progress").about("A progress report for an edition"),
+        Command::new("language")
+            .about("Language of an edition of a book")
+            .alias("l"),
+        Command::new("progress")
+            .about("A progress report for an edition")
+            .alias("p"),
     ]
 }
 
