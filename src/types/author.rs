@@ -16,7 +16,7 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Removeable, Id)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Id)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<Text>,
@@ -243,6 +243,34 @@ impl Updateable for Author {
             special: self.special,
         };
         Self::update(self, conn, new).await
+    }
+}
+
+impl Removeable for Author {
+    async fn remove_by_prompt(conn: &sqlx::SqlitePool) -> Result<()>
+    where
+        Self: Queryable,
+    {
+        let x = Self::query_by_prompt_skippable(conn).await?;
+        if let Some(x) = x.as_ref() {
+            if x.special {
+                anyhow::bail!("Can't remove special author manually");
+            }
+        }
+        match x {
+            Some(x) => {
+                if !inquire::Confirm::new(&format!("Are you sure you want to remove {}?", x))
+                    .with_default(false)
+                    .prompt()?
+                {
+                    anyhow::bail!("Aborted");
+                };
+                Self::remove(&x, conn).await?;
+                println!("Deleted");
+            }
+            None => println!("Nothing selected, doing nothing"),
+        }
+        Ok(())
     }
 }
 
