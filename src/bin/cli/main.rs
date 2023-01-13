@@ -1,9 +1,5 @@
 use anyhow::Result;
 use dotenvy::{dotenv, var as envar};
-use figment::{
-    providers::{Env, Format, Serialized, Toml},
-    Figment,
-};
 use reedline::Signal;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
@@ -248,11 +244,7 @@ async fn main() -> Result<()> {
 
     create_tables(&conn).await?;
 
-    let config: config::Config = Figment::new()
-        .merge(Serialized::defaults(config::Config::default()))
-        .merge(Toml::file("config.toml"))
-        // .merge(Env::prefixed("APP_"))
-        .extract()?;
+    let config = config::Config::read_config()?;
 
     // println!("{}", config::Config::default_as_string()?);
 

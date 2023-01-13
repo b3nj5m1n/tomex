@@ -4,7 +4,7 @@ use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
-    config,
+    config::{self, Styleable},
     traits::*,
     types::{edition::Edition, timestamp::Timestamp, uuid::Uuid},
 };
@@ -21,21 +21,37 @@ pub struct Progress {
 
 impl Display for Progress {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {} pages", self.timestamp, self.pages_progress)
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        write!(
+            f,
+            "{}: {} pages",
+            self.timestamp,
+            self.pages_progress
+                .to_string()
+                .style(&config.output_progress.style_content)
+        )
     }
 }
 impl DisplayTerminal for Progress {
     async fn fmt(
         &self,
         f: &mut String,
-        _conn: &sqlx::SqlitePool,
-        _config: &config::Config,
+        conn: &sqlx::SqlitePool,
+        config: &config::Config,
     ) -> Result<()> {
-        // TODO display edition here
+        let edition = Edition::get_by_id(conn, &self.edition_id).await?;
+        let title = edition.to_string();
         write!(
             f,
-            "{} {}:  {} pages",
-            self.edition_id, self.timestamp, self.pages_progress
+            "{} {}: {} pages",
+            title,
+            self.timestamp,
+            self.pages_progress
+                .to_string()
+                .style(&config.output_progress.style_content)
         )?;
         Ok(())
     }

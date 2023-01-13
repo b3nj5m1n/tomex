@@ -5,7 +5,7 @@ use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
 use crate::{
-    config,
+    config::{self, Styleable},
     traits::*,
     types::{
         author::Author,
@@ -59,14 +59,18 @@ impl Book {
 
 impl Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        let title = self
+            .title
+            .to_string()
+            .style(&config.output_book.style_content);
         match &self.release_date.0 {
-            None => write!(f, "{} ({})", self.title, self.id),
+            None => write!(f, "{} ({})", title, self.id),
             Some(release_date) => {
-                write!(
-                    f,
-                    "{}, released {} ({})",
-                    self.title, release_date.0, self.id
-                )
+                write!(f, "{}, released {} ({})", title, release_date, self.id)
             }
         }
     }
@@ -80,16 +84,11 @@ impl DisplayTerminal for Book {
     ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
-        let title = format!("{}", self.title);
-        let title = title
-            .with(crossterm::style::Color::Rgb {
-                r: 245,
-                g: 169,
-                b: 127,
-            })
-            .bold();
-        write!(f, "{}", title)?;
-        write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
+        let title = self
+            .title
+            .to_string()
+            .style(&config.output_book.style_content);
+        write!(f, "{} ", title)?;
         if let Some(authors) = s.authors {
             write!(
                 f,

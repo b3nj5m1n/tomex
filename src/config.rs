@@ -1,5 +1,9 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
+use figment::{
+    providers::{Env, Format, Serialized, Toml},
+    Figment,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{default_colors::*, traits::DisplayTerminal};
@@ -97,33 +101,146 @@ impl OutputConfig {
     }
 }
 
+impl Default for OutputConfig {
+    fn default() -> Self {
+        Self {
+            prefix: "[".into(),
+            suffix: "]".into(),
+            description: "".into(),
+            separator: ", ".into(),
+            style_prefix: StyleConfig::default(),
+            style_suffix: StyleConfig::default(),
+            style_description: StyleConfig::default(),
+            style_separator: StyleConfig::default(),
+            style_content: StyleConfig::default(),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub output_uuid: OutputConfig,
+    pub output_timestamp: OutputConfig,
     pub output_author: OutputConfig,
+    pub output_mood: OutputConfig,
+    pub output_pace: OutputConfig,
+    pub output_book: OutputConfig,
+    pub output_genre: OutputConfig,
+    pub output_edition: OutputConfig,
+    pub output_progress: OutputConfig,
+    pub output_language: OutputConfig,
+    pub output_publisher: OutputConfig,
+    pub output_edition_review: OutputConfig,
 }
 
 impl Config {
     pub fn default_as_string() -> Result<String> {
         Ok(toml::to_string(&Self::default())?)
     }
+    pub fn read_config() -> Result<Self> {
+        Ok(Figment::new()
+            .merge(Serialized::defaults(Config::default()))
+            .merge(Toml::file("config.toml"))
+            // .merge(Env::prefixed("APP_"))
+            .extract()?)
+    }
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
+            output_uuid: OutputConfig {
+                prefix: "(".into(),
+                suffix: ")".into(),
+                style_content: StyleConfig {
+                    color: COLOR_DIMMED,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_timestamp: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_TIMESTAMP,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
             output_author: OutputConfig {
-                prefix: "[".into(),
-                style_prefix: StyleConfig::default(),
-                suffix: "]".into(),
-                style_suffix: StyleConfig::default(),
-                description: "written by".into(),
-                style_description: StyleConfig::default(),
+                description: "Written by:".into(),
                 separator: " and ".into(),
-                style_separator: StyleConfig::default(),
                 style_content: StyleConfig {
                     color: COLOR_AUTHOR,
                     ..StyleConfig::default()
                 },
+                ..OutputConfig::default()
+            },
+            output_mood: OutputConfig {
+                description: "Moods:".into(),
+                style_content: StyleConfig {
+                    color: COLOR_MOOD,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_pace: OutputConfig {
+                description: "Pace:".into(),
+                style_content: StyleConfig {
+                    color: COLOR_PACE,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_book: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_BOOK,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_genre: OutputConfig {
+                description: "Genres:".into(),
+                style_content: StyleConfig {
+                    color: COLOR_GENRE,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_edition: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_EDITION,
+                    bold: true,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_progress: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_EDITION,
+                    bold: true,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_language: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_LANGUAGE,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_publisher: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_PUBLISHER,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_edition_review: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_EDITION_REVIEW,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
             },
         }
     }

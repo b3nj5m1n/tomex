@@ -1,7 +1,12 @@
-use crossterm::style::Stylize;
 use std::fmt::Display;
 
-use crate::traits::PromptType;
+use crossterm::style::Stylize;
+
+use crate::{
+    config::{self, Styleable},
+    default_colors::COLOR_DIMMED,
+    traits::PromptType,
+};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
@@ -9,13 +14,13 @@ pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
 impl Display for Timestamp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use chrono_humanize::{Accuracy, HumanTime, Tense};
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
         let ht = HumanTime::from(self.0);
         let s = format!("{}", ht.to_text_en(Accuracy::Rough, Tense::Past));
-        let s = s.with(crossterm::style::Color::Rgb {
-            r: 138,
-            g: 173,
-            b: 244,
-        });
+        let s = s.style(&config.output_timestamp.style_content);
         write!(f, "{}", s)
     }
 }
@@ -30,13 +35,7 @@ impl Display for OptionalTimestamp {
             "{}",
             &match &self.0 {
                 Some(ts) => ts.0.to_string(),
-                None => "Not specified"
-                    .with(crossterm::style::Color::Rgb {
-                        r: 110,
-                        g: 115,
-                        b: 141,
-                    })
-                    .to_string(),
+                None => "Not specified".with(COLOR_DIMMED).to_string(),
             }
         )
     }

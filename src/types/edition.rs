@@ -5,7 +5,8 @@ use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
 use crate::{
-    config,
+    config::{self, Styleable},
+    default_colors::COLOR_DIMMED,
     traits::*,
     types::{
         book::Book, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
@@ -58,14 +59,38 @@ impl Edition {
 
 impl Display for Edition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
         match (&self.isbn, &self.edition_title) {
-            (None, None) => write!(f, "{} ({})", self.book_title, self.id),
-            (None, Some(title)) => write!(f, "{} ({})", title, self.id),
+            (None, None) => write!(
+                f,
+                "{} ({})",
+                self.book_title.style(&config.output_edition.style_content),
+                self.id
+            ),
+            (None, Some(title)) => write!(
+                f,
+                "{} ({})",
+                title.style(&config.output_edition.style_content),
+                self.id
+            ),
             (Some(isbn), None) => {
-                write!(f, "{} ({})", self.book_title, isbn)
+                write!(
+                    f,
+                    "{} ({})",
+                    self.book_title.style(&config.output_edition.style_content),
+                    isbn.to_string().with(COLOR_DIMMED)
+                )
             }
             (Some(isbn), Some(title)) => {
-                write!(f, "{} ({})", title, isbn)
+                write!(
+                    f,
+                    "{} ({})",
+                    title.style(&config.output_edition.style_content),
+                    isbn.to_string().with(COLOR_DIMMED)
+                )
             }
         }
     }
@@ -75,7 +100,7 @@ impl DisplayTerminal for Edition {
         &self,
         f: &mut String,
         conn: &sqlx::SqlitePool,
-        _config: &config::Config,
+        config: &config::Config,
     ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
@@ -83,17 +108,10 @@ impl DisplayTerminal for Edition {
         // Edition/Book title
         let title = match s.edition_title {
             Some(t) => format!("{}", t),
-            None => format!("{}", book.title.to_string().italic()),
-        };
-        let title = title
-            .with(crossterm::style::Color::Rgb {
-                r: 238,
-                g: 153,
-                b: 16,
-            })
-            .bold();
-        write!(f, "{}", title)?;
-        write!(f, " ")?;
+            None => format!("{}", book.title),
+        }
+        .style(&config.output_edition.style_content);
+        write!(f, "{} ", title)?;
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
             let str = "written by".italic();

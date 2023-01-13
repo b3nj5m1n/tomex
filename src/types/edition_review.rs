@@ -8,7 +8,7 @@ use sqlx::{
 use std::fmt::{Display, Write};
 
 use crate::{
-    config,
+    config::{self, Styleable},
     traits::*,
     types::{book::Book, text::Text, timestamp::Timestamp, uuid::Uuid},
 };
@@ -45,7 +45,17 @@ impl EditionReview {
 
 impl Display for EditionReview {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} ({})", self.book_title, self.id)
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        write!(
+            f,
+            "{} ({})",
+            self.book_title
+                .style(&config.output_edition_review.style_content),
+            self.id
+        )
     }
 }
 impl DisplayTerminal for EditionReview {
@@ -60,16 +70,7 @@ impl DisplayTerminal for EditionReview {
         let edition = Edition::get_by_id(conn, &s.edition_id).await?;
         let book = Book::get_by_id(conn, &edition.book_id).await?;
         // Book title
-        let title = format!("{}", book.title);
-        let title = title
-            .with(crossterm::style::Color::Rgb {
-                r: 238,
-                g: 153,
-                b: 16,
-            })
-            .bold();
-        write!(f, "{}", title)?;
-        write!(f, " ")?;
+        write!(f, "{} ", edition.to_string())?;
         // Rating
         if let Some(rating) = s.rating {
             let str = rating

@@ -1,10 +1,9 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
-    config,
+    config::{self, Styleable},
     traits::*,
     types::{text::Text, uuid::Uuid},
 };
@@ -19,13 +18,18 @@ pub struct Publisher {
 
 impl Display for Publisher {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = format!("{}", self.name);
-        let name = name.with(crossterm::style::Color::Rgb {
-            r: 138,
-            g: 173,
-            b: 244,
-        });
-        write!(f, "{} ({})", name, self.id)
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        write!(
+            f,
+            "{} ({})",
+            self.name
+                .to_string()
+                .style(&config.output_publisher.style_content),
+            self.id
+        )
     }
 }
 impl DisplayTerminal for Publisher {
@@ -33,15 +37,16 @@ impl DisplayTerminal for Publisher {
         &self,
         f: &mut String,
         _conn: &sqlx::SqlitePool,
-        _config: &config::Config,
+        config: &config::Config,
     ) -> Result<()> {
-        let name = format!("{}", self.name);
-        let name = name.with(crossterm::style::Color::Rgb {
-            r: 138,
-            g: 173,
-            b: 244,
-        });
-        write!(f, "{} ({})", name, self.id)?;
+        write!(
+            f,
+            "{} ({})",
+            self.name
+                .to_string()
+                .style(&config.output_publisher.style_content),
+            self.id
+        )?;
         Ok(())
     }
 }

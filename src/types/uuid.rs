@@ -1,18 +1,24 @@
-use crossterm::style::Stylize;
 use std::fmt::Display;
+
+use crate::config::{self, Styleable};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)]
 pub struct Uuid(pub uuid::Uuid);
 
 impl Display for Uuid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let s = format!("{}", self.0);
-        let s = s.chars().take(8).collect::<String>();
-        let s = s.with(crossterm::style::Color::Rgb {
-            r: 110,
-            g: 115,
-            b: 141,
-        });
+        // TODO this is very obviously very bad
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        let s = self
+            .0
+            .to_string()
+            .chars()
+            .take(8)
+            .collect::<String>()
+            .style(&config.output_uuid.style_content);
         write!(f, "{}", s)
     }
 }

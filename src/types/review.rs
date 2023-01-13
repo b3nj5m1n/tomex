@@ -62,16 +62,7 @@ impl DisplayTerminal for Review {
         s.hydrate(conn).await?;
         let book = Book::get_by_id(conn, &s.book_id).await?;
         // Book title
-        let title = format!("{}", book.title);
-        let title = title
-            .with(crossterm::style::Color::Rgb {
-                r: 238,
-                g: 153,
-                b: 16,
-            })
-            .bold();
-        write!(f, "{}", title)?;
-        write!(f, " ")?;
+        write!(f, "{} ", book.title.to_string())?;
         // Rating
         if let Some(rating) = s.rating {
             let str = rating

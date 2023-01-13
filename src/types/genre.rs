@@ -1,10 +1,9 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
-    config,
+    config::{self, Styleable},
     traits::*,
     types::{text::Text, uuid::Uuid},
 };
@@ -19,12 +18,17 @@ pub struct Genre {
 
 impl Display for Genre {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = format!("{}", self.name);
-        let name = name.with(crossterm::style::Color::Rgb {
-            r: 240,
-            g: 198,
-            b: 198,
-        });
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        let name = self
+            .name
+            .to_string()
+            .chars()
+            .take(8)
+            .collect::<String>()
+            .style(&config.output_genre.style_content);
         write!(f, "{} ({})", name, self.id)
     }
 }
@@ -33,14 +37,15 @@ impl DisplayTerminal for Genre {
         &self,
         f: &mut String,
         _conn: &sqlx::SqlitePool,
-        _config: &config::Config,
+        config: &config::Config,
     ) -> Result<()> {
-        let name = format!("{}", self.name);
-        let name = name.with(crossterm::style::Color::Rgb {
-            r: 240,
-            g: 198,
-            b: 198,
-        });
+        let name = self
+            .name
+            .to_string()
+            .chars()
+            .take(8)
+            .collect::<String>()
+            .style(&config.output_genre.style_content);
         write!(f, "{} ({})", name, self.id)?;
         Ok(())
     }
