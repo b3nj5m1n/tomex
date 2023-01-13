@@ -6,6 +6,7 @@ use sqlx::{
     FromRow,
 };
 
+use crate::config;
 use crate::types::{option_to_create::OptionToCreate, uuid::Uuid};
 
 /// A trait which corresponds to a junction table between two other types in the database
@@ -277,19 +278,34 @@ where
     Self: Sized,
 {
     /// Format self to the provided string buffer
-    async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()>;
+    async fn fmt(
+        &self,
+        f: &mut String,
+        conn: &sqlx::SqlitePool,
+        _config: &config::Config,
+    ) -> Result<()>;
+    /// More verbose than [fmt], displays every piece of information about self
+    async fn info_card(
+        &self,
+        f: &mut String,
+        conn: &sqlx::SqlitePool,
+        config: &config::Config,
+    ) -> Result<()> {
+        self.fmt(f, conn, &config).await
+    }
     /// Format self and return the result as a string, provide optional string as prefix
     async fn fmt_to_string(
         &self,
         conn: &sqlx::SqlitePool,
         prefix: Option<impl ToString>,
+        config: &config::Config,
     ) -> Result<String> {
         let mut buf = if let Some(s) = prefix {
             s.to_string()
         } else {
             String::new()
         };
-        self.fmt(&mut buf, conn).await?;
+        self.fmt(&mut buf, conn, config).await?;
         Ok(buf)
     }
 }
@@ -461,13 +477,17 @@ where
         }
     }
     /// Select a single record from the database by parsing [clap] matches
-    async fn query_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()> {
+    async fn query_by_clap(
+        conn: &sqlx::SqlitePool,
+        matches: &clap::ArgMatches,
+        config: &config::Config,
+    ) -> Result<()> {
         if let Some(clap::parser::ValueSource::CommandLine) = matches.value_source("interactive") {
             match Self::query_by_prompt_skippable(conn).await? {
                 Some(x) => {
                     println!(
                         "{}",
-                        DisplayTerminal::fmt_to_string(&x, conn, Some(" ")).await?
+                        DisplayTerminal::fmt_to_string(&x, conn, Some(" "), config).await?
                     )
                 }
                 None => println!("No {} selected.", Self::NAME_SINGULAR),
@@ -483,7 +503,8 @@ where
                             DisplayTerminal::fmt_to_string(
                                 &Self::get_by_id(conn, &uuid).await?,
                                 conn,
-                                Some(" ")
+                                Some(" "),
+                                config
                             )
                             .await?
                         );
@@ -509,7 +530,7 @@ where
             for x in xs {
                 println!(
                     "{}",
-                    DisplayTerminal::fmt_to_string(&x, conn, Some(" • ")).await?
+                    DisplayTerminal::fmt_to_string(&x, conn, Some(" • "), config).await?
                 );
             }
         }

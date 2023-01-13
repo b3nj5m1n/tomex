@@ -8,6 +8,7 @@ use sqlx::{
 use std::fmt::{Display, Write};
 
 use crate::{
+    config,
     traits::*,
     types::{book::Book, pace::Pace, text::Text, timestamp::Timestamp, uuid::Uuid},
 };
@@ -51,7 +52,12 @@ impl Display for Review {
     }
 }
 impl DisplayTerminal for Review {
-    async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
+    async fn fmt(
+        &self,
+        f: &mut String,
+        conn: &sqlx::SqlitePool,
+        _config: &config::Config,
+    ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
         let book = Book::get_by_id(conn, &s.book_id).await?;

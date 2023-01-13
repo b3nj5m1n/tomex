@@ -18,14 +18,18 @@ chrono = "0.4.23"
 chrono-humanize = "0.2.2"
 clap = "4.0.32"
 const_format = "0.2.30"
-crossterm = "0.25.0"
+crossterm = { version = "0.25.0", features = ["serde"] }
 derives = { version = "0.1.0", path = "src/derives" }
 dotenvy = "0.15.6"
+figment = { version = "0.10.8", features = ["yaml", "toml", "env"] }
 inquire = { version = "0.5.2", features = ["date", "editor"] }
 reedline = "0.14.0"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.91"
 shlex = "1.1.0"
 sqlx = { version = "0.6.2", features = ["runtime-tokio-rustls", "postgres", "sqlite", "macros", "chrono", "offline"] }
 tokio = { version = "1.23.0", features = ["full"] }
+toml = "0.5.10"
 uuid = { version = "1.2.2", features = ["v4"] }
 
 [dev-dependencies]

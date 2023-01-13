@@ -5,6 +5,7 @@ use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
 use crate::{
+    config,
     traits::*,
     types::{
         book::Book, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
@@ -70,7 +71,12 @@ impl Display for Edition {
     }
 }
 impl DisplayTerminal for Edition {
-    async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
+    async fn fmt(
+        &self,
+        f: &mut String,
+        conn: &sqlx::SqlitePool,
+        _config: &config::Config,
+    ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
         let book = Book::get_by_id(conn, &s.book_id).await?;

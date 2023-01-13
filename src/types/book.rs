@@ -5,6 +5,7 @@ use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
 use crate::{
+    config,
     traits::*,
     types::{
         author::Author,
@@ -71,7 +72,12 @@ impl Display for Book {
     }
 }
 impl DisplayTerminal for Book {
-    async fn fmt(&self, f: &mut String, conn: &sqlx::SqlitePool) -> Result<()> {
+    async fn fmt(
+        &self,
+        f: &mut String,
+        conn: &sqlx::SqlitePool,
+        config: &config::Config,
+    ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
         let title = format!("{}", self.title);
@@ -85,19 +91,14 @@ impl DisplayTerminal for Book {
         write!(f, "{}", title)?;
         write!(f, " ")?; // TODO firgure out how to use Formatter to avoid this
         if let Some(authors) = s.authors {
-            let str = "written by".italic();
-            write!(f, "[{}: ", str)?;
             write!(
                 f,
-                "{}",
-                authors
-                    .into_iter()
-                    .map(|author| author.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
+                "{} ",
+                config
+                    .output_author
+                    .format_vec(authors, conn, config)
+                    .await?
             )?;
-            write!(f, "]",)?;
-            write!(f, " ")?;
         }
         if let Some(release_date) = &s.release_date.0 {
             let str = "released".italic();

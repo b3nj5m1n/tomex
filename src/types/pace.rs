@@ -4,6 +4,7 @@ use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
+    config,
     traits::*,
     types::{text::Text, uuid::Uuid},
 };
@@ -28,7 +29,12 @@ impl Display for Pace {
     }
 }
 impl DisplayTerminal for Pace {
-    async fn fmt(&self, f: &mut String, _conn: &sqlx::SqlitePool) -> Result<()> {
+    async fn fmt(
+        &self,
+        f: &mut String,
+        _conn: &sqlx::SqlitePool,
+        _config: &config::Config,
+    ) -> Result<()> {
         let name = format!("{}", self.name);
         let name = name.with(crossterm::style::Color::Rgb {
             r: 166,

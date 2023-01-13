@@ -1,5 +1,9 @@
 use anyhow::Result;
 use dotenvy::{dotenv, var as envar};
+use figment::{
+    providers::{Env, Format, Serialized, Toml},
+    Figment,
+};
 use reedline::Signal;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
@@ -11,15 +15,18 @@ mod command_parser;
 mod prompt;
 mod repl;
 
-use bokhylle::types::{
-    author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition,
-    edition_language::EditionLanguage, edition_publisher::EditionPublisher,
-    edition_review::EditionReview, genre::Genre, language::Language, mood::Mood, pace::Pace,
-    progress::Progress, publisher::Publisher, review::Review,
+use bokhylle::{
+    config,
+    types::{
+        author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition,
+        edition_language::EditionLanguage, edition_publisher::EditionPublisher,
+        edition_review::EditionReview, genre::Genre, language::Language, mood::Mood, pace::Pace,
+        progress::Progress, publisher::Publisher, review::Review,
+    },
 };
 use bokhylle::{traits::*, types::book::Book};
 
-async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
+async fn handle_command(command: String, conn: &SqlitePool, config: &config::Config) -> Result<()> {
     let args = command_parser::arg_parser_repl();
     let command = shlex::split(&command);
     if let None = command {
@@ -145,37 +152,37 @@ async fn handle_command(command: String, conn: &SqlitePool) -> Result<()> {
         },
         Some(("query", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
-                Book::query_by_clap(conn, _matches).await?;
+                Book::query_by_clap(conn, _matches, config).await?;
             }
             Some(("review", _matches)) => {
-                Review::query_by_clap(conn, _matches).await?;
+                Review::query_by_clap(conn, _matches, config).await?;
             }
             Some(("edition", _matches)) => {
-                Edition::query_by_clap(conn, _matches).await?;
+                Edition::query_by_clap(conn, _matches, config).await?;
             }
             Some(("edition-review", _matches)) => {
-                EditionReview::query_by_clap(conn, _matches).await?;
+                EditionReview::query_by_clap(conn, _matches, config).await?;
             }
             Some(("author", _matches)) => {
-                Author::query_by_clap(conn, _matches).await?;
+                Author::query_by_clap(conn, _matches, config).await?;
             }
             Some(("genre", _matches)) => {
-                Genre::query_by_clap(conn, _matches).await?;
+                Genre::query_by_clap(conn, _matches, config).await?;
             }
             Some(("mood", _matches)) => {
-                Mood::query_by_clap(conn, _matches).await?;
+                Mood::query_by_clap(conn, _matches, config).await?;
             }
             Some(("pace", _matches)) => {
-                Pace::query_by_clap(conn, _matches).await?;
+                Pace::query_by_clap(conn, _matches, config).await?;
             }
             Some(("language", _matches)) => {
-                Language::query_by_clap(conn, _matches).await?;
+                Language::query_by_clap(conn, _matches, config).await?;
             }
             Some(("publisher", _matches)) => {
-                Publisher::query_by_clap(conn, _matches).await?;
+                Publisher::query_by_clap(conn, _matches, config).await?;
             }
             Some(("progress", _matches)) => {
-                Progress::query_by_clap(conn, _matches).await?;
+                Progress::query_by_clap(conn, _matches, config).await?;
             }
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
@@ -241,12 +248,20 @@ async fn main() -> Result<()> {
 
     create_tables(&conn).await?;
 
+    let config: config::Config = Figment::new()
+        .merge(Serialized::defaults(config::Config::default()))
+        .merge(Toml::file("config.toml"))
+        // .merge(Env::prefixed("APP_"))
+        .extract()?;
+
+    // println!("{}", config::Config::default_as_string()?);
+
     if let Some(("repl", _)) = args_parsed.subcommand() {
         let mut repl = repl::Repl::new(command_parser::generate_completions());
         loop {
             match repl.read_line() {
                 Ok(Signal::Success(buffer)) => {
-                    match handle_command(buffer.clone(), &conn).await {
+                    match handle_command(buffer.clone(), &conn, &config).await {
                         Ok(_) => (),
                         Err(e) => println!("Error: {}", e),
                     };
@@ -266,7 +281,7 @@ async fn main() -> Result<()> {
             .map(|x| x.into_string().expect("Invalid unicode in arguments"))
             .collect::<Vec<String>>()
             .join(" ");
-        handle_command(args, &conn).await?;
+        handle_command(args, &conn, &config).await?;
     }
 
     conn.close().await;

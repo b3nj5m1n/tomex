@@ -4,6 +4,7 @@ use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
 use crate::{
+    config,
     traits::*,
     types::{edition::Edition, timestamp::Timestamp, uuid::Uuid},
 };
@@ -24,7 +25,12 @@ impl Display for Progress {
     }
 }
 impl DisplayTerminal for Progress {
-    async fn fmt(&self, f: &mut String, _conn: &sqlx::SqlitePool) -> Result<()> {
+    async fn fmt(
+        &self,
+        f: &mut String,
+        _conn: &sqlx::SqlitePool,
+        _config: &config::Config,
+    ) -> Result<()> {
         // TODO display edition here
         write!(
             f,
