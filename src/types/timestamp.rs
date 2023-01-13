@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 use crossterm::style::Stylize;
@@ -8,7 +9,7 @@ use crate::{
     traits::PromptType,
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
 
 impl Display for Timestamp {
@@ -25,7 +26,7 @@ impl Display for Timestamp {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OptionalTimestamp(pub Option<Timestamp>);
 
 impl Display for OptionalTimestamp {

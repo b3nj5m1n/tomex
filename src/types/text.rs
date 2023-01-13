@@ -1,10 +1,11 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 use inquire::validator::StringValidator;
 
 use crate::traits::PromptType;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Text(pub String);
 
 impl Display for Text {

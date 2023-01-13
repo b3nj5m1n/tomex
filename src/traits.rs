@@ -25,6 +25,19 @@ where
     /// Should return the Uuid of the second element
     async fn get_id_b(&self) -> &Uuid;
 
+    /// Return all records from the database
+    async fn get_all(conn: &sqlx::SqlitePool) -> Result<Vec<Self>> {
+        let results = sqlx::query_as::<_, Self>(&format!(
+            r#"
+            SELECT * FROM {table_name_self};
+            "#,
+            table_name_self = Self::TABLE_NAME,
+        ))
+        .fetch_all(conn)
+        .await?;
+        Ok(results)
+    }
+
     /// Create the junction table
     async fn create_table(conn: &sqlx::SqlitePool) -> Result<()> {
         sqlx::query(&format!(

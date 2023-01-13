@@ -1,6 +1,7 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
 use inquire::{validator::Validation, Confirm};
+use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
     FromRow, Row,
@@ -16,7 +17,20 @@ use derives::*;
 
 use super::edition::Edition;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Removeable, Id)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Names,
+    CRUD,
+    Queryable,
+    Removeable,
+    Id,
+    Serialize,
+    Deserialize,
+)]
 pub struct EditionReview {
     pub id: Uuid,
     pub edition_id: Uuid,

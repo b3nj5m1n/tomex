@@ -1,5 +1,6 @@
 use anyhow::Result;
 use inquire::validator::Validation;
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
@@ -10,7 +11,21 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Id, Names, CRUD, Queryable, Removeable)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    FromRow,
+    Id,
+    Names,
+    CRUD,
+    Queryable,
+    Removeable,
+    Serialize,
+    Deserialize,
+)]
 pub struct Progress {
     pub id: Uuid,
     pub edition_id: Uuid,

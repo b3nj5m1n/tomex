@@ -1,4 +1,5 @@
 use const_format::formatcp;
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 use crate::{
@@ -6,7 +7,7 @@ use crate::{
     types::{author::Author, book::Book, uuid::Uuid},
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Serialize, Deserialize)]
 pub struct BookAuthor {
     pub book_id: Uuid,
     pub author_id: Uuid,

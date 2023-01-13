@@ -1,5 +1,6 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
+use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
     FromRow, Row,
@@ -18,7 +19,9 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Id)]
+#[derive(
+    Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Id, Serialize, Deserialize,
+)]
 pub struct Author {
     pub id: Uuid,
     pub name_first: Option<Text>,

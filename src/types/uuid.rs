@@ -1,8 +1,9 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
 use crate::config::{self, Styleable};
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord)]
 pub struct Uuid(pub uuid::Uuid);
 
 impl Display for Uuid {

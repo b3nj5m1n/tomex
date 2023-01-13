@@ -1,6 +1,7 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
 use inquire::{validator::Validation, MultiSelect};
+use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
@@ -16,7 +17,20 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Names,
+    Queryable,
+    Id,
+    Removeable,
+    CRUD,
+    Serialize,
+    Deserialize,
+)]
 pub struct Edition {
     pub id: Uuid,
     pub book_id: Uuid,

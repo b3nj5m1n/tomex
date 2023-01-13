@@ -12,7 +12,7 @@ mod prompt;
 mod repl;
 
 use bokhylle::{
-    config,
+    backup, config,
     types::{
         author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition,
         edition_language::EditionLanguage, edition_publisher::EditionPublisher,
@@ -267,6 +267,10 @@ async fn main() -> Result<()> {
                 }
             }
         }
+    } else if let Some(("backup", _)) = args_parsed.subcommand() {
+        let mut state = backup::State::load(&conn).await?;
+        state.sort();
+        println!("{}", state.serialize()?);
     } else {
         let args = env::args_os()
             .skip(1)

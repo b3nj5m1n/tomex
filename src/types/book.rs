@@ -1,6 +1,7 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
 use inquire::MultiSelect;
+use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
@@ -21,7 +22,20 @@ use derives::*;
 
 use super::{book_author::BookAuthor, book_genre::BookGenre};
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Names, Queryable, Id, Removeable, CRUD)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Names,
+    Queryable,
+    Id,
+    Removeable,
+    CRUD,
+    Serialize,
+    Deserialize,
+)]
 pub struct Book {
     pub id: Uuid,
     pub title: Text,

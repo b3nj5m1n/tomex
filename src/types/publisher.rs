@@ -1,4 +1,5 @@
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use std::fmt::{Display, Write};
 
@@ -9,7 +10,21 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Id, Names, CRUD, Queryable, Removeable)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    FromRow,
+    Id,
+    Names,
+    CRUD,
+    Queryable,
+    Removeable,
+    Serialize,
+    Deserialize,
+)]
 pub struct Publisher {
     pub id: Uuid,
     pub name: Text,

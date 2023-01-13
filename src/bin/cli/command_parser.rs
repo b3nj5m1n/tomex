@@ -97,7 +97,9 @@ pub fn arg_parser_repl() -> Command {
 }
 
 pub fn arg_parser_cli() -> Command {
-    arg_parser().subcommand(Command::new("repl").about("Launch a read eval print loop"))
+    arg_parser()
+        .subcommand(Command::new("repl").about("Launch a read eval print loop"))
+        .subcommand(Command::new("backup").about("Backup the database to JSON"))
 }
 
 pub fn generate_completions() -> Vec<String> {

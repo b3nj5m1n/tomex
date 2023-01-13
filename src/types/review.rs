@@ -1,6 +1,7 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
 use inquire::{validator::Validation, Confirm};
+use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
     FromRow, Row,
@@ -14,7 +15,20 @@ use crate::{
 };
 use derives::*;
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Removeable, Id)]
+#[derive(
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Names,
+    CRUD,
+    Queryable,
+    Removeable,
+    Id,
+    Serialize,
+    Deserialize,
+)]
 pub struct Review {
     pub id: Uuid,
     pub book_id: Uuid,
