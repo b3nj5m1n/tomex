@@ -66,3 +66,18 @@ pub const COLOR_EDITION_REVIEW: Color = Color::Rgb {
     g: 153,
     b: 16,
 };
+pub const COLOR_RATING: Color = Color::Rgb {
+    r: 198,
+    g: 160,
+    b: 246,
+};
+pub const COLOR_RECOMMENDED_TRUE: Color = Color::Rgb {
+    r: 166,
+    g: 218,
+    b: 149,
+};
+pub const COLOR_RECOMMENDED_FALSE: Color = Color::Rgb {
+    r: 237,
+    g: 135,
+    b: 150,
+};

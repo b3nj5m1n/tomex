@@ -78,6 +78,18 @@ impl OutputConfig {
         let content = &DisplayTerminal::fmt_to_string(&content, conn, Some(""), config).await?;
         Ok(format!("{prefix}{description} {content}{suffix}"))
     }
+    pub async fn format_str(
+        &self,
+        content: impl ToString,
+        _conn: &sqlx::SqlitePool,
+        _config: &Config,
+    ) -> Result<String> {
+        let prefix = self.prefix.style(&self.style_prefix);
+        let suffix = self.suffix.style(&self.style_suffix);
+        let description = self.description.style(&self.style_description);
+        let content = content.to_string().style(&self.style_content);
+        Ok(format!("{prefix}{description} {content}{suffix}"))
+    }
     pub async fn format_vec(
         &self,
         content: Vec<impl ToString + std::fmt::Display + DisplayTerminal>,
@@ -131,6 +143,10 @@ pub struct Config {
     pub output_language: OutputConfig,
     pub output_publisher: OutputConfig,
     pub output_edition_review: OutputConfig,
+    pub output_rating: OutputConfig,
+    pub output_recommended_true: OutputConfig,
+    pub output_recommended_false: OutputConfig,
+    pub output_last_updated: OutputConfig,
 }
 
 impl Config {
@@ -238,6 +254,43 @@ impl Default for Config {
             output_edition_review: OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_EDITION_REVIEW,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_rating: OutputConfig {
+                description: "Rating:".into(),
+                style_content: StyleConfig {
+                    color: COLOR_RATING,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_recommended_true: OutputConfig {
+                description: "Recommended:".into(),
+                style_content: StyleConfig {
+                    bold: true,
+                    color: COLOR_RECOMMENDED_TRUE,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_recommended_false: OutputConfig {
+                description: "Recommended:".into(),
+                style_content: StyleConfig {
+                    bold: true,
+                    color: COLOR_RECOMMENDED_FALSE,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_last_updated: OutputConfig {
+                description: "Last updated:".into(),
+                style_description: StyleConfig {
+                    italic: true,
+                    ..StyleConfig::default()
+                },
+                style_content: StyleConfig {
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()
