@@ -147,6 +147,8 @@ pub struct Config {
     pub output_recommended_true: OutputConfig,
     pub output_recommended_false: OutputConfig,
     pub output_last_updated: OutputConfig,
+    pub output_page_count: OutputConfig,
+    pub output_release_date: OutputConfig,
 }
 
 impl Config {
@@ -238,6 +240,8 @@ impl Default for Config {
                 ..OutputConfig::default()
             },
             output_language: OutputConfig {
+                description: "Written in:".into(),
+                separator: " and ".into(),
                 style_content: StyleConfig {
                     color: COLOR_LANGUAGE,
                     ..StyleConfig::default()
@@ -293,6 +297,27 @@ impl Default for Config {
                 style_content: StyleConfig {
                     ..StyleConfig::default()
                 },
+                ..OutputConfig::default()
+            },
+            output_page_count: OutputConfig {
+                description: "Page count:".into(),
+                style_description: StyleConfig {
+                    italic: true,
+                    ..StyleConfig::default()
+                },
+                style_content: StyleConfig {
+                    color: COLOR_PAGE_COUNT,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_release_date: OutputConfig {
+                description: "Released:".into(),
+                style_description: StyleConfig {
+                    italic: true,
+                    ..StyleConfig::default()
+                },
+                style_content: StyleConfig::default(),
                 ..OutputConfig::default()
             },
         }

@@ -128,66 +128,58 @@ impl DisplayTerminal for Edition {
         write!(f, "{} ", title)?;
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
-            let str = "written by".italic();
-            write!(f, "[{}: ", str)?;
             write!(
                 f,
-                "{}",
-                authors
-                    .into_iter()
-                    .map(|author| author.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
+                "{} ",
+                config
+                    .output_author
+                    .format_vec(authors, conn, config)
+                    .await?
             )?;
-            write!(f, "]",)?;
-            write!(f, " ")?;
         }
         // Page count
         if let Some(pages) = s.pages {
-            let str = pages.to_string().with(crossterm::style::Color::Rgb {
-                r: 139,
-                g: 213,
-                b: 202,
-            });
-            write!(f, "[{} pages] ", str)?;
+            write!(
+                f,
+                "{} ",
+                config
+                    .output_page_count
+                    .format_str(pages, conn, config)
+                    .await?
+            )?;
         }
         // Language
         if let Some(languages) = s.languages {
-            let str = "written in".italic();
-            write!(f, "[{}: ", str)?;
             write!(
                 f,
-                "{}",
-                languages
-                    .into_iter()
-                    .map(|language| language.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
+                "{} ",
+                config
+                    .output_language
+                    .format_vec(languages, conn, config)
+                    .await?
             )?;
-            write!(f, "]",)?;
-            write!(f, " ")?;
         }
         // Release date
         if let Some(release_date) = s.release_date.0 {
-            let str = "released".italic();
-            write!(f, "[{} {}]", str, release_date)?;
-            write!(f, " ")?; // TODO see above
+            write!(
+                f,
+                "{} ",
+                config
+                    .output_release_date
+                    .format_str(release_date, conn, config)
+                    .await?
+            )?;
         }
         // Publishers
         if let Some(publishers) = s.publishers {
-            let str = "published by".italic();
-            write!(f, "[{}: ", str)?;
             write!(
                 f,
-                "{}",
-                publishers
-                    .into_iter()
-                    .map(|publisher| publisher.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
+                "{} ",
+                config
+                    .output_publisher
+                    .format_vec(publishers, conn, config)
+                    .await?
             )?;
-            write!(f, "]",)?;
-            write!(f, " ")?;
         }
         // ISBN or ID
         if let Some(isbn) = s.isbn {

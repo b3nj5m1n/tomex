@@ -36,6 +36,10 @@ const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000
 
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
         if self.special {
             match self.id {
                 UUID_UNKOWN => write!(f, "{}", "UNKOWN AUTHOR".bold()),
@@ -45,13 +49,29 @@ impl Display for Author {
             match (&self.name_first, &self.name_last) {
                 (None, None) => write!(f, "{}", self.id),
                 (None, Some(name_last)) => {
-                    write!(f, "{}, (First name unknown) ({})", name_last, self.id)
+                    write!(
+                        f,
+                        "{}, (First name unknown) ({})",
+                        name_last.style(&config.output_author.style_content),
+                        self.id
+                    )
                 }
                 (Some(name_first), None) => {
-                    write!(f, "(Last name unknown), {} ({})", name_first, self.id)
+                    write!(
+                        f,
+                        "(Last name unknown), {} ({})",
+                        name_first.style(&config.output_author.style_content),
+                        self.id
+                    )
                 }
                 (Some(name_first), Some(name_last)) => {
-                    write!(f, "{}, {} ({})", name_last, name_first, self.id)
+                    write!(
+                        f,
+                        "{}, {} ({})",
+                        name_last.style(&config.output_author.style_content),
+                        name_first.style(&config.output_author.style_content),
+                        self.id
+                    )
                 }
             }
         }

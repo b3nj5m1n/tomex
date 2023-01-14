@@ -1,5 +1,4 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use inquire::MultiSelect;
 use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
@@ -114,24 +113,21 @@ impl DisplayTerminal for Book {
             )?;
         }
         if let Some(release_date) = &s.release_date.0 {
-            let str = "released".italic();
-            write!(f, "[{} {}]", str, release_date)?;
-            write!(f, " ")?; // TODO see above
-        }
-        if let Some(genres) = s.genres {
-            let str = "genres".italic();
-            write!(f, "[{}: ", str)?;
             write!(
                 f,
-                "{}",
-                genres
-                    .into_iter()
-                    .map(|genre| genre.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
+                "{} ",
+                config
+                    .output_release_date
+                    .format_str(release_date, conn, config)
+                    .await?
             )?;
-            write!(f, "]",)?;
-            write!(f, " ")?;
+        }
+        if let Some(genres) = s.genres {
+            write!(
+                f,
+                "{} ",
+                config.output_genre.format_vec(genres, conn, config).await?
+            )?;
         }
         write!(f, "({})", s.id)?;
         Ok(())

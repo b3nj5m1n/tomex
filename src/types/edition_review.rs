@@ -1,5 +1,4 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use inquire::{validator::Validation, Confirm};
 use serde::{Deserialize, Serialize};
 use sqlx::{
@@ -77,7 +76,7 @@ impl DisplayTerminal for EditionReview {
         &self,
         f: &mut String,
         conn: &sqlx::SqlitePool,
-        _config: &config::Config,
+        config: &config::Config,
     ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
@@ -87,55 +86,53 @@ impl DisplayTerminal for EditionReview {
         write!(f, "{} ", edition.to_string())?;
         // Rating
         if let Some(rating) = s.rating {
-            let str = rating
-                .to_string()
-                .with(crossterm::style::Color::Rgb {
-                    r: 198,
-                    g: 160,
-                    b: 246,
-                })
-                .bold();
-            write!(f, "[Rating: {}] ", str)?;
+            write!(
+                f,
+                "{} ",
+                config
+                    .output_rating
+                    .format_str(rating.to_string(), conn, config)
+                    .await?
+            )?;
         }
         // Recommended
         if let Some(recommended) = s.recommend {
             let str = match recommended {
-                true => "Recommended"
-                    .with(crossterm::style::Color::Rgb {
-                        r: 166,
-                        g: 218,
-                        b: 149,
-                    })
-                    .bold(),
-                false => "Not Recommended"
-                    .with(crossterm::style::Color::Rgb {
-                        r: 237,
-                        g: 135,
-                        b: 150,
-                    })
-                    .bold(),
+                true => {
+                    config
+                        .output_recommended_true
+                        .format_str("YES", conn, config)
+                        .await?
+                }
+                false => {
+                    config
+                        .output_recommended_false
+                        .format_str("NO", conn, config)
+                        .await?
+                }
             };
-            write!(f, "[{}] ", str)?;
+            write!(f, "{} ", str)?;
         }
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
-            let str = "book written by".italic();
-            write!(f, "[{}: ", str)?;
             write!(
                 f,
-                "{}",
-                authors
-                    .into_iter()
-                    .map(|author| author.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
+                "{} ",
+                config
+                    .output_author
+                    .format_vec(authors, conn, config)
+                    .await?
             )?;
-            write!(f, "]",)?;
-            write!(f, " ")?;
         }
         // Last updated
-        write!(f, "[{} {}]", "Last updated".italic(), s.timestamp_updated)?;
-        write!(f, " ")?;
+        write!(
+            f,
+            "{} ",
+            config
+                .output_last_updated
+                .format_str(s.timestamp_updated, conn, config)
+                .await?
+        )?;
         // ID
         write!(f, "({})", s.id)?;
         Ok(())

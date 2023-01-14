@@ -1,5 +1,4 @@
 use anyhow::Result;
-use crossterm::style::Stylize;
 use inquire::{validator::Validation, Confirm, MultiSelect};
 use serde::{Deserialize, Serialize};
 use sqlx::{
@@ -111,7 +110,7 @@ impl DisplayTerminal for Review {
                 }
                 false => {
                     config
-                        .output_recommended_true
+                        .output_recommended_false
                         .format_str("NO", conn, config)
                         .await?
                 }

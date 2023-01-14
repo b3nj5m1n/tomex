@@ -81,3 +81,8 @@ pub const COLOR_RECOMMENDED_FALSE: Color = Color::Rgb {
     g: 135,
     b: 150,
 };
+pub const COLOR_PAGE_COUNT: Color = Color::Rgb {
+    r: 139,
+    g: 213,
+    b: 202,
+};
