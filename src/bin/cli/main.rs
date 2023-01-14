@@ -17,7 +17,7 @@ use bokhylle::{
         author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition,
         edition_language::EditionLanguage, edition_publisher::EditionPublisher,
         edition_review::EditionReview, genre::Genre, language::Language, mood::Mood, pace::Pace,
-        progress::Progress, publisher::Publisher, review::Review,
+        progress::Progress, publisher::Publisher, review::Review, review_mood::ReviewMood,
     },
 };
 use bokhylle::{traits::*, types::book::Book};
@@ -232,6 +232,7 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
         BookGenre::create_table(conn),
         EditionLanguage::create_table(conn),
         EditionPublisher::create_table(conn),
+        ReviewMood::create_table(conn),
     )?;
     Ok(())
 }

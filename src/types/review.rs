@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
-use inquire::{validator::Validation, Confirm};
+use inquire::{validator::Validation, Confirm, MultiSelect};
 use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
@@ -11,9 +11,11 @@ use std::fmt::{Display, Write};
 use crate::{
     config,
     traits::*,
-    types::{book::Book, pace::Pace, text::Text, timestamp::Timestamp, uuid::Uuid},
+    types::{book::Book, mood::Mood, pace::Pace, text::Text, timestamp::Timestamp, uuid::Uuid},
 };
 use derives::*;
+
+use super::review_mood::ReviewMood;
 
 #[derive(
     Default,
@@ -41,11 +43,13 @@ pub struct Review {
     pub pace: Option<Pace>,
     pub deleted: bool,
     pub book_title: Text,
+    pub moods: Option<Vec<Mood>>,
 }
 
 impl Review {
     pub async fn hydrate(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.hydrate_pace(conn).await?;
+        self.hydrate_moods(conn).await?;
         Ok(())
     }
     pub async fn get_pace(&self, conn: &sqlx::SqlitePool) -> Result<Option<Pace>> {
@@ -56,6 +60,14 @@ impl Review {
     }
     pub async fn hydrate_pace(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.pace = self.get_pace(conn).await?;
+        Ok(())
+    }
+    pub async fn get_moods(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Mood>>> {
+        let result = ReviewMood::get_all_for_a(conn, self).await?;
+        Ok(if result.len() > 0 { Some(result) } else { None })
+    }
+    pub async fn hydrate_moods(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.moods = self.get_moods(conn).await?;
         Ok(())
     }
 }
@@ -70,7 +82,7 @@ impl DisplayTerminal for Review {
         &self,
         f: &mut String,
         conn: &sqlx::SqlitePool,
-        _config: &config::Config,
+        config: &config::Config,
     ) -> Result<()> {
         let mut s = self.clone();
         s.hydrate(conn).await?;
@@ -114,6 +126,14 @@ impl DisplayTerminal for Review {
             let str = "Pace".italic();
             write!(f, "[{}: {}]", str, pace)?;
             write!(f, " ")?;
+        }
+        // Moods
+        if let Some(moods) = s.moods {
+            write!(
+                f,
+                "{} ",
+                config.output_mood.format_vec(moods, conn, config).await?
+            )?;
         }
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
@@ -170,7 +190,7 @@ impl CreateTable for Review {
 
 impl Insertable for Review {
     async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult> {
-        Ok(sqlx::query(
+        let result = sqlx::query(
             r#"
             INSERT INTO reviews ( id, book_id, rating, recommend, content, timestamp_created, timestamp_updated, pace_id, deleted, book_title )
             VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10 )
@@ -187,7 +207,11 @@ impl Insertable for Review {
         .bind(&self.deleted)
         .bind(&self.book_title)
         .execute(conn)
-        .await?)
+        .await?;
+
+        ReviewMood::update(conn, &self, &None, &self.moods).await?;
+
+        Ok(result)
     }
     async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
@@ -231,11 +255,13 @@ impl Insertable for Review {
             pace,
             book_title: book.title,
             deleted: false,
+            moods: None,
         })
     }
 }
 impl Updateable for Review {
     async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult> {
+        ReviewMood::update(conn, &self, &self.moods, &new.moods).await?;
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -272,6 +298,7 @@ impl Updateable for Review {
     where
         Self: Queryable,
     {
+        self.hydrate(conn).await?;
         let book = Book::get_by_id(conn, &self.book_id).await?;
         let validator = |input: &str| match input.parse::<u32>() {
             Ok(n) => {
@@ -307,7 +334,10 @@ impl Updateable for Review {
                 true
             })
             .prompt_skippable()?;
-        let pace = Pace::query_by_prompt_skippable(conn).await?;
+        let pace = match Pace::query_by_prompt_skippable(conn).await? {
+            Some(pace) => Some(pace),
+            None => self.pace.clone(),
+        };
         let pace_id = pace.clone().map(|x| x.id);
 
         let content = inquire::Editor::new("Write a detailed a review:")
@@ -319,6 +349,27 @@ impl Updateable for Review {
             })
             .prompt_skippable()?
             .map(|x| Text(x));
+
+        let all_moods = Mood::get_all(conn).await?;
+        let current_moods = &self.moods;
+        let indicies_selected = if let Some(current_moods) = &current_moods {
+            all_moods
+                .iter()
+                .enumerate()
+                .filter(|(_, mood)| current_moods.contains(*mood))
+                .map(|(i, _)| i)
+                .collect::<Vec<usize>>()
+        } else {
+            vec![]
+        };
+        let mut moods = MultiSelect::new("Select moods for this edition:", all_moods)
+            .with_default(&indicies_selected)
+            .prompt_skippable()?;
+        if let Some(moods_) = moods {
+            moods = if moods_.len() > 0 { Some(moods_) } else { None };
+        } else {
+            moods = current_moods.clone();
+        }
 
         if !inquire::Confirm::new("Update review?")
             .with_default(true)
@@ -335,6 +386,7 @@ impl Updateable for Review {
             pace_id,
             pace,
             book_title: book.title,
+            moods,
             ..self.clone()
         };
         Self::update(self, conn, new).await
@@ -355,6 +407,7 @@ impl FromRow<'_, SqliteRow> for Review {
             pace_id: row.try_get("pace_id")?,
             pace: None,
             book_title: row.try_get("book_title")?,
+            moods: None,
         })
     }
 }

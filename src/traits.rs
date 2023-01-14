@@ -43,8 +43,8 @@ where
         sqlx::query(&format!(
             r#"
             CREATE TABLE IF NOT EXISTS {table_name_self} (
-            	{singular_name_b}_id	INT NOT NULL,
-            	{singular_name_a}_id	INT	NOT NULL,
+            	{singular_name_a}_id	INT NOT NULL,
+            	{singular_name_b}_id	INT	NOT NULL,
             	FOREIGN KEY ({singular_name_a}_id) REFERENCES {table_name_a} (id),
             	FOREIGN KEY ({singular_name_b}_id) REFERENCES {table_name_b} (id),
             	PRIMARY KEY ({singular_name_a}_id, {singular_name_b}_id)

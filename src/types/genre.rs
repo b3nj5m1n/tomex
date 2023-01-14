@@ -40,9 +40,6 @@ impl Display for Genre {
         let name = self
             .name
             .to_string()
-            .chars()
-            .take(8)
-            .collect::<String>()
             .style(&config.output_genre.style_content);
         write!(f, "{} ({})", name, self.id)
     }
@@ -57,9 +54,6 @@ impl DisplayTerminal for Genre {
         let name = self
             .name
             .to_string()
-            .chars()
-            .take(8)
-            .collect::<String>()
             .style(&config.output_genre.style_content);
         write!(f, "{} ({})", name, self.id)?;
         Ok(())
