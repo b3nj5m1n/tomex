@@ -125,7 +125,8 @@ impl Insertable for Progress {
     {
         let id = Uuid(uuid::Uuid::new_v4());
         let edition = Edition::query_by_prompt(conn).await?;
-        let timestamp = Timestamp::create_by_prompt("For when is this progress update?", None)?;
+        let timestamp =
+            Timestamp::create_by_prompt("For when is this progress update?", None, conn)?;
         let max_pages = edition.pages;
         let validator = move |input: &str| match input.parse::<u32>() {
             Ok(n) => {
@@ -200,6 +201,7 @@ impl Updateable for Progress {
         let timestamp = Timestamp::update_by_prompt_skippable(
             &self.timestamp,
             "For when is this progress update?",
+            conn,
         )?;
         let max_pages = edition.pages;
         let validator = move |input: &str| match input.parse::<u32>() {

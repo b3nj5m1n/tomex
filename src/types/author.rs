@@ -167,10 +167,12 @@ impl Insertable for Author {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(_conn: &sqlx::SqlitePool) -> Result<Self> {
+    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
-        let name_first = Text::create_by_prompt_skippable("What is the authors first name?", None)?;
-        let name_last = Text::create_by_prompt_skippable("What is the authors last name?", None)?;
+        let name_first =
+            Text::create_by_prompt_skippable("What is the authors first name?", None, conn)?;
+        let name_last =
+            Text::create_by_prompt_skippable("What is the authors last name?", None, conn)?;
         // let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
         //     "When was the author born?",
         //     None,
@@ -231,40 +233,46 @@ impl Updateable for Author {
             Some(name_first) => name_first.update_by_prompt_skippable_deleteable(
                 "Do you want to delete the authors first name?",
                 "Change authors first name to:",
+                conn,
             )?,
-            None => Text::create_by_prompt_skippable("What is the authors first name?", None)?,
+            None => {
+                Text::create_by_prompt_skippable("What is the authors first name?", None, conn)?
+            }
         };
         let name_last = match &self.name_last {
             Some(name_last) => name_last.update_by_prompt_skippable_deleteable(
                 "Do you want to delete the authors last name?",
                 "Change authors last name to:",
+                conn,
             )?,
-            None => Text::create_by_prompt_skippable("What is the authors last name?", None)?,
+            None => Text::create_by_prompt_skippable("What is the authors last name?", None, conn)?,
         };
-        let date_born = match &self.date_born {
-            OptionalTimestamp(Some(ts)) => {
-                OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
-                    "Delete date of birth?",
-                    "When was the author born?",
-                )?)
-            }
-            OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-                "When was the author born?",
-                None,
-            )?),
-        };
-        let date_died = match &self.date_died {
-            OptionalTimestamp(Some(ts)) => {
-                OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
-                    "Delete date of death?",
-                    "When did the author die?",
-                )?)
-            }
-            OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-                "When did the author die?",
-                None,
-            )?),
-        };
+        let date_born =
+            match &self.date_born {
+                OptionalTimestamp(Some(ts)) => {
+                    OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
+                        "Delete date of birth?",
+                        "When was the author born?",
+                        conn,
+                    )?)
+                }
+                OptionalTimestamp(None) => OptionalTimestamp(
+                    Timestamp::create_by_prompt_skippable("When was the author born?", None, conn)?,
+                ),
+            };
+        let date_died =
+            match &self.date_died {
+                OptionalTimestamp(Some(ts)) => {
+                    OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
+                        "Delete date of death?",
+                        "When did the author die?",
+                        conn,
+                    )?)
+                }
+                OptionalTimestamp(None) => OptionalTimestamp(
+                    Timestamp::create_by_prompt_skippable("When did the author die?", None, conn)?,
+                ),
+            };
 
         if !inquire::Confirm::new("Update author?")
             .with_default(true)

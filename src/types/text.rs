@@ -37,7 +37,11 @@ impl StringValidator for ValidatorNonEmpty {
 }
 
 impl PromptType for Text {
-    fn create_by_prompt(prompt: &str, initial_value: Option<&Self>) -> anyhow::Result<Self> {
+    fn create_by_prompt(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        _conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Self> {
         let mut prompt = inquire::Text::new(prompt).with_validator(ValidatorNonEmpty {});
         if let Some(s) = initial_value {
             prompt = prompt.with_initial_value(&s.0);
@@ -48,6 +52,7 @@ impl PromptType for Text {
     fn create_by_prompt_skippable(
         prompt: &str,
         initial_value: Option<&Self>,
+        _conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Option<Self>> {
         let mut prompt = inquire::Text::new(prompt).with_validator(ValidatorNonEmpty {});
         if let Some(s) = initial_value {

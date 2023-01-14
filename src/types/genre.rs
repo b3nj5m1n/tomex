@@ -31,6 +31,8 @@ pub struct Genre {
     pub deleted: bool,
 }
 
+impl UpdateVec for Genre {}
+
 impl Display for Genre {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -205,12 +207,12 @@ impl Insertable for Genre {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(_conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Sized,
     {
         let id = Uuid(uuid::Uuid::new_v4());
-        let name = Text::create_by_prompt("What is the name of the genre?", None)?;
+        let name = Text::create_by_prompt("What is the name of the genre?", None, conn)?;
         Ok(Self {
             id,
             name,
@@ -251,7 +253,7 @@ impl Updateable for Genre {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change genre name to:")?;
+            .update_by_prompt_skippable("Change genre name to:", conn)?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
             name,

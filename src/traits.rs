@@ -210,6 +210,40 @@ where
     }
 }
 
+/// A type like genres of which another type holds a vector of selected elements,
+/// this trait allows updating that vector
+pub trait UpdateVec
+where
+    Self: Sized + Eq + Clone,
+    Self: CRUD,
+{
+    async fn update_vec(
+        current: &Option<Vec<Self>>,
+        conn: &sqlx::SqlitePool,
+        prompt: &str,
+    ) -> Result<Option<Vec<Self>>> {
+        let all = Self::get_all(conn).await?;
+        let indicies_selected = if let Some(current) = &current {
+            all.iter()
+                .enumerate()
+                .filter(|(_, x)| current.contains(*x))
+                .map(|(i, _)| i)
+                .collect::<Vec<usize>>()
+        } else {
+            vec![]
+        };
+        let mut xs = inquire::MultiSelect::new(prompt, all)
+            .with_default(&indicies_selected)
+            .prompt_skippable()?;
+        if let Some(xs_) = xs {
+            xs = if xs_.len() > 0 { Some(xs_) } else { None };
+        } else {
+            xs = current.clone();
+        }
+        Ok(xs)
+    }
+}
+
 /// A (more or less primitive) type which can be created and updated by command line prompts
 /// This is for things like Text, Timestamps, etc., while [Insertable] is for structs
 /// corresponding to a database table. A struct which implements [Insertable] should be made up
@@ -217,32 +251,56 @@ where
 pub trait PromptType
 where
     Self: Sized,
-    Self: Display,
     Self: Clone,
 {
     /// Prompts the user to create this type, a type has to be returned
-    fn create_by_prompt(prompt: &str, _initial_value: Option<&Self>) -> Result<Self>;
+    fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self>;
 
     /// Prompts the user to create this type, can be skipped
     fn create_by_prompt_skippable(
         prompt: &str,
-        _initial_value: Option<&Self>,
-    ) -> Result<Option<Self>>;
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        if !inquire::Confirm::new("Skip?")
+            .with_default(false)
+            .prompt()?
+        {
+            return Ok(None);
+        };
+        Ok(Some(Self::create_by_prompt(prompt, initial_value, conn)?))
+    }
 
     /// Prompts the user to update this type, the result will be the updated type
-    fn update_by_prompt(&self, prompt: &str) -> anyhow::Result<Self>
+    fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
-        Self::create_by_prompt(&format!("{} (Currently {})", prompt, self), Some(self))
+        Self::create_by_prompt(
+            &format!("{} (Currently {})", prompt, self),
+            Some(self),
+            conn,
+        )
     }
 
     /// Prompts the user to update this type, can be skipped, if skipped, the result will be the old
     /// value
-    fn update_by_prompt_skippable(&self, prompt: &str) -> anyhow::Result<Self> {
+    fn update_by_prompt_skippable(
+        &self,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
         match Self::create_by_prompt_skippable(
             &format!("{} (Currently {})", prompt, self),
             Some(self),
+            conn,
         )? {
             Some(new) => Ok(new),
             None => Ok(self.clone()),
@@ -254,14 +312,18 @@ where
         &self,
         prompt_delete: &str,
         prompt_update: &str,
-    ) -> anyhow::Result<Option<Self>> {
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
         if !inquire::Confirm::new(prompt_delete)
             .with_default(false)
             .prompt()?
         {
             return Ok(None);
         };
-        Ok(Some(Self::update_by_prompt(&self, prompt_update)?))
+        Ok(Some(Self::update_by_prompt(&self, prompt_update, conn)?))
     }
 
     /// Prompts the user to update or delete this type, can be skipped, if skipped, the result will
@@ -270,7 +332,11 @@ where
         &self,
         prompt_delete: &str,
         prompt_update: &str,
-    ) -> anyhow::Result<Option<Self>> {
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
         if inquire::Confirm::new(prompt_delete)
             .with_default(false)
             .prompt()?
@@ -280,6 +346,7 @@ where
         Ok(Some(Self::update_by_prompt_skippable(
             &self,
             prompt_update,
+            conn,
         )?))
     }
 }

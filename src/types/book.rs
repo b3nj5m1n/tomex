@@ -191,7 +191,7 @@ impl Insertable for Book {
         Self: Sized,
     {
         let id = Uuid(uuid::Uuid::new_v4());
-        let title = Text::create_by_prompt("What is the title of the book?", None)?;
+        let title = Text::create_by_prompt("What is the title of the book?", None, conn)?;
         let author = Author::query_or_create_by_prompt_skippable(conn).await?;
         // let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
         //     "When was the book released?",
@@ -255,41 +255,24 @@ impl Updateable for Book {
     where
         Self: Queryable,
     {
-        let title = self.title.update_by_prompt_skippable("Change title to:")?;
+        let title = self
+            .title
+            .update_by_prompt_skippable("Change title to:", conn)?;
         let release_date = match &self.release_date {
             OptionalTimestamp(Some(ts)) => {
                 OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
                     "Delete release date?",
                     "When was the book released?",
+                    conn,
                 )?)
             }
             OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
                 "When was the book released?",
                 None,
+                conn,
             )?),
         };
-        let all_genres = Genre::get_all(conn).await?;
-        let current_genres = self.get_genres(conn).await?;
-        let indicies_selected = if let Some(current_genres) = current_genres {
-            all_genres
-                .iter()
-                .enumerate()
-                .filter(|(_, genre)| current_genres.contains(genre))
-                .map(|(i, _)| i)
-                .collect::<Vec<usize>>()
-        } else {
-            vec![]
-        };
-        let mut genres = MultiSelect::new("Select genres for this book:", all_genres)
-            .with_default(&indicies_selected)
-            .prompt_skippable()?;
-        if let Some(genres_) = genres {
-            genres = if genres_.len() > 0 {
-                Some(genres_)
-            } else {
-                None
-            };
-        }
+        let genres = Genre::update_vec(&self.genres, conn, "Select genres for this book:").await?;
         let new = Self {
             id: self.id.clone(),
             title,

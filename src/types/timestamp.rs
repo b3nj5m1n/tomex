@@ -54,7 +54,11 @@ impl sqlx::Type<sqlx::Sqlite> for OptionalTimestamp {
 }
 
 impl PromptType for Timestamp {
-    fn create_by_prompt(prompt: &str, initial_value: Option<&Self>) -> anyhow::Result<Self> {
+    fn create_by_prompt(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        _conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Self> {
         let mut prompt = inquire::DateSelect::new(prompt);
         if let Some(s) = initial_value {
             prompt = inquire::DateSelect {
@@ -74,6 +78,7 @@ impl PromptType for Timestamp {
     fn create_by_prompt_skippable(
         prompt: &str,
         initial_value: Option<&Self>,
+        _conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Option<Self>> {
         let mut prompt = inquire::DateSelect::new(prompt);
         if let Some(s) = initial_value {

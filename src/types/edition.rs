@@ -256,8 +256,9 @@ impl Insertable for Edition {
         let book = Book::query_by_prompt(conn).await?;
         let book_id = book.id;
         let edition_title =
-            Text::create_by_prompt_skippable("What is the title of this edition?", None)?;
-        let isbn = Text::create_by_prompt_skippable("What is the isbn of this edition?", None)?;
+            Text::create_by_prompt_skippable("What is the title of this edition?", None, conn)?;
+        let isbn =
+            Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)?;
         let validator = |input: &str| match input.parse::<u32>() {
             Ok(_) => Ok(Validation::Valid),
             Err(_) => Ok(Validation::Invalid(
@@ -336,67 +337,31 @@ impl Updateable for Edition {
             Some(s) => s.update_by_prompt_skippable_deleteable(
                 "Delete edition_tittle date?",
                 "What is the edition title?",
+                conn,
             )?,
-            None => Text::create_by_prompt_skippable("What is the edition title?", None)?,
+            None => Text::create_by_prompt_skippable("What is the edition title?", None, conn)?,
         };
         let isbn = match &self.isbn {
             Some(s) => s.update_by_prompt_skippable_deleteable(
                 "Delete isbn?",
                 "What is the isbn of this edition?",
+                conn,
             )?,
-            None => Text::create_by_prompt_skippable("What is the isbn of this edition?", None)?,
+            None => {
+                Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)?
+            }
         };
         // Languages
-        let all_languages = Language::get_all(conn).await?;
-        let current_languages = self.get_languages(conn).await?;
-        let indicies_selected = if let Some(current_languages) = &current_languages {
-            all_languages
-                .iter()
-                .enumerate()
-                .filter(|(_, language)| current_languages.contains(language))
-                .map(|(i, _)| i)
-                .collect::<Vec<usize>>()
-        } else {
-            vec![]
-        };
-        let mut languages = MultiSelect::new("Select languages for this edition:", all_languages)
-            .with_default(&indicies_selected)
-            .prompt_skippable()?;
-        if let Some(languages_) = languages {
-            languages = if languages_.len() > 0 {
-                Some(languages_)
-            } else {
-                None
-            };
-        } else {
-            languages = current_languages;
-        }
+        let languages =
+            Language::update_vec(&self.languages, conn, "Select languages for this edition:")
+                .await?;
         // Publishers
-        let all_publishers = Publisher::get_all(conn).await?;
-        let current_publishers = self.get_publishers(conn).await?;
-        let indicies_selected = if let Some(current_publishers) = &current_publishers {
-            all_publishers
-                .iter()
-                .enumerate()
-                .filter(|(_, publisher)| current_publishers.contains(publisher))
-                .map(|(i, _)| i)
-                .collect::<Vec<usize>>()
-        } else {
-            vec![]
-        };
-        let mut publishers =
-            MultiSelect::new("Select publishers for this edition:", all_publishers)
-                .with_default(&indicies_selected)
-                .prompt_skippable()?;
-        if let Some(publishers_) = publishers {
-            publishers = if publishers_.len() > 0 {
-                Some(publishers_)
-            } else {
-                None
-            };
-        } else {
-            publishers = current_publishers;
-        }
+        let publishers = Publisher::update_vec(
+            &self.publishers,
+            conn,
+            "Select publishers for this edition:",
+        )
+        .await?;
         let new = Self {
             edition_title,
             isbn,

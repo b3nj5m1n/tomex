@@ -125,12 +125,12 @@ impl Insertable for Pace {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(_conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Sized,
     {
         let id = Uuid(uuid::Uuid::new_v4());
-        let name = Text::create_by_prompt("What is the name of the pace?", None)?;
+        let name = Text::create_by_prompt("What is the name of the pace?", None, conn)?;
         Ok(Self {
             id,
             name,
@@ -171,7 +171,7 @@ impl Updateable for Pace {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change pace name to:")?;
+            .update_by_prompt_skippable("Change pace name to:", conn)?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
             name,

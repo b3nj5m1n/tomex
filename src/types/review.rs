@@ -1,5 +1,5 @@
 use anyhow::Result;
-use inquire::{validator::Validation, Confirm, MultiSelect};
+use inquire::{validator::Validation, Confirm};
 use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
@@ -349,26 +349,7 @@ impl Updateable for Review {
             .prompt_skippable()?
             .map(|x| Text(x));
 
-        let all_moods = Mood::get_all(conn).await?;
-        let current_moods = &self.moods;
-        let indicies_selected = if let Some(current_moods) = &current_moods {
-            all_moods
-                .iter()
-                .enumerate()
-                .filter(|(_, mood)| current_moods.contains(*mood))
-                .map(|(i, _)| i)
-                .collect::<Vec<usize>>()
-        } else {
-            vec![]
-        };
-        let mut moods = MultiSelect::new("Select moods for this edition:", all_moods)
-            .with_default(&indicies_selected)
-            .prompt_skippable()?;
-        if let Some(moods_) = moods {
-            moods = if moods_.len() > 0 { Some(moods_) } else { None };
-        } else {
-            moods = current_moods.clone();
-        }
+        let moods = Mood::update_vec(&self.moods, conn, "Select moods for this edition:").await?;
 
         if !inquire::Confirm::new("Update review?")
             .with_default(true)
