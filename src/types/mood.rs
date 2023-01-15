@@ -34,13 +34,13 @@ pub struct Mood {
 impl UpdateVec for Mood {}
 
 impl PromptType for Mood {
-    fn create_by_prompt(
+    async fn create_by_prompt(
         prompt: &str,
         initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
-        let name = Text::create_by_prompt(prompt, initial_value.map(|x| &x.name), conn)?;
+        let name = Text::create_by_prompt(prompt, initial_value.map(|x| &x.name), conn).await?;
         Ok(Self {
             id,
             name,
@@ -48,11 +48,11 @@ impl PromptType for Mood {
         })
     }
 
-    fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
-        let name = Text::update_by_prompt(&self.name, prompt, conn)?;
+        let name = Text::update_by_prompt(&self.name, prompt, conn).await?;
         Ok(Self {
             name,
             ..self.clone()
@@ -192,16 +192,6 @@ impl Insertable for Mood {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        Ok(PromptType::create_by_prompt(
-            "What is the name of the mood?",
-            None::<&Self>,
-            conn,
-        )?)
-    }
 }
 impl Updateable for Mood {
     async fn update(
@@ -236,7 +226,8 @@ impl Updateable for Mood {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change mood name to:", conn)?;
+            .update_by_prompt_skippable("Change mood name to:", conn)
+            .await?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
             name,

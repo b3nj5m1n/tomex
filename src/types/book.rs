@@ -70,6 +70,38 @@ impl Book {
     }
 }
 
+impl PromptType for Book {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let title = Text::create_by_prompt("What is the title of the book?", None, conn).await?;
+        let author = Author::query_or_create_by_prompt_skippable(conn).await?;
+        let all_genres = Genre::get_all(conn).await?;
+        let mut genres =
+            MultiSelect::new("Select genres for this book:", all_genres).prompt_skippable()?;
+        if let Some(genres_) = genres {
+            genres = if genres_.len() > 0 {
+                Some(genres_)
+            } else {
+                None
+            };
+        }
+        Ok(Self {
+            id,
+            title,
+            authors: author.map(|x| vec![x]),
+            release_date: OptionalTimestamp(None),
+            editions: None, // TODO
+            reviews: None,  // TODO
+            genres,
+            deleted: false,
+        })
+    }
+}
+
 impl Display for Book {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -186,38 +218,6 @@ impl Insertable for Book {
 
         Ok(result)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let title = Text::create_by_prompt("What is the title of the book?", None, conn)?;
-        let author = Author::query_or_create_by_prompt_skippable(conn).await?;
-        // let release_date = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-        //     "When was the book released?",
-        //     None,
-        // )?);
-        let all_genres = Genre::get_all(conn).await?;
-        let mut genres =
-            MultiSelect::new("Select genres for this book:", all_genres).prompt_skippable()?;
-        if let Some(genres_) = genres {
-            genres = if genres_.len() > 0 {
-                Some(genres_)
-            } else {
-                None
-            };
-        }
-        Ok(Self {
-            id,
-            title,
-            authors: author.map(|x| vec![x]),
-            release_date: OptionalTimestamp(None),
-            editions: None, // TODO
-            reviews: None,  // TODO
-            genres,
-            deleted: false,
-        })
-    }
 }
 impl Updateable for Book {
     async fn update(
@@ -257,20 +257,21 @@ impl Updateable for Book {
     {
         let title = self
             .title
-            .update_by_prompt_skippable("Change title to:", conn)?;
+            .update_by_prompt_skippable("Change title to:", conn)
+            .await?;
         let release_date = match &self.release_date {
-            OptionalTimestamp(Some(ts)) => {
-                OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
+            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
+                ts.update_by_prompt_skippable_deleteable(
                     "Delete release date?",
                     "When was the book released?",
                     conn,
-                )?)
-            }
-            OptionalTimestamp(None) => OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-                "When was the book released?",
-                None,
-                conn,
-            )?),
+                )
+                .await?,
+            ),
+            OptionalTimestamp(None) => OptionalTimestamp(
+                Timestamp::create_by_prompt_skippable("When was the book released?", None, conn)
+                    .await?,
+            ),
         };
         let genres = Genre::update_vec(&self.genres, conn, "Select genres for this book:").await?;
         let new = Self {

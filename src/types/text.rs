@@ -37,7 +37,7 @@ impl StringValidator for ValidatorNonEmpty {
 }
 
 impl PromptType for Text {
-    fn create_by_prompt(
+    async fn create_by_prompt(
         prompt: &str,
         initial_value: Option<&Self>,
         _conn: &sqlx::SqlitePool,
@@ -49,7 +49,7 @@ impl PromptType for Text {
         Ok(Text(prompt.prompt()?))
     }
 
-    fn create_by_prompt_skippable(
+    async fn create_by_prompt_skippable(
         prompt: &str,
         initial_value: Option<&Self>,
         _conn: &sqlx::SqlitePool,

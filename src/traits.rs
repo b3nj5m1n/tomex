@@ -254,14 +254,14 @@ where
     Self: Clone,
 {
     /// Prompts the user to create this type, a type has to be returned
-    fn create_by_prompt(
+    async fn create_by_prompt(
         prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self>;
 
     /// Prompts the user to create this type, can be skipped
-    fn create_by_prompt_skippable(
+    async fn create_by_prompt_skippable(
         prompt: &str,
         initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
@@ -272,11 +272,13 @@ where
         {
             return Ok(None);
         };
-        Ok(Some(Self::create_by_prompt(prompt, initial_value, conn)?))
+        Ok(Some(
+            Self::create_by_prompt(prompt, initial_value, conn).await?,
+        ))
     }
 
     /// Prompts the user to update this type, the result will be the updated type
-    fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -285,11 +287,12 @@ where
             Some(self),
             conn,
         )
+        .await
     }
 
     /// Prompts the user to update this type, can be skipped, if skipped, the result will be the old
     /// value
-    fn update_by_prompt_skippable(
+    async fn update_by_prompt_skippable(
         &self,
         prompt: &str,
         conn: &sqlx::SqlitePool,
@@ -301,14 +304,16 @@ where
             &format!("{} (Currently {})", prompt, self),
             Some(self),
             conn,
-        )? {
+        )
+        .await?
+        {
             Some(new) => Ok(new),
             None => Ok(self.clone()),
         }
     }
 
     /// Prompts the user to update or delete this type
-    fn update_by_prompt_deleteable(
+    async fn update_by_prompt_deleteable(
         &self,
         prompt_delete: &str,
         prompt_update: &str,
@@ -323,12 +328,14 @@ where
         {
             return Ok(None);
         };
-        Ok(Some(Self::update_by_prompt(&self, prompt_update, conn)?))
+        Ok(Some(
+            Self::update_by_prompt(&self, prompt_update, conn).await?,
+        ))
     }
 
     /// Prompts the user to update or delete this type, can be skipped, if skipped, the result will
     /// be the old value
-    fn update_by_prompt_skippable_deleteable(
+    async fn update_by_prompt_skippable_deleteable(
         &self,
         prompt_delete: &str,
         prompt_update: &str,
@@ -343,11 +350,9 @@ where
         {
             return Ok(None);
         };
-        Ok(Some(Self::update_by_prompt_skippable(
-            &self,
-            prompt_update,
-            conn,
-        )?))
+        Ok(Some(
+            Self::update_by_prompt_skippable(&self, prompt_update, conn).await?,
+        ))
     }
 }
 
@@ -460,13 +465,13 @@ where
     /// Insert self into database
     async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>;
     /// Create self by prompts
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self>;
+    // async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self>;
     /// Create self by prompts and insert
     async fn insert_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self>
     where
-        Self: Insertable,
+        Self: Insertable + PromptType,
     {
-        let x = Self::create_by_prompt(conn).await?;
+        let x = Self::create_by_prompt("", None::<&Self>, conn).await?;
         if !inquire::Confirm::new("Add to database?")
             .with_default(true)
             .prompt()?
@@ -488,6 +493,7 @@ where
     Self: Display,
     Self: Send,
     Self: Unpin,
+    Self: PromptType,
 {
     /// Return record with id from database
     async fn get_by_id(conn: &sqlx::SqlitePool, id: &Uuid) -> Result<Self> {
@@ -526,7 +532,7 @@ where
             inquire::Select::new(&format!("Select {}:", Self::NAME_SINGULAR), options).prompt()?;
         match result {
             OptionToCreate::Value(value) => Ok(value),
-            OptionToCreate::Create => Self::create_by_prompt(conn).await,
+            OptionToCreate::Create => Self::create_by_prompt("", None::<&Self>, conn).await,
         }
     }
     /// Like `query_by_prompt` but can be skipped
@@ -636,10 +642,8 @@ where
     where
         Self: Queryable,
     {
-        Self::query_by_prompt(conn)
-            .await?
-            .update_by_prompt(conn)
-            .await
+        let mut s: Self = Self::query_by_prompt(conn).await?;
+        Updateable::update_by_prompt(&mut s, conn).await
     }
     // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
 }

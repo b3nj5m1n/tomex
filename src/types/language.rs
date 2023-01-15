@@ -33,6 +33,22 @@ pub struct Language {
 
 impl UpdateVec for Language {}
 
+impl PromptType for Language {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let name = Text::create_by_prompt("What is the name of the language?", None, conn).await?;
+        Ok(Self {
+            id,
+            name,
+            deleted: false,
+        })
+    }
+}
+
 impl Display for Language {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -123,18 +139,6 @@ impl Insertable for Language {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let name = Text::create_by_prompt("What is the name of the language?", None, conn)?;
-        Ok(Self {
-            id,
-            name,
-            deleted: false,
-        })
-    }
 }
 impl Updateable for Language {
     async fn update(
@@ -169,7 +173,8 @@ impl Updateable for Language {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change language name to:", conn)?;
+            .update_by_prompt_skippable("Change language name to:", conn)
+            .await?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
             name,

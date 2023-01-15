@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
-use inquire::{validator::Validation, MultiSelect};
+use inquire::validator::Validation;
 use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
@@ -68,6 +68,49 @@ impl Edition {
     pub async fn hydrate_publishers(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.publishers = self.get_publishers(conn).await?;
         Ok(())
+    }
+}
+
+impl PromptType for Edition {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let book = Book::query_by_prompt(conn).await?;
+        let book_id = book.id;
+        let edition_title =
+            Text::create_by_prompt_skippable("What is the title of this edition?", None, conn)
+                .await?;
+        let isbn =
+            Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)
+                .await?;
+        let validator = |input: &str| match input.parse::<u32>() {
+            Ok(_) => Ok(Validation::Valid),
+            Err(_) => Ok(Validation::Invalid(
+                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+            )),
+        };
+        let pages = inquire::Text::new("How many pages does this edition have?")
+            .with_validator(validator)
+            .prompt_skippable()?
+            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        Ok(Self {
+            id,
+            book_id,
+            edition_title,
+            isbn,
+            pages,
+            languages: None,
+            release_date: OptionalTimestamp(None),
+            publishers: None,
+            cover: None,
+            reviews: None,
+            progress: None,
+            deleted: false,
+            book_title: book.title,
+        })
     }
 }
 
@@ -248,43 +291,6 @@ impl Insertable for Edition {
 
         Ok(result)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let book = Book::query_by_prompt(conn).await?;
-        let book_id = book.id;
-        let edition_title =
-            Text::create_by_prompt_skippable("What is the title of this edition?", None, conn)?;
-        let isbn =
-            Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)?;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(_) => Ok(Validation::Valid),
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let pages = inquire::Text::new("How many pages does this edition have?")
-            .with_validator(validator)
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
-        Ok(Self {
-            id,
-            book_id,
-            edition_title,
-            isbn,
-            pages,
-            languages: None,
-            release_date: OptionalTimestamp(None),
-            publishers: None,
-            cover: None,
-            reviews: None,
-            progress: None,
-            deleted: false,
-            book_title: book.title,
-        })
-    }
 }
 impl Updateable for Edition {
     async fn update(
@@ -334,21 +340,30 @@ impl Updateable for Edition {
     {
         let book = Book::get_by_id(conn, &self.book_id).await?;
         let edition_title = match &self.edition_title {
-            Some(s) => s.update_by_prompt_skippable_deleteable(
-                "Delete edition_tittle date?",
-                "What is the edition title?",
-                conn,
-            )?,
-            None => Text::create_by_prompt_skippable("What is the edition title?", None, conn)?,
+            Some(s) => {
+                s.update_by_prompt_skippable_deleteable(
+                    "Delete edition_tittle date?",
+                    "What is the edition title?",
+                    conn,
+                )
+                .await?
+            }
+            None => {
+                Text::create_by_prompt_skippable("What is the edition title?", None, conn).await?
+            }
         };
         let isbn = match &self.isbn {
-            Some(s) => s.update_by_prompt_skippable_deleteable(
-                "Delete isbn?",
-                "What is the isbn of this edition?",
-                conn,
-            )?,
+            Some(s) => {
+                s.update_by_prompt_skippable_deleteable(
+                    "Delete isbn?",
+                    "What is the isbn of this edition?",
+                    conn,
+                )
+                .await?
+            }
             None => {
-                Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)?
+                Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)
+                    .await?
             }
         };
         // Languages

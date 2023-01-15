@@ -71,6 +71,58 @@ impl Review {
     }
 }
 
+impl PromptType for Review {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let book = Book::query_by_prompt(conn).await?;
+        let book_id = book.id;
+        let validator = |input: &str| match input.parse::<u32>() {
+            Ok(n) => {
+                if n <= 100 {
+                    Ok(Validation::Valid)
+                } else {
+                    Ok(Validation::Invalid(
+                        inquire::validator::ErrorMessage::Custom(
+                            "Rating has to be between 0-100".to_string(),
+                        ),
+                    ))
+                }
+            }
+            Err(_) => Ok(Validation::Invalid(
+                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+            )),
+        };
+        let rating = inquire::Text::new("What rating would you give this book? (0-100)")
+            .with_validator(validator)
+            .prompt_skippable()?
+            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let recommend = Confirm::new("Would you recommend this book?")
+            .with_default(true)
+            .prompt_skippable()?;
+        let pace = Pace::query_by_prompt_skippable(conn).await?;
+        let pace_id = pace.clone().map(|x| x.id);
+
+        Ok(Self {
+            id,
+            book_id,
+            rating,
+            recommend,
+            content: None,
+            timestamp_created: Timestamp(chrono::Utc::now()),
+            timestamp_updated: Timestamp(chrono::Utc::now()),
+            pace_id,
+            pace,
+            book_title: book.title,
+            deleted: false,
+            moods: None,
+        })
+    }
+}
+
 impl Display for Review {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} ({})", self.book_title, self.id)
@@ -211,51 +263,6 @@ impl Insertable for Review {
         ReviewMood::update(conn, &self, &None, &self.moods).await?;
 
         Ok(result)
-    }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self> {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let book = Book::query_by_prompt(conn).await?;
-        let book_id = book.id;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let rating = inquire::Text::new("What rating would you give this book? (0-100)")
-            .with_validator(validator)
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let recommend = Confirm::new("Would you recommend this book?")
-            .with_default(true)
-            .prompt_skippable()?;
-        let pace = Pace::query_by_prompt_skippable(conn).await?;
-        let pace_id = pace.clone().map(|x| x.id);
-
-        Ok(Self {
-            id,
-            book_id,
-            rating,
-            recommend,
-            content: None,
-            timestamp_created: Timestamp(chrono::Utc::now()),
-            timestamp_updated: Timestamp(chrono::Utc::now()),
-            pace_id,
-            pace,
-            book_title: book.title,
-            deleted: false,
-            moods: None,
-        })
     }
 }
 impl Updateable for Review {

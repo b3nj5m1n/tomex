@@ -56,6 +56,61 @@ impl EditionReview {
     }
 }
 
+impl PromptType for EditionReview {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let edition = Edition::query_by_prompt(conn).await?;
+        let edition_id = edition.id;
+        let validator = |input: &str| match input.parse::<u32>() {
+            Ok(n) => {
+                if n <= 100 {
+                    Ok(Validation::Valid)
+                } else {
+                    Ok(Validation::Invalid(
+                        inquire::validator::ErrorMessage::Custom(
+                            "Rating has to be between 0-100".to_string(),
+                        ),
+                    ))
+                }
+            }
+            Err(_) => Ok(Validation::Invalid(
+                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+            )),
+        };
+        let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
+            .with_validator(validator)
+            .prompt_skippable()?
+            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let recommend = Confirm::new("Would you recommend this edition?")
+            .with_default(true)
+            .prompt_skippable()?;
+
+        Ok(Self {
+            id,
+            edition_id,
+            rating,
+            recommend,
+            content: None,
+            timestamp_created: Timestamp(chrono::Utc::now()),
+            timestamp_updated: Timestamp(chrono::Utc::now()),
+            book_title: edition.book_title,
+            deleted: false,
+            cover_rating: None,
+            cover_text: None,
+            typesetting_rating: None,
+            typesetting_text: None,
+            material_rating: None,
+            material_text: None,
+            price_rating: None,
+            price_text: None,
+        })
+    }
+}
+
 impl Display for EditionReview {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -204,54 +259,6 @@ impl Insertable for EditionReview {
         .bind(&self.book_title)
         .execute(conn)
         .await?)
-    }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self> {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let edition = Edition::query_by_prompt(conn).await?;
-        let edition_id = edition.id;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
-            .with_validator(validator)
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let recommend = Confirm::new("Would you recommend this edition?")
-            .with_default(true)
-            .prompt_skippable()?;
-
-        Ok(Self {
-            id,
-            edition_id,
-            rating,
-            recommend,
-            content: None,
-            timestamp_created: Timestamp(chrono::Utc::now()),
-            timestamp_updated: Timestamp(chrono::Utc::now()),
-            book_title: edition.book_title,
-            deleted: false,
-            cover_rating: None,
-            cover_text: None,
-            typesetting_rating: None,
-            typesetting_text: None,
-            material_rating: None,
-            material_text: None,
-            price_rating: None,
-            price_text: None,
-        })
     }
 }
 impl Updateable for EditionReview {

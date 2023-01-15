@@ -34,6 +34,29 @@ pub struct Author {
 
 const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
 
+impl PromptType for Author {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let name_first =
+            Text::create_by_prompt_skippable("What is the authors first name?", None, conn).await?;
+        let name_last =
+            Text::create_by_prompt_skippable("What is the authors last name?", None, conn).await?;
+        Ok(Self {
+            id,
+            name_first,
+            name_last,
+            date_born: OptionalTimestamp(None),
+            date_died: OptionalTimestamp(None),
+            deleted: false,
+            special: false,
+        })
+    }
+}
+
 impl Display for Author {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -167,31 +190,6 @@ impl Insertable for Author {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> Result<Self> {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let name_first =
-            Text::create_by_prompt_skippable("What is the authors first name?", None, conn)?;
-        let name_last =
-            Text::create_by_prompt_skippable("What is the authors last name?", None, conn)?;
-        // let date_born = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-        //     "When was the author born?",
-        //     None,
-        // )?);
-        // let date_died = OptionalTimestamp(Timestamp::create_by_prompt_skippable(
-        //     "When did the author die?",
-        //     None,
-        // )?);
-
-        Ok(Self {
-            id,
-            name_first,
-            name_last,
-            date_born: OptionalTimestamp(None),
-            date_died: OptionalTimestamp(None),
-            deleted: false,
-            special: false,
-        })
-    }
 }
 impl Updateable for Author {
     async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult> {
@@ -230,49 +228,63 @@ impl Updateable for Author {
             anyhow::bail!("Can't update special author");
         }
         let name_first = match &self.name_first {
-            Some(name_first) => name_first.update_by_prompt_skippable_deleteable(
-                "Do you want to delete the authors first name?",
-                "Change authors first name to:",
-                conn,
-            )?,
+            Some(name_first) => {
+                name_first
+                    .update_by_prompt_skippable_deleteable(
+                        "Do you want to delete the authors first name?",
+                        "Change authors first name to:",
+                        conn,
+                    )
+                    .await?
+            }
             None => {
-                Text::create_by_prompt_skippable("What is the authors first name?", None, conn)?
+                Text::create_by_prompt_skippable("What is the authors first name?", None, conn)
+                    .await?
             }
         };
         let name_last = match &self.name_last {
-            Some(name_last) => name_last.update_by_prompt_skippable_deleteable(
-                "Do you want to delete the authors last name?",
-                "Change authors last name to:",
-                conn,
-            )?,
-            None => Text::create_by_prompt_skippable("What is the authors last name?", None, conn)?,
+            Some(name_last) => {
+                name_last
+                    .update_by_prompt_skippable_deleteable(
+                        "Do you want to delete the authors last name?",
+                        "Change authors last name to:",
+                        conn,
+                    )
+                    .await?
+            }
+            None => {
+                Text::create_by_prompt_skippable("What is the authors last name?", None, conn)
+                    .await?
+            }
         };
-        let date_born =
-            match &self.date_born {
-                OptionalTimestamp(Some(ts)) => {
-                    OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
-                        "Delete date of birth?",
-                        "When was the author born?",
-                        conn,
-                    )?)
-                }
-                OptionalTimestamp(None) => OptionalTimestamp(
-                    Timestamp::create_by_prompt_skippable("When was the author born?", None, conn)?,
-                ),
-            };
-        let date_died =
-            match &self.date_died {
-                OptionalTimestamp(Some(ts)) => {
-                    OptionalTimestamp(ts.update_by_prompt_skippable_deleteable(
-                        "Delete date of death?",
-                        "When did the author die?",
-                        conn,
-                    )?)
-                }
-                OptionalTimestamp(None) => OptionalTimestamp(
-                    Timestamp::create_by_prompt_skippable("When did the author die?", None, conn)?,
-                ),
-            };
+        let date_born = match &self.date_born {
+            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
+                ts.update_by_prompt_skippable_deleteable(
+                    "Delete date of birth?",
+                    "When was the author born?",
+                    conn,
+                )
+                .await?,
+            ),
+            OptionalTimestamp(None) => OptionalTimestamp(
+                Timestamp::create_by_prompt_skippable("When was the author born?", None, conn)
+                    .await?,
+            ),
+        };
+        let date_died = match &self.date_died {
+            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
+                ts.update_by_prompt_skippable_deleteable(
+                    "Delete date of death?",
+                    "When did the author die?",
+                    conn,
+                )
+                .await?,
+            ),
+            OptionalTimestamp(None) => OptionalTimestamp(
+                Timestamp::create_by_prompt_skippable("When did the author die?", None, conn)
+                    .await?,
+            ),
+        };
 
         if !inquire::Confirm::new("Update author?")
             .with_default(true)

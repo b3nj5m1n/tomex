@@ -33,6 +33,22 @@ pub struct Genre {
 
 impl UpdateVec for Genre {}
 
+impl PromptType for Genre {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let name = Text::create_by_prompt("What is the name of the genre?", None, conn).await?;
+        Ok(Self {
+            id,
+            name,
+            deleted: false,
+        })
+    }
+}
+
 impl Display for Genre {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -207,18 +223,6 @@ impl Insertable for Genre {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let name = Text::create_by_prompt("What is the name of the genre?", None, conn)?;
-        Ok(Self {
-            id,
-            name,
-            deleted: false,
-        })
-    }
 }
 impl Updateable for Genre {
     async fn update(
@@ -253,7 +257,8 @@ impl Updateable for Genre {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change genre name to:", conn)?;
+            .update_by_prompt_skippable("Change genre name to:", conn)
+            .await?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
             name,

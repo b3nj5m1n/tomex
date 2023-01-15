@@ -33,6 +33,22 @@ pub struct Publisher {
 
 impl UpdateVec for Publisher {}
 
+impl PromptType for Publisher {
+    async fn create_by_prompt(
+        prompt: &str,
+        _initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Self> {
+        let id = Uuid(uuid::Uuid::new_v4());
+        let name = Text::create_by_prompt("What is the name of the publisher?", None, conn).await?;
+        Ok(Self {
+            id,
+            name,
+            deleted: false,
+        })
+    }
+}
+
 impl Display for Publisher {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let config = match config::Config::read_config() {
@@ -157,18 +173,6 @@ impl Insertable for Publisher {
         .execute(conn)
         .await?)
     }
-    async fn create_by_prompt(conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
-    where
-        Self: Sized,
-    {
-        let id = Uuid(uuid::Uuid::new_v4());
-        let name = Text::create_by_prompt("What is the name of the publisher?", None, conn)?;
-        Ok(Self {
-            id,
-            name,
-            deleted: false,
-        })
-    }
 }
 impl Updateable for Publisher {
     async fn update(
@@ -203,7 +207,8 @@ impl Updateable for Publisher {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change publisher name to:", conn)?;
+            .update_by_prompt_skippable("Change publisher name to:", conn)
+            .await?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
             name,
