@@ -3,11 +3,11 @@ use reedline::{
     KeyModifiers, Reedline, ReedlineEvent, ReedlineMenu, Signal,
 };
 
-use crate::prompt::BokhyllePrompt;
+use crate::prompt::TomexPrompt;
 
 pub struct Repl {
     reedline: Reedline,
-    prompt:   BokhyllePrompt,
+    prompt:   TomexPrompt,
 }
 
 impl Repl {
@@ -33,7 +33,7 @@ impl Repl {
 
         let edit_mode = Box::new(Emacs::new(keybindings));
 
-        let prompt = BokhyllePrompt {};
+        let prompt = TomexPrompt {};
 
         let line_editor = Reedline::create()
             .with_history(history)

@@ -2,11 +2,11 @@ use std::borrow::Cow;
 
 use reedline::{Prompt, PromptEditMode, PromptHistorySearchStatus, PromptViMode};
 
-pub struct BokhyllePrompt;
+pub struct TomexPrompt;
 
-impl Prompt for BokhyllePrompt {
+impl Prompt for TomexPrompt {
     fn render_prompt_left(&self) -> std::borrow::Cow<str> {
-        Cow::Owned("Bokhylle ".into())
+        Cow::Owned("Tomex ".into())
     }
 
     fn render_prompt_right(&self) -> std::borrow::Cow<str> {
