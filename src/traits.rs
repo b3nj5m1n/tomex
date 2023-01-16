@@ -577,7 +577,6 @@ where
     where
         Self: Queryable,
     {
-        println!("fuck");
         let mut s: Self = Self::query_by_prompt(conn).await?;
         let new = PromptType::update_by_prompt(&s, "", conn).await?;
         Self::update(&mut s, conn, new).await

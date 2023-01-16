@@ -126,7 +126,10 @@ impl Default for OutputConfig {
             separator:         ", ".into(),
             style_prefix:      StyleConfig::default(),
             style_suffix:      StyleConfig::default(),
-            style_description: StyleConfig::default(),
+            style_description: StyleConfig {
+                italic: true,
+                ..StyleConfig::default()
+            },
             style_separator:   StyleConfig::default(),
             style_content:     StyleConfig::default(),
         }
@@ -156,6 +159,9 @@ pub struct Config {
     pub output_series:            OutputConfig,
     pub output_review:            OutputConfig,
     pub output_isbn:              OutputConfig,
+    pub output_format:            OutputConfig,
+    pub output_binding:           OutputConfig,
+    pub output_dimensions:        OutputConfig,
 }
 
 impl Config {
@@ -258,6 +264,7 @@ impl Default for Config {
                 ..OutputConfig::default()
             },
             output_publisher:         OutputConfig {
+                description: "Publisher:".into(),
                 style_content: StyleConfig {
                     color: COLOR_PUBLISHER,
                     ..StyleConfig::default()
@@ -343,6 +350,28 @@ impl Default for Config {
                 ..OutputConfig::default()
             },
             output_isbn:              OutputConfig {
+                style_content: StyleConfig {
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_format:            OutputConfig {
+                description: "Format:".into(),
+                style_content: StyleConfig {
+                    color: COLOR_FORMAT,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_binding:           OutputConfig {
+                description: "Binding:".into(),
+                style_content: StyleConfig {
+                    color: COLOR_BINDING,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_dimensions:        OutputConfig {
                 style_content: StyleConfig {
                     ..StyleConfig::default()
                 },

@@ -15,11 +15,11 @@ use tomex::{
     backup, config,
     traits::*,
     types::{
-        author::Author, book::Book, book_author::BookAuthor, book_genre::BookGenre,
-        edition::Edition, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
-        edition_review::EditionReview, genre::Genre, language::Language, mood::Mood, pace::Pace,
-        progress::Progress, publisher::Publisher, review::Review, review_mood::ReviewMood,
-        series::Series,
+        author::Author, binding::Binding, book::Book, book_author::BookAuthor,
+        book_genre::BookGenre, edition::Edition, edition_language::EditionLanguage,
+        edition_publisher::EditionPublisher, edition_review::EditionReview, format::EditionFormat,
+        genre::Genre, language::Language, mood::Mood, pace::Pace, progress::Progress,
+        publisher::Publisher, review::Review, review_mood::ReviewMood, series::Series,
     },
 };
 
@@ -242,6 +242,8 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
         Pace::init_table(conn),
         Language::init_table(conn),
         Progress::init_table(conn),
+        Binding::init_table(conn),
+        EditionFormat::init_table(conn),
         BookAuthor::create_table(conn),
         BookGenre::create_table(conn),
         EditionLanguage::create_table(conn),

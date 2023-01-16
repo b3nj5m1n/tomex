@@ -35,6 +35,7 @@ pub struct Book {
     pub title:        Text,
     pub authors:      Option<Vec<Author>>,
     pub release_date: OptionalTimestamp,
+    pub summary:      Option<Text>,
     pub series_id:    Option<Uuid>,
     pub series_index: Option<u32>,
     pub series:       Option<Series>,
@@ -132,6 +133,7 @@ impl PromptType for Book {
             title,
             authors: author.map(|x| vec![x]),
             release_date: OptionalTimestamp(None),
+            summary: None,  // TODO
             editions: None, // TODO
             reviews: None,  // TODO
             genres,
@@ -178,6 +180,7 @@ impl PromptType for Book {
             title,
             authors: self.authors.clone(), // TODO
             release_date: OptionalTimestamp(release_date),
+            summary: self.summary.clone(), // TODO
             editions: self.editions.clone(),
             reviews: self.reviews.clone(),
             genres,
@@ -300,6 +303,7 @@ impl CreateTable for Book {
                 id TEXT PRIMARY KEY NOT NULL,
                 title TEXT NOT NULL,
                 release_date INTEGER,
+                summary TEXT,
                 series_id TEXT,
                 series_index INTEGER,
                 deleted BOOL DEFAULT FALSE
@@ -390,6 +394,7 @@ impl FromRow<'_, SqliteRow> for Book {
             title:        row.try_get("title")?,
             authors:      None,
             release_date: row.try_get("release_date")?,
+            summary:      row.try_get("summary")?,
             editions:     None, // TODO
             reviews:      None,
             genres:       None,

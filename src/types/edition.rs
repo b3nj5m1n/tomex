@@ -17,6 +17,8 @@ use crate::{
 };
 use derives::*;
 
+use super::{binding::Binding, format::EditionFormat};
+
 #[derive(
     Default,
     Debug,
@@ -39,6 +41,14 @@ pub struct Edition {
     pub pages:         Option<u32>,
     pub languages:     Option<Vec<Language>>,
     pub release_date:  OptionalTimestamp,
+    pub format_id:     Option<Uuid>,
+    pub format:        Option<EditionFormat>,
+    pub height:        Option<u32>,
+    pub width:         Option<u32>,
+    pub thickness:     Option<u32>,
+    pub weight:        Option<u32>,
+    pub binding_id:    Option<Uuid>,
+    pub binding:       Option<Binding>,
     pub publishers:    Option<Vec<Publisher>>,
     pub cover:         Option<String>,
     pub reviews:       Option<Vec<EditionReview>>,
@@ -51,6 +61,8 @@ impl Edition {
     pub async fn hydrate(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.hydrate_languages(conn).await?;
         self.hydrate_publishers(conn).await?;
+        self.hydrate_format(conn).await?;
+        self.hydrate_binding(conn).await?;
         Ok(())
     }
 
@@ -60,6 +72,20 @@ impl Edition {
             Some(result)
         } else {
             None
+        })
+    }
+
+    pub async fn get_format(&self, conn: &sqlx::SqlitePool) -> Result<Option<EditionFormat>> {
+        Ok(match &self.format_id {
+            Some(id) => Some(EditionFormat::get_by_id(conn, id).await?),
+            None => None,
+        })
+    }
+
+    pub async fn get_binding(&self, conn: &sqlx::SqlitePool) -> Result<Option<Binding>> {
+        Ok(match &self.binding_id {
+            Some(id) => Some(Binding::get_by_id(conn, id).await?),
+            None => None,
         })
     }
 
@@ -79,6 +105,16 @@ impl Edition {
 
     pub async fn hydrate_publishers(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.publishers = self.get_publishers(conn).await?;
+        Ok(())
+    }
+
+    pub async fn hydrate_format(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.format = self.get_format(conn).await?;
+        Ok(())
+    }
+
+    pub async fn hydrate_binding(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.binding = self.get_binding(conn).await?;
         Ok(())
     }
 }
@@ -111,6 +147,11 @@ impl PromptType for Edition {
             .with_validator(validator)
             .prompt_skippable()?
             .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let format = match EditionFormat::query_by_prompt_skippable(conn).await? {
+            Some(format) => Some(format),
+            None => None,
+        };
+        let format_id = format.clone().map(|x| x.id);
         Ok(Self {
             id,
             book_id,
@@ -125,6 +166,14 @@ impl PromptType for Edition {
             progress: None,
             deleted: false,
             book_title: book.title,
+            format_id,
+            format,
+            height: None,     // TODO
+            width: None,      // TODO
+            thickness: None,  // TODO
+            weight: None,     // TODO
+            binding_id: None, // TODO
+            binding: None,
         })
     }
 
@@ -132,30 +181,40 @@ impl PromptType for Edition {
     where
         Self: Display,
     {
-        let book = Book::get_by_id(conn, &self.book_id).await?;
+        let mut s = self.clone();
+        s.hydrate(conn).await?;
+        let book = Book::get_by_id(conn, &s.book_id).await?;
         let edition_title = PromptType::update_by_prompt_skippable(
-            &self.edition_title,
+            &s.edition_title,
             "What is the edition title?",
             conn,
         )
         .await?;
         let isbn = PromptType::update_by_prompt_skippable(
-            &self.isbn,
+            &s.isbn,
             "What is the isbn of this edition?",
             conn,
         )
         .await?;
         // Languages
         let languages =
-            Language::update_vec(&self.languages, conn, "Select languages for this edition:")
-                .await?;
+            Language::update_vec(&s.languages, conn, "Select languages for this edition:").await?;
         // Publishers
-        let publishers = Publisher::update_vec(
-            &self.publishers,
-            conn,
-            "Select publishers for this edition:",
-        )
-        .await?;
+        let publishers =
+            Publisher::update_vec(&s.publishers, conn, "Select publishers for this edition:")
+                .await?;
+        // Format
+        let format = match EditionFormat::query_by_prompt_skippable(conn).await? {
+            Some(format) => Some(format),
+            None => s.format.clone(),
+        };
+        let format_id = format.clone().map(|x| x.id);
+        // Binding
+        let binding = match Binding::query_by_prompt_skippable(conn).await? {
+            Some(binding) => Some(binding),
+            None => s.binding.clone(),
+        };
+        let binding_id = binding.clone().map(|x| x.id);
         let new = Self {
             edition_title,
             isbn,
@@ -163,6 +222,10 @@ impl PromptType for Edition {
             publishers,
             deleted: self.deleted,
             book_title: book.title,
+            format_id,
+            format,
+            binding,
+            binding_id,
             ..self.clone()
         };
         Ok(new)
@@ -266,6 +329,22 @@ impl DisplayTerminal for Edition {
                     .await?
             )?;
         }
+        // Format
+        if let Some(format) = s.format {
+            write!(
+                f,
+                "{} ",
+                config.output_format.format(format, conn, config).await?
+            )?;
+        }
+        // Binding
+        if let Some(binding) = s.binding {
+            write!(
+                f,
+                "{} ",
+                config.output_binding.format(binding, conn, config).await?
+            )?;
+        }
         // Language
         if let Some(languages) = s.languages {
             write!(
@@ -321,6 +400,12 @@ impl CreateTable for Edition {
             	isbn	TEXT,
                 pages   INT,
             	release_date	INTEGER,
+                format_id TEXT,
+                height  INT,
+                width    INT,
+                thickness INT,
+                weight INT,
+                binding_id TEXT,
             	cover	TEXT,
             	deleted BOOL DEFAULT FALSE,
                 book_title TEXT,
@@ -345,8 +430,8 @@ impl Insertable for Edition {
     {
         let result = sqlx::query(
             r#"
-            INSERT INTO editions ( id, book_id, edition_title, isbn, pages, release_date, cover, deleted, book_title )
-            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9 );
+            INSERT INTO editions ( id, book_id, edition_title, isbn, pages, release_date, format_id, height, width, thickness, weight, binding_id, cover, deleted, book_title )
+            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15 );
             "#,
         )
         .bind(&self.id)
@@ -355,6 +440,12 @@ impl Insertable for Edition {
         .bind(&self.isbn)
         .bind(self.pages)
         .bind(&self.release_date)
+        .bind(&self.format_id)
+        .bind(&self.height)
+        .bind(&self.width)
+        .bind(&self.thickness)
+        .bind(&self.weight)
+        .bind(&self.binding_id)
         .bind(&self.cover)
         .bind(self.deleted)
         .bind(&self.book_title)
@@ -385,9 +476,15 @@ impl Updateable for Edition {
                 isbn = ?4,
                 pages = ?5,
                 release_date = ?6,
-                cover = ?7,
-                deleted = ?8,
-                book_title = ?9
+                format_id = ?7,
+                height = ?8,
+                width = ?9,
+                thickness = ?10,
+                weight = ?11,
+                binding_id = ?12,
+                cover = ?13,
+                deleted = ?14,
+                book_title = ?15
             WHERE
                 id = ?1;
             "#,
@@ -399,6 +496,12 @@ impl Updateable for Edition {
         .bind(&new.isbn)
         .bind(new.pages)
         .bind(&new.release_date)
+        .bind(&new.format_id)
+        .bind(&new.height)
+        .bind(&new.width)
+        .bind(&new.thickness)
+        .bind(&new.weight)
+        .bind(&new.binding_id)
         .bind(&new.cover)
         .bind(new.deleted)
         .bind(&new.book_title)
@@ -410,16 +513,27 @@ impl Updateable for Edition {
 impl FromRow<'_, SqliteRow> for Edition {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         Ok(Self {
-            id: row.try_get("id")?,
-            book_id: row.try_get("book_id")?,
+            id:            row.try_get("id")?,
+            book_id:       row.try_get("book_id")?,
             edition_title: row.try_get("edition_title")?,
-            isbn: row.try_get("isbn")?,
-            pages: row.try_get("pages")?,
-            release_date: row.try_get("release_date")?,
-            cover: row.try_get("cover")?,
-            deleted: row.try_get("deleted")?,
-            book_title: row.try_get("book_title")?,
-            ..Self::default()
+            isbn:          row.try_get("isbn")?,
+            pages:         row.try_get("pages")?,
+            release_date:  row.try_get("release_date")?,
+            cover:         row.try_get("cover")?,
+            deleted:       row.try_get("deleted")?,
+            book_title:    row.try_get("book_title")?,
+            format_id:     row.try_get("format_id")?,
+            height:        row.try_get("height")?,
+            width:         row.try_get("width")?,
+            thickness:     row.try_get("thickness")?,
+            weight:        row.try_get("weight")?,
+            binding_id:    row.try_get("binding_id")?,
+            languages:     Self::default().languages,
+            format:        Self::default().format,
+            binding:       Self::default().binding,
+            publishers:    Self::default().publishers,
+            reviews:       Self::default().reviews,
+            progress:      Self::default().progress,
         })
     }
 }

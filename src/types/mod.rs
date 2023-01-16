@@ -6,9 +6,11 @@ pub mod timestamp;
 pub mod uuid;
 
 pub mod author;
+pub mod binding;
 pub mod book;
 pub mod edition;
 pub mod edition_review;
+pub mod format;
 pub mod genre;
 pub mod language;
 pub mod mood;

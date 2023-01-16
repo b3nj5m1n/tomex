@@ -91,3 +91,13 @@ pub const COLOR_SERIES: Color = Color::Rgb {
     g: 160,
     b: 246,
 };
+pub const COLOR_FORMAT: Color = Color::Rgb {
+    r: 245,
+    g: 169,
+    b: 127,
+};
+pub const COLOR_BINDING: Color = Color::Rgb {
+    r: 166,
+    g: 218,
+    b: 149,
+};
