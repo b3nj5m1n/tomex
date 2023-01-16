@@ -36,7 +36,7 @@ pub struct Progress {
 
 impl PromptType for Progress {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -78,7 +78,7 @@ impl PromptType for Progress {
             deleted: false,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -204,8 +204,8 @@ impl Insertable for Progress {
         .bind(&self.id)
         .bind(&self.edition_id)
         .bind(&self.timestamp)
-        .bind(&self.pages_progress)
-        .bind(&self.deleted)
+        .bind(self.pages_progress)
+        .bind(self.deleted)
         .execute(conn)
         .await?)
     }
@@ -232,8 +232,8 @@ impl Updateable for Progress {
         .bind(&self.id)
         .bind(&new.edition_id)
         .bind(&new.timestamp)
-        .bind(&new.pages_progress)
-        .bind(&new.deleted)
+        .bind(new.pages_progress)
+        .bind(new.deleted)
         .execute(conn)
         .await?)
     }

@@ -175,14 +175,14 @@ where
         new: &Option<Vec<B>>,
     ) -> Result<()> {
         // There are no B's in new, remove all existing a <-> B links
-        if let None = new {
+        if new.is_none() {
             let existing = Self::get_all_for_a(conn, a).await?;
             for x in existing {
                 Self::remove(conn, a, &x).await?;
             }
         }
         // There were no B's in old, simply add all new ones
-        else if let None = old {
+        else if old.is_none() {
             if let Some(b_s) = new {
                 for b in b_s {
                     Self::insert(conn, a, b).await?;
@@ -236,7 +236,7 @@ where
             .with_default(&indicies_selected)
             .prompt_skippable()?;
         if let Some(xs_) = xs {
-            xs = if xs_.len() > 0 { Some(xs_) } else { None };
+            xs = if !xs_.is_empty() { Some(xs_) } else { None };
         } else {
             xs = current.clone();
         }
@@ -283,7 +283,7 @@ where
         Self: Display,
     {
         Self::create_by_prompt(
-            &format!("{} (Currently {})", prompt, self),
+            &format!("{prompt} (Currently {self})"),
             Some(self),
             conn,
         )
@@ -301,7 +301,7 @@ where
         Self: Display,
     {
         match Self::create_by_prompt_skippable(
-            &format!("{} (Currently {})", prompt, self),
+            &format!("{prompt} (Currently {self})"),
             Some(self),
             conn,
         )
@@ -329,7 +329,7 @@ where
             return Ok(None);
         };
         Ok(Some(
-            Self::update_by_prompt(&self, prompt_update, conn).await?,
+            Self::update_by_prompt(self, prompt_update, conn).await?,
         ))
     }
 
@@ -351,7 +351,7 @@ where
             return Ok(None);
         };
         Ok(Some(
-            Self::update_by_prompt_skippable(&self, prompt_update, conn).await?,
+            Self::update_by_prompt_skippable(self, prompt_update, conn).await?,
         ))
     }
 }
@@ -376,7 +376,7 @@ where
         conn: &sqlx::SqlitePool,
         config: &config::Config,
     ) -> Result<()> {
-        self.fmt(f, conn, &config).await
+        self.fmt(f, conn, config).await
     }
     /// Format self and return the result as a string, provide optional string as prefix
     async fn fmt_to_string(
@@ -404,16 +404,14 @@ where
 {
     /// Check if the table currently exists
     async fn table_exists(conn: &sqlx::SqlitePool) -> Result<bool> {
-        Ok(sqlx::query(&format!(
+        Ok(!sqlx::query(&format!(
             r#"
             SELECT name FROM sqlite_master WHERE type='table' AND name='{}';
             "#,
             Self::TABLE_NAME
         ))
         .fetch_all(conn)
-        .await?
-        .len()
-            != 0)
+        .await?.is_empty())
     }
     /// Initialise table, i.e. create and potentially insert data if the table doesn't already exist
     async fn init_table(conn: &sqlx::SqlitePool) -> Result<()> {
@@ -556,7 +554,7 @@ where
                 OptionToCreate::Value(value) => Ok(Some(value)),
                 OptionToCreate::Create => {
                     let new = Self::insert_by_prompt(conn).await?;
-                    return Ok(Some(new));
+                    Ok(Some(new))
                 }
             },
             None => Ok(None),
@@ -680,7 +678,7 @@ where
         let x = Self::query_by_prompt_skippable(conn).await?;
         match x {
             Some(x) => {
-                if !inquire::Confirm::new(&format!("Are you sure you want to remove {}?", x))
+                if !inquire::Confirm::new(&format!("Are you sure you want to remove {x}?"))
                     .with_default(false)
                     .prompt()?
                 {

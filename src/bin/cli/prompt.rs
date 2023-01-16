@@ -23,12 +23,12 @@ impl Prompt for BokhyllePrompt {
                 PromptViMode::Normal => "> ".into(),
                 PromptViMode::Insert => "> ".into(),
             },
-            PromptEditMode::Custom(str) => format!("({})", str).into(),
+            PromptEditMode::Custom(str) => format!("({str})").into(),
         }
     }
 
     fn render_prompt_multiline_indicator(&self) -> std::borrow::Cow<str> {
-        Cow::Borrowed(":> ".into())
+        Cow::Borrowed(":> ")
     }
 
     fn render_prompt_history_search_indicator(

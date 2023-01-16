@@ -58,7 +58,7 @@ impl EditionReview {
 
 impl PromptType for EditionReview {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -109,7 +109,7 @@ impl PromptType for EditionReview {
             price_text: None,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -134,8 +134,8 @@ impl PromptType for EditionReview {
         let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
             .with_validator(validator)
             .with_initial_value(
-                if let Some(rating) = &self.rating.clone().map(|x| x.to_string()) {
-                    &rating
+                if let Some(rating) = &self.rating.map(|x| x.to_string()) {
+                    rating
                 } else {
                     ""
                 },
@@ -157,15 +157,15 @@ impl PromptType for EditionReview {
                 ""
             })
             .prompt_skippable()?
-            .map(|x| Text(x));
+            .map(Text);
 
         // Cover
         let cover_rating =
             inquire::Text::new("What rating would you give this edition's cover? (0-100)")
                 .with_validator(validator)
                 .with_initial_value(
-                    if let Some(rating) = &self.cover_rating.clone().map(|x| x.to_string()) {
-                        &rating
+                    if let Some(rating) = &self.cover_rating.map(|x| x.to_string()) {
+                        rating
                     } else {
                         ""
                     },
@@ -181,14 +181,14 @@ impl PromptType for EditionReview {
                     ""
                 })
                 .prompt_skippable()?
-                .map(|x| Text(x));
+                .map(Text);
         // Typesetting
         let typesetting_rating =
             inquire::Text::new("What rating would you give this edition's typesetting? (0-100)")
                 .with_validator(validator)
                 .with_initial_value(
-                    if let Some(rating) = &self.typesetting_rating.clone().map(|x| x.to_string()) {
-                        &rating
+                    if let Some(rating) = &self.typesetting_rating.map(|x| x.to_string()) {
+                        rating
                     } else {
                         ""
                     },
@@ -204,14 +204,14 @@ impl PromptType for EditionReview {
                     ""
                 })
                 .prompt_skippable()?
-                .map(|x| Text(x));
+                .map(Text);
         // Material
         let material_rating =
             inquire::Text::new("What rating would you give this edition's material? (0-100)")
                 .with_validator(validator)
                 .with_initial_value(
-                    if let Some(rating) = &self.material_rating.clone().map(|x| x.to_string()) {
-                        &rating
+                    if let Some(rating) = &self.material_rating.map(|x| x.to_string()) {
+                        rating
                     } else {
                         ""
                     },
@@ -227,14 +227,14 @@ impl PromptType for EditionReview {
                     ""
                 })
                 .prompt_skippable()?
-                .map(|x| Text(x));
+                .map(Text);
         // Price
         let price_rating =
             inquire::Text::new("What rating would you give this edition's price? (0-100)")
                 .with_validator(validator)
                 .with_initial_value(
-                    if let Some(rating) = &self.price_rating.clone().map(|x| x.to_string()) {
-                        &rating
+                    if let Some(rating) = &self.price_rating.map(|x| x.to_string()) {
+                        rating
                     } else {
                         ""
                     },
@@ -250,7 +250,7 @@ impl PromptType for EditionReview {
                     ""
                 })
                 .prompt_skippable()?
-                .map(|x| Text(x));
+                .map(Text);
 
         if !inquire::Confirm::new("Update review?")
             .with_default(true)
@@ -306,7 +306,7 @@ impl DisplayTerminal for EditionReview {
         let edition = Edition::get_by_id(conn, &s.edition_id).await?;
         let book = Book::get_by_id(conn, &edition.book_id).await?;
         // Book title
-        write!(f, "{} ", edition.to_string())?;
+        write!(f, "{edition} ")?;
         // Rating
         if let Some(rating) = s.rating {
             write!(
@@ -334,7 +334,7 @@ impl DisplayTerminal for EditionReview {
                         .await?
                 }
             };
-            write!(f, "{} ", str)?;
+            write!(f, "{str} ")?;
         }
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
@@ -410,20 +410,20 @@ impl Insertable for EditionReview {
         ))
         .bind(&self.id)
         .bind(&self.edition_id)
-        .bind(&self.rating)
-        .bind(&self.recommend)
+        .bind(self.rating)
+        .bind(self.recommend)
         .bind(&self.content)
-        .bind(&self.cover_rating)
+        .bind(self.cover_rating)
         .bind(&self.cover_text)
-        .bind(&self.typesetting_rating)
+        .bind(self.typesetting_rating)
         .bind(&self.typesetting_text)
-        .bind(&self.material_rating)
+        .bind(self.material_rating)
         .bind(&self.material_text)
-        .bind(&self.price_rating)
+        .bind(self.price_rating)
         .bind(&self.price_text)
         .bind(&self.timestamp_created)
         .bind(&self.timestamp_updated)
-        .bind(&self.deleted)
+        .bind(self.deleted)
         .bind(&self.book_title)
         .execute(conn)
         .await?)
@@ -458,20 +458,20 @@ impl Updateable for EditionReview {
         ))
         .bind(&self.id)
         .bind(&new.edition_id)
-        .bind(&new.rating)
-        .bind(&new.recommend)
+        .bind(new.rating)
+        .bind(new.recommend)
         .bind(&new.content)
-        .bind(&new.cover_rating)
+        .bind(new.cover_rating)
         .bind(&new.cover_text)
-        .bind(&new.typesetting_rating)
+        .bind(new.typesetting_rating)
         .bind(&new.typesetting_text)
-        .bind(&new.material_rating)
+        .bind(new.material_rating)
         .bind(&new.material_text)
-        .bind(&new.price_rating)
+        .bind(new.price_rating)
         .bind(&new.price_text)
         .bind(&new.timestamp_created)
         .bind(&new.timestamp_updated)
-        .bind(&new.deleted)
+        .bind(new.deleted)
         .bind(&new.book_title)
         .execute(conn)
         .await?)

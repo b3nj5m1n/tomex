@@ -36,7 +36,7 @@ const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000
 
 impl PromptType for Author {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -55,7 +55,7 @@ impl PromptType for Author {
             special: false,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -268,7 +268,7 @@ impl Insertable for Author {
         .bind(&self.name_last)
         .bind(&self.date_born)
         .bind(&self.date_died)
-        .bind(&self.deleted)
+        .bind(self.deleted)
         .execute(conn)
         .await?)
     }
@@ -297,7 +297,7 @@ impl Updateable for Author {
         .bind(&new.name_last)
         .bind(&new.date_born)
         .bind(&new.date_died)
-        .bind(&new.deleted)
+        .bind(new.deleted)
         .execute(conn)
         .await?)
     }
@@ -316,7 +316,7 @@ impl Removeable for Author {
         }
         match x {
             Some(x) => {
-                if !inquire::Confirm::new(&format!("Are you sure you want to remove {}?", x))
+                if !inquire::Confirm::new(&format!("Are you sure you want to remove {x}?"))
                     .with_default(false)
                     .prompt()?
                 {

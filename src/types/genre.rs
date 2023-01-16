@@ -35,7 +35,7 @@ impl UpdateVec for Genre {}
 
 impl PromptType for Genre {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -47,7 +47,7 @@ impl PromptType for Genre {
             deleted: false,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -234,7 +234,7 @@ impl Insertable for Genre {
         ))
         .bind(&self.id)
         .bind(&self.name)
-        .bind(&self.deleted)
+        .bind(self.deleted)
         .execute(conn)
         .await?)
     }
@@ -258,7 +258,7 @@ impl Updateable for Genre {
         ))
         .bind(&self.id)
         .bind(&new.name)
-        .bind(&new.deleted)
+        .bind(new.deleted)
         .execute(conn)
         .await?)
     }

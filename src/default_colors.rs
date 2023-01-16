@@ -1,4 +1,4 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 use crossterm::style::Color;
 
 pub const COLOR_WHITE: Color = Color::Rgb {

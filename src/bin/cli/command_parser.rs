@@ -108,7 +108,7 @@ pub fn generate_completions() -> Vec<String> {
         let fn_name = format!(
             "{parent_fn_name} {cmd_name}",
             parent_fn_name = parent_fn_name,
-            cmd_name = cmd.get_name().to_string()
+            cmd_name = cmd.get_name()
         )
         .trim()
         .to_string();
@@ -119,7 +119,7 @@ pub fn generate_completions() -> Vec<String> {
     }
     let mut subcmds = vec![];
     for subcmd in cmd.get_subcommands() {
-        add_command(&"", subcmd, &mut subcmds);
+        add_command("", subcmd, &mut subcmds);
     }
     subcmds.sort();
     subcmds

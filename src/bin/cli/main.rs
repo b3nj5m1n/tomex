@@ -25,7 +25,7 @@ use bokhylle::{traits::*, types::book::Book};
 async fn handle_command(command: String, conn: &SqlitePool, config: &config::Config) -> Result<()> {
     let args = command_parser::arg_parser_repl();
     let command = shlex::split(&command);
-    if let None = command {
+    if command.is_none() {
         anyhow::bail!("Invalid command");
     }
     let command = command.unwrap();
@@ -256,7 +256,7 @@ async fn main() -> Result<()> {
                 Ok(Signal::Success(buffer)) => {
                     match handle_command(buffer.clone(), &conn, &config).await {
                         Ok(_) => (),
-                        Err(e) => println!("Error: {}", e),
+                        Err(e) => println!("Error: {e}"),
                     };
                 }
                 Ok(Signal::CtrlD) | Ok(Signal::CtrlC) => {
@@ -264,7 +264,7 @@ async fn main() -> Result<()> {
                     break;
                 }
                 x => {
-                    println!("Event: {:?}", x);
+                    println!("Event: {x:?}");
                 }
             }
         }

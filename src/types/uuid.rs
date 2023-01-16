@@ -20,7 +20,7 @@ impl Display for Uuid {
             .take(8)
             .collect::<String>()
             .style(&config.output_uuid.style_content);
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -35,7 +35,7 @@ impl<'q> sqlx::Encode<'q, sqlx::Sqlite> for Uuid {
         &self,
         args: &mut Vec<sqlx::sqlite::SqliteArgumentValue<'q>>,
     ) -> sqlx::encode::IsNull {
-        let s: String = self.0.to_string().clone();
+        let s: String = self.0.to_string();
         args.push(sqlx::sqlite::SqliteArgumentValue::Text(
             std::borrow::Cow::Owned(s),
         ));

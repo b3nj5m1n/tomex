@@ -54,11 +54,11 @@ impl Book {
     }
     pub async fn get_authors(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Author>>> {
         let result = BookAuthor::get_all_for_a(conn, self).await?;
-        Ok(if result.len() > 0 { Some(result) } else { None })
+        Ok(if !result.is_empty() { Some(result) } else { None })
     }
     pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Genre>>> {
         let result = BookGenre::get_all_for_a(conn, self).await?;
-        Ok(if result.len() > 0 { Some(result) } else { None })
+        Ok(if !result.is_empty() { Some(result) } else { None })
     }
     pub async fn hydrate_authors(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.authors = self.get_authors(conn).await?;
@@ -72,7 +72,7 @@ impl Book {
 
 impl PromptType for Book {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -83,7 +83,7 @@ impl PromptType for Book {
         let mut genres =
             MultiSelect::new("Select genres for this book:", all_genres).prompt_skippable()?;
         if let Some(genres_) = genres {
-            genres = if genres_.len() > 0 {
+            genres = if !genres_.is_empty() {
                 Some(genres_)
             } else {
                 None
@@ -100,7 +100,7 @@ impl PromptType for Book {
             deleted: false,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -168,7 +168,7 @@ impl DisplayTerminal for Book {
             .title
             .to_string()
             .style(&config.output_book.style_content);
-        write!(f, "{} ", title)?;
+        write!(f, "{title} ")?;
         if let Some(authors) = s.authors {
             write!(
                 f,
@@ -236,7 +236,7 @@ impl Insertable for Book {
         .bind(&self.id)
         .bind(&self.title)
         .bind(&self.release_date)
-        .bind(&self.deleted)
+        .bind(self.deleted)
         .execute(conn)
         .await?;
 
@@ -278,7 +278,7 @@ impl Updateable for Book {
         .bind(&self.id)
         .bind(&new.title)
         .bind(&new.release_date)
-        .bind(&new.deleted)
+        .bind(new.deleted)
         .execute(conn)
         .await?)
     }

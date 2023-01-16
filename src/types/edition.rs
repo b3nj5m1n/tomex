@@ -55,7 +55,7 @@ impl Edition {
     }
     pub async fn get_languages(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Language>>> {
         let result = EditionLanguage::get_all_for_a(conn, self).await?;
-        Ok(if result.len() > 0 { Some(result) } else { None })
+        Ok(if !result.is_empty() { Some(result) } else { None })
     }
     pub async fn hydrate_languages(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.languages = self.get_languages(conn).await?;
@@ -63,7 +63,7 @@ impl Edition {
     }
     pub async fn get_publishers(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Publisher>>> {
         let result = EditionPublisher::get_all_for_a(conn, self).await?;
-        Ok(if result.len() > 0 { Some(result) } else { None })
+        Ok(if !result.is_empty() { Some(result) } else { None })
     }
     pub async fn hydrate_publishers(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.publishers = self.get_publishers(conn).await?;
@@ -73,7 +73,7 @@ impl Edition {
 
 impl PromptType for Edition {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -112,7 +112,7 @@ impl PromptType for Edition {
             book_title: book.title,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -218,11 +218,11 @@ impl DisplayTerminal for Edition {
         let book = Book::get_by_id(conn, &s.book_id).await?;
         // Edition/Book title
         let title = match s.edition_title {
-            Some(t) => format!("{}", t),
+            Some(t) => format!("{t}"),
             None => format!("{}", book.title),
         }
         .style(&config.output_edition.style_content);
-        write!(f, "{} ", title)?;
+        write!(f, "{title} ")?;
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
             write!(
@@ -281,7 +281,7 @@ impl DisplayTerminal for Edition {
         // ISBN or ID
         if let Some(isbn) = s.isbn {
             let str = isbn.to_string().italic();
-            write!(f, "({})", str)?;
+            write!(f, "({str})")?;
         } else {
             write!(f, "({})", s.id)?;
         }
@@ -332,16 +332,16 @@ impl Insertable for Edition {
         .bind(&self.book_id)
         .bind(&self.edition_title)
         .bind(&self.isbn)
-        .bind(&self.pages)
+        .bind(self.pages)
         .bind(&self.release_date)
         .bind(&self.cover)
-        .bind(&self.deleted)
+        .bind(self.deleted)
         .bind(&self.book_title)
         .execute(conn)
         .await?;
 
-        EditionLanguage::update(conn, &self, &None, &self.languages).await?;
-        EditionPublisher::update(conn, &self, &None, &self.publishers).await?;
+        EditionLanguage::update(conn, self, &None, &self.languages).await?;
+        EditionPublisher::update(conn, self, &None, &self.publishers).await?;
 
         Ok(result)
     }
@@ -353,8 +353,8 @@ impl Updateable for Edition {
         new: Self,
     ) -> Result<sqlx::sqlite::SqliteQueryResult> {
         self.hydrate(conn).await?;
-        EditionLanguage::update(conn, &self, &self.languages, &new.languages).await?;
-        EditionPublisher::update(conn, &self, &self.publishers, &new.publishers).await?;
+        EditionLanguage::update(conn, self, &self.languages, &new.languages).await?;
+        EditionPublisher::update(conn, self, &self.publishers, &new.publishers).await?;
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -376,10 +376,10 @@ impl Updateable for Edition {
         .bind(&new.book_id)
         .bind(&new.edition_title)
         .bind(&new.isbn)
-        .bind(&new.pages)
+        .bind(new.pages)
         .bind(&new.release_date)
         .bind(&new.cover)
-        .bind(&new.deleted)
+        .bind(new.deleted)
         .bind(&new.book_title)
         .execute(conn)
         .await?)

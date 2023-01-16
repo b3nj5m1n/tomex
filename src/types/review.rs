@@ -63,7 +63,7 @@ impl Review {
     }
     pub async fn get_moods(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Mood>>> {
         let result = ReviewMood::get_all_for_a(conn, self).await?;
-        Ok(if result.len() > 0 { Some(result) } else { None })
+        Ok(if !result.is_empty() { Some(result) } else { None })
     }
     pub async fn hydrate_moods(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.moods = self.get_moods(conn).await?;
@@ -73,7 +73,7 @@ impl Review {
 
 impl PromptType for Review {
     async fn create_by_prompt(
-        prompt: &str,
+        _prompt: &str,
         _initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
@@ -121,7 +121,7 @@ impl PromptType for Review {
             moods: None,
         })
     }
-    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
     {
@@ -147,8 +147,8 @@ impl PromptType for Review {
         let rating = inquire::Text::new("What rating would you give this book? (0-100)")
             .with_validator(validator)
             .with_initial_value(
-                if let Some(rating) = &s.rating.clone().map(|x| x.to_string()) {
-                    &rating
+                if let Some(rating) = &s.rating.map(|x| x.to_string()) {
+                    rating
                 } else {
                     ""
                 },
@@ -176,7 +176,7 @@ impl PromptType for Review {
                 ""
             })
             .prompt_skippable()?
-            .map(|x| Text(x));
+            .map(Text);
 
         let moods = Mood::update_vec(&s.moods, conn, "Select moods for this edition:").await?;
 
@@ -218,7 +218,7 @@ impl DisplayTerminal for Review {
         s.hydrate(conn).await?;
         let book = Book::get_by_id(conn, &s.book_id).await?;
         // Book title
-        write!(f, "{} ", book.to_string())?;
+        write!(f, "{book} ")?;
         // Rating
         if let Some(rating) = s.rating {
             write!(
@@ -246,7 +246,7 @@ impl DisplayTerminal for Review {
                         .await?
                 }
             };
-            write!(f, "{} ", str)?;
+            write!(f, "{str} ")?;
         }
         // Pace
         if let Some(pace) = s.pace {
@@ -328,25 +328,25 @@ impl Insertable for Review {
         )
         .bind(&self.id)
         .bind(&self.book_id)
-        .bind(&self.rating)
-        .bind(&self.recommend)
+        .bind(self.rating)
+        .bind(self.recommend)
         .bind(&self.content)
         .bind(&self.timestamp_created)
         .bind(&self.timestamp_updated)
         .bind(&self.pace_id)
-        .bind(&self.deleted)
+        .bind(self.deleted)
         .bind(&self.book_title)
         .execute(conn)
         .await?;
 
-        ReviewMood::update(conn, &self, &None, &self.moods).await?;
+        ReviewMood::update(conn, self, &None, &self.moods).await?;
 
         Ok(result)
     }
 }
 impl Updateable for Review {
     async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult> {
-        ReviewMood::update(conn, &self, &self.moods, &new.moods).await?;
+        ReviewMood::update(conn, self, &self.moods, &new.moods).await?;
         Ok(sqlx::query(&format!(
             r#"
             UPDATE {}
@@ -367,13 +367,13 @@ impl Updateable for Review {
         ))
         .bind(&self.id)
         .bind(&new.book_id)
-        .bind(&new.rating)
-        .bind(&new.recommend)
+        .bind(new.rating)
+        .bind(new.recommend)
         .bind(&new.content)
         .bind(&new.timestamp_created)
         .bind(&new.timestamp_updated)
         .bind(&new.pace_id)
-        .bind(&new.deleted)
+        .bind(new.deleted)
         .bind(&new.book_title)
         .execute(conn)
         .await?)

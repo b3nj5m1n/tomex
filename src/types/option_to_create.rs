@@ -33,7 +33,7 @@ where
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            OptionToCreate::Value(value) => write!(f, "{}", value),
+            OptionToCreate::Value(value) => write!(f, "{value}"),
             OptionToCreate::Create => write!(f, "Create new"),
         }
     }

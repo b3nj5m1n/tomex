@@ -20,9 +20,9 @@ impl Display for Timestamp {
             Err(_) => return Err(std::fmt::Error),
         };
         let ht = HumanTime::from(self.0);
-        let s = format!("{}", ht.to_text_en(Accuracy::Rough, Tense::Past));
+        let s = ht.to_text_en(Accuracy::Rough, Tense::Past);
         let s = s.style(&config.output_timestamp.style_content);
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -62,7 +62,7 @@ impl PromptType for Timestamp {
         let mut prompt = inquire::DateSelect::new(prompt);
         if let Some(s) = initial_value {
             prompt = inquire::DateSelect {
-                starting_date: *(&s.0.date_naive()),
+                starting_date: s.0.date_naive(),
                 ..prompt
             };
         }
@@ -83,7 +83,7 @@ impl PromptType for Timestamp {
         let mut prompt = inquire::DateSelect::new(prompt);
         if let Some(s) = initial_value {
             prompt = inquire::DateSelect {
-                starting_date: *(&s.0.date_naive()),
+                starting_date: s.0.date_naive(),
                 ..prompt
             };
         }
@@ -98,7 +98,7 @@ impl PromptType for Timestamp {
                     chrono::Utc,
                 )
             })
-            .map(|x| Timestamp(x)))
+            .map(Timestamp))
     }
 }
 

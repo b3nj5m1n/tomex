@@ -1,7 +1,7 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
 use figment::{
-    providers::{Env, Format, Serialized, Toml},
+    providers::{Format, Serialized, Toml},
     Figment,
 };
 use serde::{Deserialize, Serialize};
