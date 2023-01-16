@@ -282,12 +282,7 @@ where
     where
         Self: Display,
     {
-        Self::create_by_prompt(
-            &format!("{prompt} (Currently {self})"),
-            Some(self),
-            conn,
-        )
-        .await
+        Self::create_by_prompt(&format!("{prompt} (Currently {self})"), Some(self), conn).await
     }
 
     /// Prompts the user to update this type, can be skipped, if skipped, the result will be the old
@@ -411,7 +406,8 @@ where
             Self::TABLE_NAME
         ))
         .fetch_all(conn)
-        .await?.is_empty())
+        .await?
+        .is_empty())
     }
     /// Initialise table, i.e. create and potentially insert data if the table doesn't already exist
     async fn init_table(conn: &sqlx::SqlitePool) -> Result<()> {
@@ -631,22 +627,14 @@ where
 {
     /// Update self to new values in `new`
     async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
-    /// Update self by prompting for new values
-    async fn update_by_prompt(&mut self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
-    where
-        Self: Queryable + PromptType,
-    {
-        println!("fuck");
-        let new = PromptType::update_by_prompt(self, "", conn).await?;
-        Self::update(self, conn, new).await
-    }
     /// Update self by prompting for which record to update and prompting for new values
     async fn update_by_prompt_by_prompt(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
         Self: Queryable,
     {
         let mut s: Self = Self::query_by_prompt(conn).await?;
-        Updateable::update_by_prompt(&mut s, conn).await
+        let new = PromptType::update_by_prompt(&s, "", conn).await?;
+        Self::update(&mut s, conn, new).await
     }
     // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
 }
