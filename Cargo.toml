@@ -1,10 +1,10 @@
 [package]
-name = "bokhylle"
+name = "tomex"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "bokhylle"
+name = "tomex"
 path = "src/bin/cli/main.rs"
 
 [profile.release]

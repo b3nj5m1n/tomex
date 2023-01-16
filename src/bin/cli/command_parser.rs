@@ -27,7 +27,7 @@ pub fn arg_parser_types() -> Vec<Command> {
 }
 
 pub fn arg_parser() -> Command {
-    Command::new("bokhylle")
+    Command::new("tomex")
         .about("Personal book management")
         .multicall(true)
         .subcommand_required(true)

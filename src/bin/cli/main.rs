@@ -11,16 +11,16 @@ mod command_parser;
 mod prompt;
 mod repl;
 
-use bokhylle::{
+use tomex::{
     backup, config,
+    traits::*,
     types::{
-        author::Author, book_author::BookAuthor, book_genre::BookGenre, edition::Edition,
-        edition_language::EditionLanguage, edition_publisher::EditionPublisher,
+        author::Author, book::Book, book_author::BookAuthor, book_genre::BookGenre,
+        edition::Edition, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
         edition_review::EditionReview, genre::Genre, language::Language, mood::Mood, pace::Pace,
         progress::Progress, publisher::Publisher, review::Review, review_mood::ReviewMood,
     },
 };
-use bokhylle::{traits::*, types::book::Book};
 
 async fn handle_command(command: String, conn: &SqlitePool, config: &config::Config) -> Result<()> {
     let args = command_parser::arg_parser_repl();
