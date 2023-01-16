@@ -27,7 +27,7 @@ impl PromptType for Rating {
     async fn create_by_prompt(
         prompt: &str,
         initial_value: Option<&Self>,
-        conn: &sqlx::SqlitePool,
+        _conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Self> {
         let mut prompt = inquire::Text::new(prompt).with_validator(validator);
         let initial_value = initial_value.map(|x| x.to_string());
@@ -40,7 +40,7 @@ impl PromptType for Rating {
     async fn create_by_prompt_skippable(
         prompt: &str,
         initial_value: Option<&Self>,
-        conn: &sqlx::SqlitePool,
+        _conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Option<Self>> {
         let mut prompt = inquire::Text::new(prompt).with_validator(validator);
         let initial_value = initial_value.map(|x| x.to_string());

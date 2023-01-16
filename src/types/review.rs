@@ -1,5 +1,5 @@
 use anyhow::Result;
-use inquire::{validator::Validation, Confirm};
+use inquire::{Confirm};
 use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
@@ -171,17 +171,17 @@ impl PromptType for Review {
     }
 
     async fn create_by_prompt_skippable(
-        prompt: &str,
-        initial_value: Option<&Self>,
-        conn: &sqlx::SqlitePool,
+        _prompt: &str,
+        _initial_value: Option<&Self>,
+        _conn: &sqlx::SqlitePool,
     ) -> Result<Option<Self>> {
         unreachable!("Can't skip creation of this type")
     }
 
     async fn update_by_prompt_skippable(
-        s: &Option<Self>,
-        prompt: &str,
-        conn: &sqlx::SqlitePool,
+        _s: &Option<Self>,
+        _prompt: &str,
+        _conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Option<Self>>
     where
         Self: Display,
