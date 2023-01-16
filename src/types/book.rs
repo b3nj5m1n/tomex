@@ -8,18 +8,13 @@ use crate::{
     config::{self, Styleable},
     traits::*,
     types::{
-        author::Author,
-        edition::Edition,
-        genre::Genre,
-        review::Review,
-        text::Text,
-        timestamp::{OptionalTimestamp},
-        uuid::Uuid,
+        author::Author, edition::Edition, genre::Genre, review::Review, text::Text,
+        timestamp::OptionalTimestamp, uuid::Uuid,
     },
 };
 use derives::*;
 
-use super::{book_author::BookAuthor, book_genre::BookGenre};
+use super::{book_author::BookAuthor, book_genre::BookGenre, rating::Rating, series::Series};
 
 #[derive(
     Default,
@@ -40,6 +35,9 @@ pub struct Book {
     pub title: Text,
     pub authors: Option<Vec<Author>>,
     pub release_date: OptionalTimestamp,
+    pub series_id: Option<Uuid>,
+    pub series_index: Option<u32>,
+    pub series: Option<Series>,
     pub editions: Option<Vec<Edition>>,
     pub reviews: Option<Vec<Review>>,
     pub genres: Option<Vec<Genre>>,
@@ -50,6 +48,7 @@ impl Book {
     pub async fn hydrate(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.hydrate_authors(conn).await?;
         self.hydrate_genres(conn).await?;
+        self.hydrate_series(conn).await?;
         Ok(())
     }
     pub async fn get_authors(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Author>>> {
@@ -68,12 +67,23 @@ impl Book {
             None
         })
     }
+    pub async fn get_series(&self, conn: &sqlx::SqlitePool) -> Result<Option<Series>> {
+        if let Some(id) = &self.series_id {
+            Ok(Some(Series::get_by_id(conn, id).await?))
+        } else {
+            Ok(None)
+        }
+    }
     pub async fn hydrate_authors(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.authors = self.get_authors(conn).await?;
         Ok(())
     }
     pub async fn hydrate_genres(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.genres = self.get_genres(conn).await?;
+        Ok(())
+    }
+    pub async fn hydrate_series(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
+        self.series = self.get_series(conn).await?;
         Ok(())
     }
 }
@@ -97,6 +107,20 @@ impl PromptType for Book {
                 None
             };
         }
+        let series = Series::query_or_create_by_prompt_skippable(conn).await?;
+        let series_id = series.clone().map(|x| x.id);
+        let series_index = match series_id {
+            Some(_) => {
+                PromptType::create_by_prompt_skippable(
+                    "What is the book's position in the series?",
+                    None::<&Rating>,
+                    conn,
+                )
+                .await?
+            }
+            None => None,
+        };
+
         Ok(Self {
             id,
             title,
@@ -106,6 +130,9 @@ impl PromptType for Book {
             reviews: None,  // TODO
             genres,
             deleted: false,
+            series_id,
+            series_index,
+            series,
         })
     }
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
@@ -123,6 +150,22 @@ impl PromptType for Book {
         )
         .await?;
         let genres = Genre::update_vec(&self.genres, conn, "Select genres for this book:").await?;
+        let series = match Series::query_or_create_by_prompt_skippable(conn).await? {
+            Some(series) => Some(series),
+            None => self.series.clone(),
+        };
+        let series_id = series.clone().map(|x| x.id);
+        let series_index = match series_id {
+            Some(_) => {
+                PromptType::update_by_prompt_skippable(
+                    &self.series_index,
+                    "What is the book's position in the series?",
+                    conn,
+                )
+                .await?
+            }
+            None => None,
+        };
         let new = Self {
             id: self.id.clone(),
             title,
@@ -132,6 +175,9 @@ impl PromptType for Book {
             reviews: self.reviews.clone(),
             genres,
             deleted: self.deleted,
+            series_id,
+            series_index,
+            series,
         };
         Ok(new)
     }
@@ -198,6 +244,20 @@ impl DisplayTerminal for Book {
                     .await?
             )?;
         }
+        if let Some(series) = s.series {
+            write!(f, "[")?;
+            if let Some(idx) = s.series_index {
+                write!(
+                    f,
+                    "{} in the ",
+                    format!("#{}", idx).style(&config.output_series.style_content)
+                )?;
+            } else {
+                write!(f, "Part of the ")?;
+            }
+            write!(f, "{} series", series.to_string())?;
+            write!(f, "] ")?;
+        }
         if let Some(release_date) = &s.release_date.0 {
             write!(
                 f,
@@ -228,6 +288,8 @@ impl CreateTable for Book {
                 id TEXT PRIMARY KEY NOT NULL,
                 title TEXT NOT NULL,
                 release_date INTEGER,
+                series_id TEXT,
+                series_index INTEGER,
                 deleted BOOL DEFAULT FALSE
             );"#,
             Self::TABLE_NAME
@@ -248,13 +310,15 @@ impl Insertable for Book {
     {
         let result = sqlx::query(
             r#"
-            INSERT INTO books ( id, title, release_date, deleted )
-            VALUES ( ?1, ?2, ?3, ?4 );
+            INSERT INTO books ( id, title, release_date, series_id, series_index, deleted )
+            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 );
             "#,
         )
         .bind(&self.id)
         .bind(&self.title)
         .bind(&self.release_date)
+        .bind(&self.series_id)
+        .bind(&self.series_index)
         .bind(self.deleted)
         .execute(conn)
         .await?;
@@ -288,7 +352,9 @@ impl Updateable for Book {
             SET 
                 title = ?2,
                 release_date = ?4,
-                deleted = ?5
+                series_id = ?5,
+                series_index = ?6,
+                deleted = ?7
             WHERE
                 id = ?1;
             "#,
@@ -297,6 +363,8 @@ impl Updateable for Book {
         .bind(&self.id)
         .bind(&new.title)
         .bind(&new.release_date)
+        .bind(&new.series_id)
+        .bind(&new.series_index)
         .bind(new.deleted)
         .execute(conn)
         .await?)
@@ -314,6 +382,9 @@ impl FromRow<'_, SqliteRow> for Book {
             reviews: None,
             genres: None,
             deleted: row.try_get("deleted")?,
+            series_id: row.try_get("series_id")?,
+            series_index: row.try_get("series_index")?,
+            series: None,
         })
     }
 }

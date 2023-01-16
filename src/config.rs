@@ -149,6 +149,7 @@ pub struct Config {
     pub output_last_updated: OutputConfig,
     pub output_page_count: OutputConfig,
     pub output_release_date: OutputConfig,
+    pub output_series: OutputConfig,
 }
 
 impl Config {
@@ -318,6 +319,13 @@ impl Default for Config {
                     ..StyleConfig::default()
                 },
                 style_content: StyleConfig::default(),
+                ..OutputConfig::default()
+            },
+            output_series: OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_SERIES,
+                    ..StyleConfig::default()
+                },
                 ..OutputConfig::default()
             },
         }

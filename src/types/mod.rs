@@ -15,6 +15,7 @@ pub mod pace;
 pub mod progress;
 pub mod publisher;
 pub mod review;
+pub mod series;
 
 pub mod junction_tables;
 pub use junction_tables::*;

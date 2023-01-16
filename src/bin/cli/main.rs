@@ -19,6 +19,7 @@ use tomex::{
         edition::Edition, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
         edition_review::EditionReview, genre::Genre, language::Language, mood::Mood, pace::Pace,
         progress::Progress, publisher::Publisher, review::Review, review_mood::ReviewMood,
+        series::Series,
     },
 };
 
@@ -38,6 +39,9 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
         Some(("add", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
                 Book::insert_by_prompt(conn).await?;
+            }
+            Some(("series", _matches)) => {
+                Series::insert_by_prompt(conn).await?;
             }
             Some(("review", _matches)) => {
                 Review::insert_by_prompt(conn).await?;
@@ -76,6 +80,9 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
             Some(("book", _matches)) => {
                 Book::update_by_prompt_by_prompt(conn).await?;
             }
+            Some(("series", _matches)) => {
+                Series::update_by_prompt_by_prompt(conn).await?;
+            }
             Some(("review", _matches)) => {
                 Review::update_by_prompt_by_prompt(conn).await?;
             }
@@ -113,6 +120,9 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
             Some(("book", _matches)) => {
                 Book::remove_by_prompt(conn).await?;
             }
+            Some(("series", _matches)) => {
+                Series::remove_by_prompt(conn).await?;
+            }
             Some(("review", _matches)) => {
                 Review::remove_by_prompt(conn).await?;
             }
@@ -149,6 +159,9 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
         Some(("query", _matches)) => match _matches.subcommand() {
             Some(("book", _matches)) => {
                 Book::query_by_clap(conn, _matches, config).await?;
+            }
+            Some(("series", _matches)) => {
+                Series::query_by_clap(conn, _matches, config).await?;
             }
             Some(("review", _matches)) => {
                 Review::query_by_clap(conn, _matches, config).await?;
@@ -219,6 +232,7 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
     tokio::try_join!(
         Author::init_table(conn),
         Book::init_table(conn),
+        Series::init_table(conn),
         Review::init_table(conn),
         Edition::init_table(conn),
         EditionReview::init_table(conn),

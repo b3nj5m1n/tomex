@@ -86,3 +86,8 @@ pub const COLOR_PAGE_COUNT: Color = Color::Rgb {
     g: 213,
     b: 202,
 };
+pub const COLOR_SERIES: Color = Color::Rgb {
+    r: 198,
+    g: 160,
+    b: 246,
+};
