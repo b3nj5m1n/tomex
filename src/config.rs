@@ -155,6 +155,7 @@ pub struct Config {
     pub output_release_date:      OutputConfig,
     pub output_series:            OutputConfig,
     pub output_review:            OutputConfig,
+    pub output_isbn:              OutputConfig,
 }
 
 impl Config {
@@ -336,6 +337,12 @@ impl Default for Config {
                 ..OutputConfig::default()
             },
             output_review:            OutputConfig {
+                style_content: StyleConfig {
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_isbn:              OutputConfig {
                 style_content: StyleConfig {
                     ..StyleConfig::default()
                 },

@@ -11,7 +11,7 @@ use crate::{
     traits::*,
     types::{
         book::Book, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
-        edition_review::EditionReview, language::Language, progress::Progress,
+        edition_review::EditionReview, isbn::Isbn, language::Language, progress::Progress,
         publisher::Publisher, text::Text, timestamp::OptionalTimestamp, uuid::Uuid,
     },
 };
@@ -90,14 +90,17 @@ impl PromptType for Edition {
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
-        let book = Book::query_by_prompt(conn).await?;
+        let book = Book::query_or_create_by_prompt(conn).await?;
         let book_id = book.id;
         let edition_title =
             Text::create_by_prompt_skippable("What is the title of this edition?", None, conn)
                 .await?;
-        let isbn =
-            Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)
-                .await?;
+        let isbn = PromptType::create_by_prompt_skippable(
+            "What is the isbn of this edition?",
+            None::<&Isbn>,
+            conn,
+        )
+        .await?;
         let validator = |input: &str| match input.parse::<u32>() {
             Ok(_) => Ok(Validation::Valid),
             Err(_) => Ok(Validation::Invalid(
@@ -112,7 +115,7 @@ impl PromptType for Edition {
             id,
             book_id,
             edition_title,
-            isbn,
+            isbn: isbn.map(|x| x.to_text()),
             pages,
             languages: None,
             release_date: OptionalTimestamp(None),
@@ -138,7 +141,7 @@ impl PromptType for Edition {
         .await?;
         let isbn = PromptType::update_by_prompt_skippable(
             &self.isbn,
-            "What is isbn of this edition?",
+            "What is the isbn of this edition?",
             conn,
         )
         .await?;

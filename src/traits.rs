@@ -467,7 +467,10 @@ where
             inquire::Select::new(&format!("Select {}:", Self::NAME_SINGULAR), options).prompt()?;
         match result {
             OptionToCreate::Value(value) => Ok(value),
-            OptionToCreate::Create => Self::create_by_prompt("", None::<&Self>, conn).await,
+            OptionToCreate::Create => {
+                let new = Self::insert_by_prompt(conn).await?;
+                Ok(new)
+            }
         }
     }
     /// Like `query_by_prompt` but can be skipped
