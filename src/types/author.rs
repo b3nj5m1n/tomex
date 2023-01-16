@@ -133,32 +133,28 @@ impl Display for Author {
             }
         } else {
             match (&self.name_first, &self.name_last) {
-                (None, None) => write!(f, "{}", self.id),
-                (None, Some(name_last)) => {
-                    write!(
-                        f,
-                        "{}, (First name unknown) ({})",
-                        name_last.style(&config.output_author.style_content),
-                        self.id
-                    )
-                }
-                (Some(name_first), None) => {
-                    write!(
-                        f,
-                        "(Last name unknown), {} ({})",
-                        name_first.style(&config.output_author.style_content),
-                        self.id
-                    )
-                }
-                (Some(name_first), Some(name_last)) => {
-                    write!(
-                        f,
-                        "{}, {} ({})",
-                        name_last.style(&config.output_author.style_content),
-                        name_first.style(&config.output_author.style_content),
-                        self.id
-                    )
-                }
+                (None, None) => (),
+                (None, Some(name_last)) => write!(
+                    f,
+                    "{}, (First name unknown)",
+                    name_last.style(&config.output_author.style_content),
+                )?,
+                (Some(name_first), None) => write!(
+                    f,
+                    "(Last name unknown), {}",
+                    name_first.style(&config.output_author.style_content),
+                )?,
+                (Some(name_first), Some(name_last)) => write!(
+                    f,
+                    "{}, {}",
+                    name_last.style(&config.output_author.style_content),
+                    name_first.style(&config.output_author.style_content),
+                )?,
+            }
+            if config.output_author.display_uuid {
+                write!(f, " ({})", self.id)
+            } else {
+                Ok(())
             }
         }
     }
@@ -177,27 +173,27 @@ impl DisplayTerminal for Author {
             }
         } else {
             match (&self.name_first, &self.name_last) {
-                (None, None) => write!(f, "{}", self.id)?,
+                (None, None) => (),
                 (None, Some(name_last)) => write!(
                     f,
-                    "{}, (First name unknown) ({})",
+                    "{}, (First name unknown)",
                     name_last.style(&config.output_author.style_content),
-                    self.id
                 )?,
                 (Some(name_first), None) => write!(
                     f,
-                    "(Last name unknown), {} ({})",
+                    "(Last name unknown), {}",
                     name_first.style(&config.output_author.style_content),
-                    self.id
                 )?,
                 (Some(name_first), Some(name_last)) => write!(
                     f,
-                    "{}, {} ({})",
+                    "{}, {}",
                     name_last.style(&config.output_author.style_content),
                     name_first.style(&config.output_author.style_content),
-                    self.id
                 )?,
             }
+        }
+        if config.output_author.display_uuid {
+            write!(f, " ({})", self.id)?;
         }
         Ok(())
     }

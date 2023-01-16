@@ -87,12 +87,16 @@ impl Display for Mood {
         };
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_mood.style_content),
-            self.id
-        )
+        )?;
+        if config.output_mood.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for Mood {
@@ -104,12 +108,14 @@ impl DisplayTerminal for Mood {
     ) -> Result<()> {
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_mood.style_content),
-            self.id
         )?;
+        if config.output_mood.display_uuid {
+            write!(f, " ({})", self.id)?;
+        }
         Ok(())
     }
 }

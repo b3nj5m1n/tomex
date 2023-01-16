@@ -213,10 +213,13 @@ impl Display for Book {
             .to_string()
             .style(&config.output_book.style_content);
         match &self.release_date.0 {
-            None => write!(f, "{} ({})", title, self.id),
-            Some(release_date) => {
-                write!(f, "{}, released {} ({})", title, release_date, self.id)
-            }
+            None => write!(f, "{}", title)?,
+            Some(release_date) => write!(f, "{}, released {}", title, release_date)?,
+        }
+        if config.output_book.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
         }
     }
 }
@@ -275,7 +278,9 @@ impl DisplayTerminal for Book {
                 config.output_genre.format_vec(genres, conn, config).await?
             )?;
         }
-        write!(f, "({})", s.id)?;
+        if config.output_book.display_uuid {
+            write!(f, "({})", s.id)?;
+        }
         Ok(())
     }
 }

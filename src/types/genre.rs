@@ -93,7 +93,11 @@ impl Display for Genre {
             .name
             .to_string()
             .style(&config.output_genre.style_content);
-        write!(f, "{} ({})", name, self.id)
+        if config.output_genre.display_uuid {
+            write!(f, "{} ({})", name, self.id)
+        } else {
+            write!(f, "{}", name)
+        }
     }
 }
 impl DisplayTerminal for Genre {
@@ -107,7 +111,11 @@ impl DisplayTerminal for Genre {
             .name
             .to_string()
             .style(&config.output_genre.style_content);
-        write!(f, "{} ({})", name, self.id)?;
+        if config.output_genre.display_uuid {
+            write!(f, "{} ({})", name, self.id)?;
+        } else {
+            write!(f, "{}", name)?;
+        }
         Ok(())
     }
 }

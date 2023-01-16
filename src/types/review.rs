@@ -1,5 +1,5 @@
 use anyhow::Result;
-use inquire::{Confirm};
+use inquire::Confirm;
 use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
@@ -192,7 +192,15 @@ impl PromptType for Review {
 
 impl Display for Review {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} ({})", self.book_title, self.id)
+        let config = match config::Config::read_config() {
+            Ok(config) => config,
+            Err(_) => return Err(std::fmt::Error),
+        };
+        if config.output_review.display_uuid {
+            write!(f, "{} ({})", self.book_title, self.id)
+        } else {
+            write!(f, "{}", self.book_title)
+        }
     }
 }
 impl DisplayTerminal for Review {

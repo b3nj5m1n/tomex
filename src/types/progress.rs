@@ -156,7 +156,12 @@ impl Display for Progress {
             self.pages_progress
                 .to_string()
                 .style(&config.output_progress.style_content)
-        )
+        )?;
+        if config.output_progress.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for Progress {
@@ -177,6 +182,9 @@ impl DisplayTerminal for Progress {
                 .to_string()
                 .style(&config.output_progress.style_content)
         )?;
+        if config.output_progress.display_uuid {
+            write!(f, " ({})", self.id)?;
+        }
         Ok(())
     }
 }

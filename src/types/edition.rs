@@ -186,6 +186,7 @@ impl Display for Edition {
             Ok(config) => config,
             Err(_) => return Err(std::fmt::Error),
         };
+        // TODO hide uuid if requested
         match (&self.isbn, &self.edition_title) {
             (None, None) => write!(
                 f,

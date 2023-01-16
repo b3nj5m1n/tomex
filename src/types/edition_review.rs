@@ -1,5 +1,5 @@
 use anyhow::Result;
-use inquire::{Confirm};
+use inquire::Confirm;
 use serde::{Deserialize, Serialize};
 use sqlx::{
     sqlite::{SqliteQueryResult, SqliteRow},
@@ -246,11 +246,15 @@ impl Display for EditionReview {
         };
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.book_title
                 .style(&config.output_edition_review.style_content),
-            self.id
-        )
+        )?;
+        if config.output_edition_review.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for EditionReview {
@@ -316,7 +320,9 @@ impl DisplayTerminal for EditionReview {
                 .await?
         )?;
         // ID
-        write!(f, "({})", s.id)?;
+        if config.output_edition_review.display_uuid {
+            write!(f, "({})", s.id)?;
+        }
         Ok(())
     }
 }

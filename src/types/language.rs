@@ -91,12 +91,16 @@ impl Display for Language {
         };
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_language.style_content),
-            self.id
-        )
+        )?;
+        if config.output_language.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for Language {
@@ -108,12 +112,14 @@ impl DisplayTerminal for Language {
     ) -> Result<()> {
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_language.style_content),
-            self.id
         )?;
+        if config.output_language.display_uuid {
+            write!(f, " ({})", self.id)?;
+        }
         Ok(())
     }
 }

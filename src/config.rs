@@ -1,7 +1,7 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
 use figment::{
-    providers::{Format, Serialized, Toml},
+    providers::{Env, Format, Serialized, Toml},
     Figment,
 };
 use serde::{Deserialize, Serialize};
@@ -53,6 +53,7 @@ impl Default for StyleConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OutputConfig {
+    pub display_uuid: bool,
     pub prefix: String,
     pub suffix: String,
     pub description: String,
@@ -116,6 +117,7 @@ impl OutputConfig {
 impl Default for OutputConfig {
     fn default() -> Self {
         Self {
+            display_uuid: false,
             prefix: "[".into(),
             suffix: "]".into(),
             description: "".into(),
@@ -150,6 +152,7 @@ pub struct Config {
     pub output_page_count: OutputConfig,
     pub output_release_date: OutputConfig,
     pub output_series: OutputConfig,
+    pub output_review: OutputConfig,
 }
 
 impl Config {
@@ -160,7 +163,7 @@ impl Config {
         Ok(Figment::new()
             .merge(Serialized::defaults(Config::default()))
             .merge(Toml::file("config.toml"))
-            // .merge(Env::prefixed("APP_"))
+            .merge(Env::prefixed("TOMEX_"))
             .extract()?)
     }
 }
@@ -225,6 +228,7 @@ impl Default for Config {
                 ..OutputConfig::default()
             },
             output_edition: OutputConfig {
+                display_uuid: true,
                 style_content: StyleConfig {
                     color: COLOR_EDITION,
                     bold: true,
@@ -324,6 +328,12 @@ impl Default for Config {
             output_series: OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_SERIES,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_review: OutputConfig {
+                style_content: StyleConfig {
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()

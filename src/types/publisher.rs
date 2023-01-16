@@ -89,12 +89,16 @@ impl Display for Publisher {
         };
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_publisher.style_content),
-            self.id
-        )
+        )?;
+        if config.output_publisher.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for Publisher {
@@ -106,12 +110,14 @@ impl DisplayTerminal for Publisher {
     ) -> Result<()> {
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_publisher.style_content),
-            self.id
         )?;
+        if config.output_publisher.display_uuid {
+            write!(f, " ({})", self.id)?;
+        }
         Ok(())
     }
 }

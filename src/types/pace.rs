@@ -86,12 +86,16 @@ impl Display for Pace {
         };
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_pace.style_content),
-            self.id
-        )
+        )?;
+        if config.output_pace.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for Pace {
@@ -103,12 +107,14 @@ impl DisplayTerminal for Pace {
     ) -> Result<()> {
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_pace.style_content),
-            self.id
         )?;
+        if config.output_pace.display_uuid {
+            write!(f, " ({})", self.id)?;
+        }
         Ok(())
     }
 }

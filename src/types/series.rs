@@ -91,12 +91,16 @@ impl Display for Series {
         };
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_series.style_content),
-            self.id
-        )
+        )?;
+        if config.output_series.display_uuid {
+            write!(f, " ({})", self.id)
+        } else {
+            Ok(())
+        }
     }
 }
 impl DisplayTerminal for Series {
@@ -108,12 +112,14 @@ impl DisplayTerminal for Series {
     ) -> Result<()> {
         write!(
             f,
-            "{} ({})",
+            "{}",
             self.name
                 .to_string()
                 .style(&config.output_series.style_content),
-            self.id
         )?;
+        if config.output_series.display_uuid {
+            write!(f, " ({})", self.id)?;
+        }
         Ok(())
     }
 }
