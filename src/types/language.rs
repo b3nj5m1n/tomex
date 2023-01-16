@@ -47,6 +47,21 @@ impl PromptType for Language {
             deleted: false,
         })
     }
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        let name = self
+            .name
+            .update_by_prompt_skippable("Change language name to:", conn)
+            .await?;
+        let new = Self {
+            id: Uuid(uuid::Uuid::nil()),
+            name,
+            deleted: self.deleted,
+        };
+        Ok(new)
+    }
 }
 
 impl Display for Language {
@@ -162,24 +177,5 @@ impl Updateable for Language {
         .bind(&new.deleted)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(
-        &mut self,
-        conn: &sqlx::SqlitePool,
-    ) -> Result<sqlx::sqlite::SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        let name = self
-            .name
-            .update_by_prompt_skippable("Change language name to:", conn)
-            .await?;
-        let new = Self {
-            id: Uuid(uuid::Uuid::nil()),
-            name,
-            deleted: self.deleted,
-        };
-        Self::update(self, conn, new).await
     }
 }

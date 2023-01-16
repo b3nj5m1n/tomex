@@ -121,6 +121,85 @@ impl PromptType for Review {
             moods: None,
         })
     }
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        let mut s = self.clone();
+        s.hydrate(conn).await?;
+        let book = Book::get_by_id(conn, &s.book_id).await?;
+        let validator = |input: &str| match input.parse::<u32>() {
+            Ok(n) => {
+                if n <= 100 {
+                    Ok(Validation::Valid)
+                } else {
+                    Ok(Validation::Invalid(
+                        inquire::validator::ErrorMessage::Custom(
+                            "Rating has to be between 0-100".to_string(),
+                        ),
+                    ))
+                }
+            }
+            Err(_) => Ok(Validation::Invalid(
+                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+            )),
+        };
+        let rating = inquire::Text::new("What rating would you give this book? (0-100)")
+            .with_validator(validator)
+            .with_initial_value(
+                if let Some(rating) = &s.rating.clone().map(|x| x.to_string()) {
+                    &rating
+                } else {
+                    ""
+                },
+            )
+            .prompt_skippable()?
+            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let recommend = Confirm::new("Would you recommend this book?")
+            .with_default(if let Some(recommend) = &s.recommend {
+                *recommend
+            } else {
+                true
+            })
+            .prompt_skippable()?;
+        let pace = match Pace::query_by_prompt_skippable(conn).await? {
+            Some(pace) => Some(pace),
+            None => s.pace.clone(),
+        };
+        let pace_id = pace.clone().map(|x| x.id);
+
+        let content = inquire::Editor::new("Write a detailed a review:")
+            .with_file_extension(".md")
+            .with_predefined_text(if let Some(content) = &s.content.clone() {
+                &content.0
+            } else {
+                ""
+            })
+            .prompt_skippable()?
+            .map(|x| Text(x));
+
+        let moods = Mood::update_vec(&s.moods, conn, "Select moods for this edition:").await?;
+
+        if !inquire::Confirm::new("Update review?")
+            .with_default(true)
+            .prompt()?
+        {
+            anyhow::bail!("Aborted");
+        };
+
+        let new = Self {
+            rating,
+            recommend,
+            content,
+            timestamp_updated: Timestamp(chrono::Utc::now()),
+            pace_id,
+            pace,
+            book_title: book.title,
+            moods,
+            ..s.clone()
+        };
+        Ok(new)
+    }
 }
 
 impl Display for Review {
@@ -298,85 +377,6 @@ impl Updateable for Review {
         .bind(&new.book_title)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(&mut self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        self.hydrate(conn).await?;
-        let book = Book::get_by_id(conn, &self.book_id).await?;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let rating = inquire::Text::new("What rating would you give this book? (0-100)")
-            .with_validator(validator)
-            .with_initial_value(
-                if let Some(rating) = &self.rating.clone().map(|x| x.to_string()) {
-                    &rating
-                } else {
-                    ""
-                },
-            )
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let recommend = Confirm::new("Would you recommend this book?")
-            .with_default(if let Some(recommend) = &self.recommend {
-                *recommend
-            } else {
-                true
-            })
-            .prompt_skippable()?;
-        let pace = match Pace::query_by_prompt_skippable(conn).await? {
-            Some(pace) => Some(pace),
-            None => self.pace.clone(),
-        };
-        let pace_id = pace.clone().map(|x| x.id);
-
-        let content = inquire::Editor::new("Write a detailed a review:")
-            .with_file_extension(".md")
-            .with_predefined_text(if let Some(content) = &self.content.clone() {
-                &content.0
-            } else {
-                ""
-            })
-            .prompt_skippable()?
-            .map(|x| Text(x));
-
-        let moods = Mood::update_vec(&self.moods, conn, "Select moods for this edition:").await?;
-
-        if !inquire::Confirm::new("Update review?")
-            .with_default(true)
-            .prompt()?
-        {
-            anyhow::bail!("Aborted");
-        };
-
-        let new = Self {
-            rating,
-            recommend,
-            content,
-            timestamp_updated: Timestamp(chrono::Utc::now()),
-            pace_id,
-            pace,
-            book_title: book.title,
-            moods,
-            ..self.clone()
-        };
-        Self::update(self, conn, new).await
     }
 }
 

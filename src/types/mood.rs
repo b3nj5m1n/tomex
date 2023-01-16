@@ -52,7 +52,8 @@ impl PromptType for Mood {
     where
         Self: Display,
     {
-        let name = Text::update_by_prompt(&self.name, prompt, conn).await?;
+        println!("fuck");
+        let name = Text::update_by_prompt(&self.name, "Change mood name to:", conn).await?;
         Ok(Self {
             name,
             ..self.clone()
@@ -215,24 +216,5 @@ impl Updateable for Mood {
         .bind(&new.deleted)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(
-        &mut self,
-        conn: &sqlx::SqlitePool,
-    ) -> Result<sqlx::sqlite::SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        let name = self
-            .name
-            .update_by_prompt_skippable("Change mood name to:", conn)
-            .await?;
-        let new = Self {
-            id: Uuid(uuid::Uuid::nil()),
-            name,
-            deleted: self.deleted,
-        };
-        Self::update(self, conn, new).await
     }
 }

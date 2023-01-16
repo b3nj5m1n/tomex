@@ -109,6 +109,174 @@ impl PromptType for EditionReview {
             price_text: None,
         })
     }
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        let edition = Edition::get_by_id(conn, &self.edition_id).await?;
+        let validator = |input: &str| match input.parse::<u32>() {
+            Ok(n) => {
+                if n <= 100 {
+                    Ok(Validation::Valid)
+                } else {
+                    Ok(Validation::Invalid(
+                        inquire::validator::ErrorMessage::Custom(
+                            "Rating has to be between 0-100".to_string(),
+                        ),
+                    ))
+                }
+            }
+            Err(_) => Ok(Validation::Invalid(
+                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+            )),
+        };
+        // TODO properly update these instead of deleting when this is skipped
+        let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
+            .with_validator(validator)
+            .with_initial_value(
+                if let Some(rating) = &self.rating.clone().map(|x| x.to_string()) {
+                    &rating
+                } else {
+                    ""
+                },
+            )
+            .prompt_skippable()?
+            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let recommend = Confirm::new("Would you recommend this edition?")
+            .with_default(if let Some(recommend) = &self.recommend {
+                *recommend
+            } else {
+                true
+            })
+            .prompt_skippable()?;
+        let content = inquire::Editor::new("Write a detailed a review:")
+            .with_file_extension(".md")
+            .with_predefined_text(if let Some(content) = &self.content.clone() {
+                &content.0
+            } else {
+                ""
+            })
+            .prompt_skippable()?
+            .map(|x| Text(x));
+
+        // Cover
+        let cover_rating =
+            inquire::Text::new("What rating would you give this edition's cover? (0-100)")
+                .with_validator(validator)
+                .with_initial_value(
+                    if let Some(rating) = &self.cover_rating.clone().map(|x| x.to_string()) {
+                        &rating
+                    } else {
+                        ""
+                    },
+                )
+                .prompt_skippable()?
+                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let cover_text =
+            inquire::Editor::new("Write a detailed a review for this edition's cover:")
+                .with_file_extension(".md")
+                .with_predefined_text(if let Some(content) = &self.cover_text.clone() {
+                    &content.0
+                } else {
+                    ""
+                })
+                .prompt_skippable()?
+                .map(|x| Text(x));
+        // Typesetting
+        let typesetting_rating =
+            inquire::Text::new("What rating would you give this edition's typesetting? (0-100)")
+                .with_validator(validator)
+                .with_initial_value(
+                    if let Some(rating) = &self.typesetting_rating.clone().map(|x| x.to_string()) {
+                        &rating
+                    } else {
+                        ""
+                    },
+                )
+                .prompt_skippable()?
+                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let typesetting_text =
+            inquire::Editor::new("Write a detailed a review for this edition's typesetting:")
+                .with_file_extension(".md")
+                .with_predefined_text(if let Some(content) = &self.typesetting_text.clone() {
+                    &content.0
+                } else {
+                    ""
+                })
+                .prompt_skippable()?
+                .map(|x| Text(x));
+        // Material
+        let material_rating =
+            inquire::Text::new("What rating would you give this edition's material? (0-100)")
+                .with_validator(validator)
+                .with_initial_value(
+                    if let Some(rating) = &self.material_rating.clone().map(|x| x.to_string()) {
+                        &rating
+                    } else {
+                        ""
+                    },
+                )
+                .prompt_skippable()?
+                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let material_text =
+            inquire::Editor::new("Write a detailed a review for this edition's material:")
+                .with_file_extension(".md")
+                .with_predefined_text(if let Some(content) = &self.material_text.clone() {
+                    &content.0
+                } else {
+                    ""
+                })
+                .prompt_skippable()?
+                .map(|x| Text(x));
+        // Price
+        let price_rating =
+            inquire::Text::new("What rating would you give this edition's price? (0-100)")
+                .with_validator(validator)
+                .with_initial_value(
+                    if let Some(rating) = &self.price_rating.clone().map(|x| x.to_string()) {
+                        &rating
+                    } else {
+                        ""
+                    },
+                )
+                .prompt_skippable()?
+                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let price_text =
+            inquire::Editor::new("Write a detailed a review for this edition's price:")
+                .with_file_extension(".md")
+                .with_predefined_text(if let Some(content) = &self.price_text.clone() {
+                    &content.0
+                } else {
+                    ""
+                })
+                .prompt_skippable()?
+                .map(|x| Text(x));
+
+        if !inquire::Confirm::new("Update review?")
+            .with_default(true)
+            .prompt()?
+        {
+            anyhow::bail!("Aborted");
+        };
+
+        let new = Self {
+            rating,
+            recommend,
+            content,
+            timestamp_updated: Timestamp(chrono::Utc::now()),
+            book_title: edition.book_title,
+            cover_rating,
+            cover_text,
+            typesetting_rating,
+            typesetting_text,
+            material_rating,
+            material_text,
+            price_rating,
+            price_text,
+            ..self.clone()
+        };
+        Ok(new)
+    }
 }
 
 impl Display for EditionReview {
@@ -307,175 +475,6 @@ impl Updateable for EditionReview {
         .bind(&new.book_title)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(&mut self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        let edition = Edition::get_by_id(conn, &self.edition_id).await?;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        // TODO properly update these instead of deleting when this is skipped
-        let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
-            .with_validator(validator)
-            .with_initial_value(
-                if let Some(rating) = &self.rating.clone().map(|x| x.to_string()) {
-                    &rating
-                } else {
-                    ""
-                },
-            )
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let recommend = Confirm::new("Would you recommend this edition?")
-            .with_default(if let Some(recommend) = &self.recommend {
-                *recommend
-            } else {
-                true
-            })
-            .prompt_skippable()?;
-        let content = inquire::Editor::new("Write a detailed a review:")
-            .with_file_extension(".md")
-            .with_predefined_text(if let Some(content) = &self.content.clone() {
-                &content.0
-            } else {
-                ""
-            })
-            .prompt_skippable()?
-            .map(|x| Text(x));
-
-        // Cover
-        let cover_rating =
-            inquire::Text::new("What rating would you give this edition's cover? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.cover_rating.clone().map(|x| x.to_string()) {
-                        &rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let cover_text =
-            inquire::Editor::new("Write a detailed a review for this edition's cover:")
-                .with_file_extension(".md")
-                .with_predefined_text(if let Some(content) = &self.cover_text.clone() {
-                    &content.0
-                } else {
-                    ""
-                })
-                .prompt_skippable()?
-                .map(|x| Text(x));
-        // Typesetting
-        let typesetting_rating =
-            inquire::Text::new("What rating would you give this edition's typesetting? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.typesetting_rating.clone().map(|x| x.to_string()) {
-                        &rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let typesetting_text =
-            inquire::Editor::new("Write a detailed a review for this edition's typesetting:")
-                .with_file_extension(".md")
-                .with_predefined_text(if let Some(content) = &self.typesetting_text.clone() {
-                    &content.0
-                } else {
-                    ""
-                })
-                .prompt_skippable()?
-                .map(|x| Text(x));
-        // Material
-        let material_rating =
-            inquire::Text::new("What rating would you give this edition's material? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.material_rating.clone().map(|x| x.to_string()) {
-                        &rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let material_text =
-            inquire::Editor::new("Write a detailed a review for this edition's material:")
-                .with_file_extension(".md")
-                .with_predefined_text(if let Some(content) = &self.material_text.clone() {
-                    &content.0
-                } else {
-                    ""
-                })
-                .prompt_skippable()?
-                .map(|x| Text(x));
-        // Price
-        let price_rating =
-            inquire::Text::new("What rating would you give this edition's price? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.price_rating.clone().map(|x| x.to_string()) {
-                        &rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
-        let price_text =
-            inquire::Editor::new("Write a detailed a review for this edition's price:")
-                .with_file_extension(".md")
-                .with_predefined_text(if let Some(content) = &self.price_text.clone() {
-                    &content.0
-                } else {
-                    ""
-                })
-                .prompt_skippable()?
-                .map(|x| Text(x));
-
-        if !inquire::Confirm::new("Update review?")
-            .with_default(true)
-            .prompt()?
-        {
-            anyhow::bail!("Aborted");
-        };
-
-        let new = Self {
-            rating,
-            recommend,
-            content,
-            timestamp_updated: Timestamp(chrono::Utc::now()),
-            book_title: edition.book_title,
-            cover_rating,
-            cover_text,
-            typesetting_rating,
-            typesetting_text,
-            material_rating,
-            material_text,
-            price_rating,
-            price_text,
-            ..self.clone()
-        };
-        Self::update(self, conn, new).await
     }
 }
 

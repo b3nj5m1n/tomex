@@ -636,7 +636,12 @@ where
     /// Update self by prompting for new values
     async fn update_by_prompt(&mut self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
-        Self: Queryable;
+        Self: Queryable + PromptType,
+    {
+        println!("fuck");
+        let new = PromptType::update_by_prompt(self, "", conn).await?;
+        Self::update(self, conn, new).await
+    }
     /// Update self by prompting for which record to update and prompting for new values
     async fn update_by_prompt_by_prompt(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where

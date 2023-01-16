@@ -78,6 +78,50 @@ impl PromptType for Progress {
             deleted: false,
         })
     }
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        let edition = Edition::get_by_id(conn, &self.edition_id).await?;
+        let timestamp = Timestamp::update_by_prompt_skippable(
+            &self.timestamp,
+            "For when is this progress update?",
+            conn,
+        )
+        .await?;
+        let max_pages = edition.pages;
+        let validator = move |input: &str| match input.parse::<u32>() {
+            Ok(n) => {
+                if let Some(max_pages) = max_pages {
+                    if n <= max_pages {
+                        Ok(Validation::Valid)
+                    } else {
+                        Ok(Validation::Invalid(
+                            inquire::validator::ErrorMessage::Custom(
+                                "Input has to be lower than number of pages in edition".to_string(),
+                            ),
+                        ))
+                    }
+                } else {
+                    Ok(Validation::Valid)
+                }
+            }
+            Err(_) => Ok(Validation::Invalid(
+                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+            )),
+        };
+        let pages_progress = inquire::Text::new("At which page are you?")
+            .with_validator(validator)
+            .prompt()?
+            .parse::<u32>()
+            .expect("Unreachable");
+        let new = Self {
+            timestamp,
+            pages_progress,
+            ..self.clone()
+        };
+        Ok(new)
+    }
 }
 
 impl Display for Progress {
@@ -192,53 +236,5 @@ impl Updateable for Progress {
         .bind(&new.deleted)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(
-        &mut self,
-        conn: &sqlx::SqlitePool,
-    ) -> Result<sqlx::sqlite::SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        let edition = Edition::get_by_id(conn, &self.edition_id).await?;
-        let timestamp = Timestamp::update_by_prompt_skippable(
-            &self.timestamp,
-            "For when is this progress update?",
-            conn,
-        )
-        .await?;
-        let max_pages = edition.pages;
-        let validator = move |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if let Some(max_pages) = max_pages {
-                    if n <= max_pages {
-                        Ok(Validation::Valid)
-                    } else {
-                        Ok(Validation::Invalid(
-                            inquire::validator::ErrorMessage::Custom(
-                                "Input has to be lower than number of pages in edition".to_string(),
-                            ),
-                        ))
-                    }
-                } else {
-                    Ok(Validation::Valid)
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let pages_progress = inquire::Text::new("At which page are you?")
-            .with_validator(validator)
-            .prompt()?
-            .parse::<u32>()
-            .expect("Unreachable");
-        let new = Self {
-            timestamp,
-            pages_progress,
-            ..self.clone()
-        };
-        Self::update(self, conn, new).await
     }
 }

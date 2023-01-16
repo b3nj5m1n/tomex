@@ -100,6 +100,41 @@ impl PromptType for Book {
             deleted: false,
         })
     }
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        let title = self
+            .title
+            .update_by_prompt_skippable("Change title to:", conn)
+            .await?;
+        let release_date = match &self.release_date {
+            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
+                ts.update_by_prompt_skippable_deleteable(
+                    "Delete release date?",
+                    "When was the book released?",
+                    conn,
+                )
+                .await?,
+            ),
+            OptionalTimestamp(None) => OptionalTimestamp(
+                Timestamp::create_by_prompt_skippable("When was the book released?", None, conn)
+                    .await?,
+            ),
+        };
+        let genres = Genre::update_vec(&self.genres, conn, "Select genres for this book:").await?;
+        let new = Self {
+            id: self.id.clone(),
+            title,
+            authors: self.authors.clone(), // TODO
+            release_date,
+            editions: self.editions.clone(),
+            reviews: self.reviews.clone(),
+            genres,
+            deleted: self.deleted,
+        };
+        Ok(new)
+    }
 }
 
 impl Display for Book {
@@ -246,45 +281,6 @@ impl Updateable for Book {
         .bind(&new.deleted)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(
-        &mut self,
-        conn: &sqlx::SqlitePool,
-    ) -> Result<sqlx::sqlite::SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        let title = self
-            .title
-            .update_by_prompt_skippable("Change title to:", conn)
-            .await?;
-        let release_date = match &self.release_date {
-            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
-                ts.update_by_prompt_skippable_deleteable(
-                    "Delete release date?",
-                    "When was the book released?",
-                    conn,
-                )
-                .await?,
-            ),
-            OptionalTimestamp(None) => OptionalTimestamp(
-                Timestamp::create_by_prompt_skippable("When was the book released?", None, conn)
-                    .await?,
-            ),
-        };
-        let genres = Genre::update_vec(&self.genres, conn, "Select genres for this book:").await?;
-        let new = Self {
-            id: self.id.clone(),
-            title,
-            authors: self.authors.clone(), // TODO
-            release_date,
-            editions: self.editions.clone(),
-            reviews: self.reviews.clone(),
-            genres,
-            deleted: self.deleted,
-        };
-        Self::update(self, conn, new).await
     }
 }
 

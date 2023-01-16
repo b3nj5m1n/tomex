@@ -112,6 +112,60 @@ impl PromptType for Edition {
             book_title: book.title,
         })
     }
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        let book = Book::get_by_id(conn, &self.book_id).await?;
+        let edition_title = match &self.edition_title {
+            Some(s) => {
+                s.update_by_prompt_skippable_deleteable(
+                    "Delete edition_tittle date?",
+                    "What is the edition title?",
+                    conn,
+                )
+                .await?
+            }
+            None => {
+                Text::create_by_prompt_skippable("What is the edition title?", None, conn).await?
+            }
+        };
+        let isbn = match &self.isbn {
+            Some(s) => {
+                s.update_by_prompt_skippable_deleteable(
+                    "Delete isbn?",
+                    "What is the isbn of this edition?",
+                    conn,
+                )
+                .await?
+            }
+            None => {
+                Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)
+                    .await?
+            }
+        };
+        // Languages
+        let languages =
+            Language::update_vec(&self.languages, conn, "Select languages for this edition:")
+                .await?;
+        // Publishers
+        let publishers = Publisher::update_vec(
+            &self.publishers,
+            conn,
+            "Select publishers for this edition:",
+        )
+        .await?;
+        let new = Self {
+            edition_title,
+            isbn,
+            languages,
+            publishers,
+            deleted: self.deleted,
+            book_title: book.title,
+            ..self.clone()
+        };
+        Ok(new)
+    }
 }
 
 impl Display for Edition {
@@ -329,64 +383,6 @@ impl Updateable for Edition {
         .bind(&new.book_title)
         .execute(conn)
         .await?)
-    }
-
-    async fn update_by_prompt(
-        &mut self,
-        conn: &sqlx::SqlitePool,
-    ) -> Result<sqlx::sqlite::SqliteQueryResult>
-    where
-        Self: Queryable,
-    {
-        let book = Book::get_by_id(conn, &self.book_id).await?;
-        let edition_title = match &self.edition_title {
-            Some(s) => {
-                s.update_by_prompt_skippable_deleteable(
-                    "Delete edition_tittle date?",
-                    "What is the edition title?",
-                    conn,
-                )
-                .await?
-            }
-            None => {
-                Text::create_by_prompt_skippable("What is the edition title?", None, conn).await?
-            }
-        };
-        let isbn = match &self.isbn {
-            Some(s) => {
-                s.update_by_prompt_skippable_deleteable(
-                    "Delete isbn?",
-                    "What is the isbn of this edition?",
-                    conn,
-                )
-                .await?
-            }
-            None => {
-                Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)
-                    .await?
-            }
-        };
-        // Languages
-        let languages =
-            Language::update_vec(&self.languages, conn, "Select languages for this edition:")
-                .await?;
-        // Publishers
-        let publishers = Publisher::update_vec(
-            &self.publishers,
-            conn,
-            "Select publishers for this edition:",
-        )
-        .await?;
-        let new = Self {
-            edition_title,
-            isbn,
-            languages,
-            publishers,
-            deleted: self.deleted,
-            book_title: book.title,
-            ..self.clone()
-        };
-        Self::update(self, conn, new).await
     }
 }
 
