@@ -26,8 +26,8 @@ use derives::*;
     Deserialize,
 )]
 pub struct Pace {
-    pub id: Uuid,
-    pub name: Text,
+    pub id:      Uuid,
+    pub name:    Text,
     pub deleted: bool,
 }
 
@@ -45,6 +45,7 @@ impl PromptType for Pace {
             deleted: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -145,8 +146,8 @@ impl CreateTable for Pace {
         for (pace, uuid) in default_paces {
             Self::insert(
                 &Self {
-                    id: Uuid(uuid),
-                    name: Text(pace.to_string()),
+                    id:      Uuid(uuid),
+                    name:    Text(pace.to_string()),
                     deleted: false,
                 },
                 conn,

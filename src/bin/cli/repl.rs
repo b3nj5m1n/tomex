@@ -7,7 +7,7 @@ use crate::prompt::BokhyllePrompt;
 
 pub struct Repl {
     reedline: Reedline,
-    prompt: BokhyllePrompt,
+    prompt:   BokhyllePrompt,
 }
 
 impl Repl {
@@ -47,6 +47,7 @@ impl Repl {
             prompt,
         }
     }
+
     pub fn read_line(&mut self) -> anyhow::Result<Signal> {
         Ok(self.reedline.read_line(&self.prompt)?)
     }

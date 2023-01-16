@@ -31,18 +31,18 @@ use super::{rating::Rating, review_mood::ReviewMood};
     Deserialize,
 )]
 pub struct Review {
-    pub id: Uuid,
-    pub book_id: Uuid,
-    pub rating: Option<u32>,
-    pub recommend: Option<bool>,
-    pub content: Option<Text>,
+    pub id:                Uuid,
+    pub book_id:           Uuid,
+    pub rating:            Option<u32>,
+    pub recommend:         Option<bool>,
+    pub content:           Option<Text>,
     pub timestamp_created: Timestamp,
     pub timestamp_updated: Timestamp,
-    pub pace_id: Option<Uuid>,
-    pub pace: Option<Pace>,
-    pub deleted: bool,
-    pub book_title: Text,
-    pub moods: Option<Vec<Mood>>,
+    pub pace_id:           Option<Uuid>,
+    pub pace:              Option<Pace>,
+    pub deleted:           bool,
+    pub book_title:        Text,
+    pub moods:             Option<Vec<Mood>>,
 }
 
 impl Review {
@@ -51,16 +51,19 @@ impl Review {
         self.hydrate_moods(conn).await?;
         Ok(())
     }
+
     pub async fn get_pace(&self, conn: &sqlx::SqlitePool) -> Result<Option<Pace>> {
         match &self.pace_id {
             Some(pace_id) => Ok(Some(Pace::get_by_id(conn, pace_id).await?)),
             None => Ok(None),
         }
     }
+
     pub async fn hydrate_pace(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.pace = self.get_pace(conn).await?;
         Ok(())
     }
+
     pub async fn get_moods(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Mood>>> {
         let result = ReviewMood::get_all_for_a(conn, self).await?;
         Ok(if !result.is_empty() {
@@ -69,6 +72,7 @@ impl Review {
             None
         })
     }
+
     pub async fn hydrate_moods(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.moods = self.get_moods(conn).await?;
         Ok(())
@@ -111,6 +115,7 @@ impl PromptType for Review {
             moods: None,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -379,18 +384,18 @@ impl Updateable for Review {
 impl FromRow<'_, SqliteRow> for Review {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         Ok(Self {
-            id: row.try_get("id")?,
-            deleted: row.try_get("deleted")?,
-            book_id: row.try_get("book_id")?,
-            rating: row.try_get("rating")?,
-            recommend: row.try_get("recommend")?,
-            content: row.try_get("content")?,
+            id:                row.try_get("id")?,
+            deleted:           row.try_get("deleted")?,
+            book_id:           row.try_get("book_id")?,
+            rating:            row.try_get("rating")?,
+            recommend:         row.try_get("recommend")?,
+            content:           row.try_get("content")?,
             timestamp_created: row.try_get("timestamp_created")?,
             timestamp_updated: row.try_get("timestamp_updated")?,
-            pace_id: row.try_get("pace_id")?,
-            pace: None,
-            book_title: row.try_get("book_title")?,
-            moods: None,
+            pace_id:           row.try_get("pace_id")?,
+            pace:              None,
+            book_title:        row.try_get("book_title")?,
+            moods:             None,
         })
     }
 }

@@ -10,9 +10,9 @@ use crate::{default_colors::*, traits::DisplayTerminal};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StyleConfig {
-    bold: bool,
+    bold:   bool,
     italic: bool,
-    color: crossterm::style::Color,
+    color:  crossterm::style::Color,
 }
 
 impl StyleConfig {
@@ -44,8 +44,8 @@ where
 impl Default for StyleConfig {
     fn default() -> Self {
         Self {
-            color: COLOR_WHITE,
-            bold: false,
+            color:  COLOR_WHITE,
+            bold:   false,
             italic: false,
         }
     }
@@ -53,16 +53,16 @@ impl Default for StyleConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OutputConfig {
-    pub display_uuid: bool,
-    pub prefix: String,
-    pub suffix: String,
-    pub description: String,
-    pub separator: String,
-    pub style_prefix: StyleConfig,
-    pub style_suffix: StyleConfig,
+    pub display_uuid:      bool,
+    pub prefix:            String,
+    pub suffix:            String,
+    pub description:       String,
+    pub separator:         String,
+    pub style_prefix:      StyleConfig,
+    pub style_suffix:      StyleConfig,
     pub style_description: StyleConfig,
-    pub style_separator: StyleConfig,
-    pub style_content: StyleConfig,
+    pub style_separator:   StyleConfig,
+    pub style_content:     StyleConfig,
 }
 
 impl OutputConfig {
@@ -79,6 +79,7 @@ impl OutputConfig {
         let content = &DisplayTerminal::fmt_to_string(&content, conn, Some(""), config).await?;
         Ok(format!("{prefix}{description} {content}{suffix}"))
     }
+
     pub async fn format_str(
         &self,
         content: impl ToString,
@@ -91,6 +92,7 @@ impl OutputConfig {
         let content = content.to_string().style(&self.style_content);
         Ok(format!("{prefix}{description} {content}{suffix}"))
     }
+
     pub async fn format_vec(
         &self,
         content: Vec<impl ToString + std::fmt::Display + DisplayTerminal>,
@@ -117,48 +119,49 @@ impl OutputConfig {
 impl Default for OutputConfig {
     fn default() -> Self {
         Self {
-            display_uuid: false,
-            prefix: "[".into(),
-            suffix: "]".into(),
-            description: "".into(),
-            separator: ", ".into(),
-            style_prefix: StyleConfig::default(),
-            style_suffix: StyleConfig::default(),
+            display_uuid:      false,
+            prefix:            "[".into(),
+            suffix:            "]".into(),
+            description:       "".into(),
+            separator:         ", ".into(),
+            style_prefix:      StyleConfig::default(),
+            style_suffix:      StyleConfig::default(),
             style_description: StyleConfig::default(),
-            style_separator: StyleConfig::default(),
-            style_content: StyleConfig::default(),
+            style_separator:   StyleConfig::default(),
+            style_content:     StyleConfig::default(),
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub output_uuid: OutputConfig,
-    pub output_timestamp: OutputConfig,
-    pub output_author: OutputConfig,
-    pub output_mood: OutputConfig,
-    pub output_pace: OutputConfig,
-    pub output_book: OutputConfig,
-    pub output_genre: OutputConfig,
-    pub output_edition: OutputConfig,
-    pub output_progress: OutputConfig,
-    pub output_language: OutputConfig,
-    pub output_publisher: OutputConfig,
-    pub output_edition_review: OutputConfig,
-    pub output_rating: OutputConfig,
-    pub output_recommended_true: OutputConfig,
+    pub output_uuid:              OutputConfig,
+    pub output_timestamp:         OutputConfig,
+    pub output_author:            OutputConfig,
+    pub output_mood:              OutputConfig,
+    pub output_pace:              OutputConfig,
+    pub output_book:              OutputConfig,
+    pub output_genre:             OutputConfig,
+    pub output_edition:           OutputConfig,
+    pub output_progress:          OutputConfig,
+    pub output_language:          OutputConfig,
+    pub output_publisher:         OutputConfig,
+    pub output_edition_review:    OutputConfig,
+    pub output_rating:            OutputConfig,
+    pub output_recommended_true:  OutputConfig,
     pub output_recommended_false: OutputConfig,
-    pub output_last_updated: OutputConfig,
-    pub output_page_count: OutputConfig,
-    pub output_release_date: OutputConfig,
-    pub output_series: OutputConfig,
-    pub output_review: OutputConfig,
+    pub output_last_updated:      OutputConfig,
+    pub output_page_count:        OutputConfig,
+    pub output_release_date:      OutputConfig,
+    pub output_series:            OutputConfig,
+    pub output_review:            OutputConfig,
 }
 
 impl Config {
     pub fn default_as_string() -> Result<String> {
         Ok(toml::to_string(&Self::default())?)
     }
+
     pub fn read_config() -> Result<Self> {
         Ok(Figment::new()
             .merge(Serialized::defaults(Config::default()))
@@ -171,7 +174,7 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            output_uuid: OutputConfig {
+            output_uuid:              OutputConfig {
                 prefix: "(".into(),
                 suffix: ")".into(),
                 style_content: StyleConfig {
@@ -180,14 +183,14 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_timestamp: OutputConfig {
+            output_timestamp:         OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_TIMESTAMP,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()
             },
-            output_author: OutputConfig {
+            output_author:            OutputConfig {
                 description: "Written by:".into(),
                 separator: " and ".into(),
                 style_content: StyleConfig {
@@ -196,7 +199,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_mood: OutputConfig {
+            output_mood:              OutputConfig {
                 description: "Moods:".into(),
                 style_content: StyleConfig {
                     color: COLOR_MOOD,
@@ -204,7 +207,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_pace: OutputConfig {
+            output_pace:              OutputConfig {
                 description: "Pace:".into(),
                 style_content: StyleConfig {
                     color: COLOR_PACE,
@@ -212,14 +215,14 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_book: OutputConfig {
+            output_book:              OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_BOOK,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()
             },
-            output_genre: OutputConfig {
+            output_genre:             OutputConfig {
                 description: "Genres:".into(),
                 style_content: StyleConfig {
                     color: COLOR_GENRE,
@@ -227,7 +230,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_edition: OutputConfig {
+            output_edition:           OutputConfig {
                 display_uuid: true,
                 style_content: StyleConfig {
                     color: COLOR_EDITION,
@@ -236,7 +239,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_progress: OutputConfig {
+            output_progress:          OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_EDITION,
                     bold: true,
@@ -244,7 +247,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_language: OutputConfig {
+            output_language:          OutputConfig {
                 description: "Written in:".into(),
                 separator: " and ".into(),
                 style_content: StyleConfig {
@@ -253,21 +256,21 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_publisher: OutputConfig {
+            output_publisher:         OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_PUBLISHER,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()
             },
-            output_edition_review: OutputConfig {
+            output_edition_review:    OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_EDITION_REVIEW,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()
             },
-            output_rating: OutputConfig {
+            output_rating:            OutputConfig {
                 description: "Rating:".into(),
                 style_content: StyleConfig {
                     color: COLOR_RATING,
@@ -275,7 +278,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_recommended_true: OutputConfig {
+            output_recommended_true:  OutputConfig {
                 description: "Recommended:".into(),
                 style_content: StyleConfig {
                     bold: true,
@@ -293,7 +296,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_last_updated: OutputConfig {
+            output_last_updated:      OutputConfig {
                 description: "Last updated:".into(),
                 style_description: StyleConfig {
                     italic: true,
@@ -304,7 +307,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_page_count: OutputConfig {
+            output_page_count:        OutputConfig {
                 description: "Page count:".into(),
                 style_description: StyleConfig {
                     italic: true,
@@ -316,7 +319,7 @@ impl Default for Config {
                 },
                 ..OutputConfig::default()
             },
-            output_release_date: OutputConfig {
+            output_release_date:      OutputConfig {
                 description: "Released:".into(),
                 style_description: StyleConfig {
                     italic: true,
@@ -325,14 +328,14 @@ impl Default for Config {
                 style_content: StyleConfig::default(),
                 ..OutputConfig::default()
             },
-            output_series: OutputConfig {
+            output_series:            OutputConfig {
                 style_content: StyleConfig {
                     color: COLOR_SERIES,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()
             },
-            output_review: OutputConfig {
+            output_review:            OutputConfig {
                 style_content: StyleConfig {
                     ..StyleConfig::default()
                 },

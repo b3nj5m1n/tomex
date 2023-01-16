@@ -26,12 +26,13 @@ use derives::*;
     Deserialize,
 )]
 pub struct Genre {
-    pub id: Uuid,
-    pub name: Text,
+    pub id:      Uuid,
+    pub name:    Text,
     pub deleted: bool,
 }
 
-impl UpdateVec for Genre {}
+impl UpdateVec for Genre {
+}
 
 impl PromptType for Genre {
     async fn create_by_prompt(
@@ -47,6 +48,7 @@ impl PromptType for Genre {
             deleted: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -232,8 +234,8 @@ impl CreateTable for Genre {
         for (genre, uuid) in default_genres {
             Self::insert(
                 &Self {
-                    id: Uuid(uuid),
-                    name: Text(genre.to_string()),
+                    id:      Uuid(uuid),
+                    name:    Text(genre.to_string()),
                     deleted: false,
                 },
                 conn,

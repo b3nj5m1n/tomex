@@ -26,12 +26,13 @@ use derives::*;
     Deserialize,
 )]
 pub struct Mood {
-    pub id: Uuid,
-    pub name: Text,
+    pub id:      Uuid,
+    pub name:    Text,
     pub deleted: bool,
 }
 
-impl UpdateVec for Mood {}
+impl UpdateVec for Mood {
+}
 
 impl PromptType for Mood {
     async fn create_by_prompt(
@@ -184,8 +185,8 @@ impl CreateTable for Mood {
         for (mood, uuid) in default_moods {
             Self::insert(
                 &Self {
-                    id: Uuid(uuid),
-                    name: Text(mood.to_string()),
+                    id:      Uuid(uuid),
+                    name:    Text(mood.to_string()),
                     deleted: false,
                 },
                 conn,

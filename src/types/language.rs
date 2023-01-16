@@ -26,12 +26,13 @@ use derives::*;
     Deserialize,
 )]
 pub struct Language {
-    pub id: Uuid,
-    pub name: Text,
+    pub id:      Uuid,
+    pub name:    Text,
     pub deleted: bool,
 }
 
-impl UpdateVec for Language {}
+impl UpdateVec for Language {
+}
 
 impl PromptType for Language {
     async fn create_by_prompt(
@@ -47,6 +48,7 @@ impl PromptType for Language {
             deleted: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -146,8 +148,8 @@ impl CreateTable for Language {
         for (language, uuid) in default_languages {
             Self::insert(
                 &Self {
-                    id: Uuid(uuid),
-                    name: Text(language.to_string()),
+                    id:      Uuid(uuid),
+                    name:    Text(language.to_string()),
                     deleted: false,
                 },
                 conn,

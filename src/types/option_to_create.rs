@@ -13,8 +13,9 @@ where
     T: Sized,
     T: Display,
 {
-    /// Takes a vector of `T` and turns it into a vector of `OptionToCreate<T>` with an additional
-    /// OptionToCreate::Create at the beginning of the vector.
+    /// Takes a vector of `T` and turns it into a vector of `OptionToCreate<T>`
+    /// with an additional OptionToCreate::Create at the beginning of the
+    /// vector.
     pub fn create_option_to_create(v: Vec<T>) -> Vec<OptionToCreate<T>> {
         let mut options = vec![OptionToCreate::Create];
         options.append(

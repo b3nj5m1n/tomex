@@ -9,7 +9,8 @@ use sqlx::{
 use crate::config;
 use crate::types::{option_to_create::OptionToCreate, uuid::Uuid};
 
-/// A trait which corresponds to a junction table between two other types in the database
+/// A trait which corresponds to a junction table between two other types in the
+/// database
 pub trait JunctionTable<A, B>
 where
     A: CRUD + Eq,
@@ -167,7 +168,8 @@ where
         .is_some())
     }
 
-    /// Given an element `a`, update all links from old to new, removing links that no longer exist and adding new ones
+    /// Given an element `a`, update all links from old to new, removing links
+    /// that no longer exist and adding new ones
     async fn update(
         conn: &sqlx::SqlitePool,
         a: &A,
@@ -210,8 +212,8 @@ where
     }
 }
 
-/// A type like genres of which another type holds a vector of selected elements,
-/// this trait allows updating that vector
+/// A type like genres of which another type holds a vector of selected
+/// elements, this trait allows updating that vector
 pub trait UpdateVec
 where
     Self: Sized + Eq + Clone,
@@ -244,10 +246,11 @@ where
     }
 }
 
-/// A (more or less primitive) type which can be created and updated by command line prompts
-/// This is for things like Text, Timestamps, etc., while [Insertable] is for structs
-/// corresponding to a database table. A struct which implements [Insertable] should be made up
-/// of types which implement [PromptType]
+/// A (more or less primitive) type which can be created and updated by command
+/// line prompts This is for things like Text, Timestamps, etc., while
+/// [Insertable] is for structs corresponding to a database table. A struct
+/// which implements [Insertable] should be made up of types which implement
+/// [PromptType]
 pub trait PromptType
 where
     Self: Sized,
@@ -267,12 +270,14 @@ where
         conn: &sqlx::SqlitePool,
     ) -> Result<Option<Self>>;
 
-    /// Prompts the user to update this type, the result will be the updated type
+    /// Prompts the user to update this type, the result will be the updated
+    /// type
     async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display;
 
-    /// Prompts the user to update this type, the result will be the updated type or None if skipped
+    /// Prompts the user to update this type, the result will be the updated
+    /// type or None if skipped
     async fn update_by_prompt_skippable(
         s: &Option<Self>,
         prompt: &str,
@@ -282,8 +287,8 @@ where
         Self: Display;
 }
 
-/// An alternative to std::fmt::Display which can query the database to retrieve addtional
-/// information
+/// An alternative to std::fmt::Display which can query the database to retrieve
+/// addtional information
 pub trait DisplayTerminal
 where
     Self: Sized,
@@ -304,7 +309,8 @@ where
     ) -> Result<()> {
         self.fmt(f, conn, config).await
     }
-    /// Format self and return the result as a string, provide optional string as prefix
+    /// Format self and return the result as a string, provide optional string
+    /// as prefix
     async fn fmt_to_string(
         &self,
         conn: &sqlx::SqlitePool,
@@ -321,7 +327,8 @@ where
     }
 }
 
-/// A type which corresponds to a database table and can create it's own table in the database
+/// A type which corresponds to a database table and can create it's own table
+/// in the database
 pub trait CreateTable
 where
     Self: Sized,
@@ -340,14 +347,16 @@ where
         .await?
         .is_empty())
     }
-    /// Initialise table, i.e. create and potentially insert data if the table doesn't already exist
+    /// Initialise table, i.e. create and potentially insert data if the table
+    /// doesn't already exist
     async fn init_table(conn: &sqlx::SqlitePool) -> Result<()> {
         if !Self::table_exists(conn).await? {
             return Self::create_table(conn).await;
         }
         Ok(())
     }
-    /// Create the table and potentially insert data (like default genre names) (will insert duplicate data if the table already exists)
+    /// Create the table and potentially insert data (like default genre names)
+    /// (will insert duplicate data if the table already exists)
     async fn create_table(conn: &sqlx::SqlitePool) -> Result<()>;
 }
 
@@ -372,7 +381,8 @@ pub trait Id {
     async fn id(&self) -> Uuid;
 }
 
-/// A type which corresponds to a database table entry and can be inserted, queried, updated and removed
+/// A type which corresponds to a database table entry and can be inserted,
+/// queried, updated and removed
 pub trait CRUD
 where
     Self: Insertable,
@@ -558,7 +568,8 @@ where
 {
     /// Update self to new values in `new`
     async fn update(&mut self, conn: &sqlx::SqlitePool, new: Self) -> Result<SqliteQueryResult>;
-    /// Update self by prompting for which record to update and prompting for new values
+    /// Update self by prompting for which record to update and prompting for
+    /// new values
     async fn update_by_prompt_by_prompt(conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult>
     where
         Self: Queryable,
@@ -568,7 +579,8 @@ where
         let new = PromptType::update_by_prompt(&s, "", conn).await?;
         Self::update(&mut s, conn, new).await
     }
-    // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches) -> Result<()>;
+    // async fn update_by_clap(conn: &sqlx::SqlitePool, matches: &clap::ArgMatches)
+    // -> Result<()>;
 }
 
 /// A type which corresponds to a database table entry and can be removed

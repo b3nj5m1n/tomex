@@ -14,20 +14,20 @@ use crate::{
 /// Contains the entire state of the database
 #[derive(Serialize, Deserialize)]
 pub struct State {
-    moods: Vec<Mood>,
-    paces: Vec<Pace>,
-    genres: Vec<Genre>,
-    languages: Vec<Language>,
-    publishers: Vec<Publisher>,
-    books: Vec<Book>,
-    editions: Vec<Edition>,
-    authors: Vec<Author>,
-    reviews: Vec<Review>,
-    edition_reviews: Vec<EditionReview>,
-    progress: Vec<Progress>,
-    book_authors: Vec<BookAuthor>,
-    book_genres: Vec<BookGenre>,
-    edition_languages: Vec<EditionLanguage>,
+    moods:              Vec<Mood>,
+    paces:              Vec<Pace>,
+    genres:             Vec<Genre>,
+    languages:          Vec<Language>,
+    publishers:         Vec<Publisher>,
+    books:              Vec<Book>,
+    editions:           Vec<Edition>,
+    authors:            Vec<Author>,
+    reviews:            Vec<Review>,
+    edition_reviews:    Vec<EditionReview>,
+    progress:           Vec<Progress>,
+    book_authors:       Vec<BookAuthor>,
+    book_genres:        Vec<BookGenre>,
+    edition_languages:  Vec<EditionLanguage>,
     edition_publishers: Vec<EditionPublisher>,
 }
 
@@ -35,23 +35,24 @@ impl State {
     /// Generate [State] struct from database
     pub async fn load(conn: &sqlx::SqlitePool) -> Result<Self> {
         Ok(Self {
-            moods: Mood::get_all(conn).await?,
-            paces: Pace::get_all(conn).await?,
-            genres: Genre::get_all(conn).await?,
-            languages: Language::get_all(conn).await?,
-            publishers: Publisher::get_all(conn).await?,
-            books: Book::get_all(conn).await?,
-            editions: Edition::get_all(conn).await?,
-            authors: Author::get_all(conn).await?,
-            reviews: Review::get_all(conn).await?,
-            edition_reviews: EditionReview::get_all(conn).await?,
-            progress: Progress::get_all(conn).await?,
-            book_authors: BookAuthor::get_all(conn).await?,
-            book_genres: BookGenre::get_all(conn).await?,
-            edition_languages: EditionLanguage::get_all(conn).await?,
+            moods:              Mood::get_all(conn).await?,
+            paces:              Pace::get_all(conn).await?,
+            genres:             Genre::get_all(conn).await?,
+            languages:          Language::get_all(conn).await?,
+            publishers:         Publisher::get_all(conn).await?,
+            books:              Book::get_all(conn).await?,
+            editions:           Edition::get_all(conn).await?,
+            authors:            Author::get_all(conn).await?,
+            reviews:            Review::get_all(conn).await?,
+            edition_reviews:    EditionReview::get_all(conn).await?,
+            progress:           Progress::get_all(conn).await?,
+            book_authors:       BookAuthor::get_all(conn).await?,
+            book_genres:        BookGenre::get_all(conn).await?,
+            edition_languages:  EditionLanguage::get_all(conn).await?,
             edition_publishers: EditionPublisher::get_all(conn).await?,
         })
     }
+
     /// Sort all fields on [State]
     pub fn sort(&mut self) {
         self.moods.sort_by_key(|x| x.id.clone());
@@ -71,14 +72,17 @@ impl State {
         self.edition_publishers
             .sort_by_key(|x| x.edition_id.clone());
     }
+
     /// Serialize the state to a string
     pub fn serialize(&self) -> Result<String> {
         Ok(serde_json::to_string(self)?)
     }
+
     /// Deseriablize from a string to state
     pub fn deserialize(s: String) -> Result<State> {
         Ok(serde_json::from_str(&s)?)
     }
+
     /// Rebuild the database from state
     pub async fn rebuild(&self) -> Result<()> {
         todo!();

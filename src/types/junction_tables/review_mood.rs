@@ -10,7 +10,7 @@ use crate::{
 #[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Serialize, Deserialize)]
 pub struct ReviewMood {
     pub review_id: Uuid,
-    pub mood_id: Uuid,
+    pub mood_id:   Uuid,
 }
 
 impl JunctionTable<Review, Mood> for ReviewMood {

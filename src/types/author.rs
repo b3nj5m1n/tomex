@@ -19,13 +19,13 @@ use derives::*;
     Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Id, Serialize, Deserialize,
 )]
 pub struct Author {
-    pub id: Uuid,
+    pub id:         Uuid,
     pub name_first: Option<Text>,
-    pub name_last: Option<Text>,
-    pub date_born: OptionalTimestamp,
-    pub date_died: OptionalTimestamp,
-    pub deleted: bool,
-    pub special: bool,
+    pub name_last:  Option<Text>,
+    pub date_born:  OptionalTimestamp,
+    pub date_died:  OptionalTimestamp,
+    pub deleted:    bool,
+    pub special:    bool,
 }
 
 const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
@@ -51,6 +51,7 @@ impl PromptType for Author {
             special: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -217,13 +218,13 @@ impl CreateTable for Author {
         .await?;
         Self::insert(
             &Self {
-                id: UUID_UNKOWN,
+                id:         UUID_UNKOWN,
                 name_first: None,
-                name_last: None,
-                date_born: OptionalTimestamp(None),
-                date_died: OptionalTimestamp(None),
-                deleted: false,
-                special: true,
+                name_last:  None,
+                date_born:  OptionalTimestamp(None),
+                date_died:  OptionalTimestamp(None),
+                deleted:    false,
+                special:    true,
             },
             conn,
         )
@@ -311,13 +312,13 @@ impl Removeable for Author {
 impl FromRow<'_, SqliteRow> for Author {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         let s = Self {
-            id: row.try_get("id")?,
-            deleted: row.try_get("deleted")?,
+            id:         row.try_get("id")?,
+            deleted:    row.try_get("deleted")?,
             name_first: row.try_get("name_first")?,
-            name_last: row.try_get("name_last")?,
-            date_born: row.try_get("date_born")?,
-            date_died: row.try_get("date_died")?,
-            special: false,
+            name_last:  row.try_get("name_last")?,
+            date_born:  row.try_get("date_born")?,
+            date_died:  row.try_get("date_died")?,
+            special:    false,
         };
         if s.id == UUID_UNKOWN {
             return Ok(Self {

@@ -9,7 +9,7 @@ use crate::{
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, FromRow, Serialize, Deserialize)]
 pub struct BookGenre {
-    pub book_id: Uuid,
+    pub book_id:  Uuid,
     pub genre_id: Uuid,
 }
 

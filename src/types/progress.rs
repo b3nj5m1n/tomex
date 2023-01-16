@@ -27,11 +27,11 @@ use derives::*;
     Deserialize,
 )]
 pub struct Progress {
-    pub id: Uuid,
-    pub edition_id: Uuid,
-    pub timestamp: Timestamp,
+    pub id:             Uuid,
+    pub edition_id:     Uuid,
+    pub timestamp:      Timestamp,
     pub pages_progress: u32,
-    pub deleted: bool,
+    pub deleted:        bool,
 }
 
 impl PromptType for Progress {
@@ -78,6 +78,7 @@ impl PromptType for Progress {
             deleted: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,

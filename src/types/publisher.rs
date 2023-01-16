@@ -26,12 +26,13 @@ use derives::*;
     Deserialize,
 )]
 pub struct Publisher {
-    pub id: Uuid,
-    pub name: Text,
+    pub id:      Uuid,
+    pub name:    Text,
     pub deleted: bool,
 }
 
-impl UpdateVec for Publisher {}
+impl UpdateVec for Publisher {
+}
 
 impl PromptType for Publisher {
     async fn create_by_prompt(
@@ -47,6 +48,7 @@ impl PromptType for Publisher {
             deleted: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -178,8 +180,8 @@ impl CreateTable for Publisher {
         for (publisher, uuid) in default_publishers {
             Self::insert(
                 &Self {
-                    id: Uuid(uuid),
-                    name: Text(publisher.to_string()),
+                    id:      Uuid(uuid),
+                    name:    Text(publisher.to_string()),
                     deleted: false,
                 },
                 conn,

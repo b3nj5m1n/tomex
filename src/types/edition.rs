@@ -32,19 +32,19 @@ use derives::*;
     Deserialize,
 )]
 pub struct Edition {
-    pub id: Uuid,
-    pub book_id: Uuid,
+    pub id:            Uuid,
+    pub book_id:       Uuid,
     pub edition_title: Option<Text>,
-    pub isbn: Option<Text>,
-    pub pages: Option<u32>,
-    pub languages: Option<Vec<Language>>,
-    pub release_date: OptionalTimestamp,
-    pub publishers: Option<Vec<Publisher>>,
-    pub cover: Option<String>,
-    pub reviews: Option<Vec<EditionReview>>,
-    pub progress: Option<Vec<Progress>>,
-    pub deleted: bool,
-    pub book_title: Text,
+    pub isbn:          Option<Text>,
+    pub pages:         Option<u32>,
+    pub languages:     Option<Vec<Language>>,
+    pub release_date:  OptionalTimestamp,
+    pub publishers:    Option<Vec<Publisher>>,
+    pub cover:         Option<String>,
+    pub reviews:       Option<Vec<EditionReview>>,
+    pub progress:      Option<Vec<Progress>>,
+    pub deleted:       bool,
+    pub book_title:    Text,
 }
 
 impl Edition {
@@ -53,6 +53,7 @@ impl Edition {
         self.hydrate_publishers(conn).await?;
         Ok(())
     }
+
     pub async fn get_languages(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Language>>> {
         let result = EditionLanguage::get_all_for_a(conn, self).await?;
         Ok(if !result.is_empty() {
@@ -61,10 +62,12 @@ impl Edition {
             None
         })
     }
+
     pub async fn hydrate_languages(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.languages = self.get_languages(conn).await?;
         Ok(())
     }
+
     pub async fn get_publishers(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Publisher>>> {
         let result = EditionPublisher::get_all_for_a(conn, self).await?;
         Ok(if !result.is_empty() {
@@ -73,6 +76,7 @@ impl Edition {
             None
         })
     }
+
     pub async fn hydrate_publishers(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.publishers = self.get_publishers(conn).await?;
         Ok(())
@@ -120,6 +124,7 @@ impl PromptType for Edition {
             book_title: book.title,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,

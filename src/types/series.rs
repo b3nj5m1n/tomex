@@ -28,8 +28,8 @@ use super::text::Text;
     Deserialize,
 )]
 pub struct Series {
-    pub id: Uuid,
-    pub name: Text,
+    pub id:      Uuid,
+    pub name:    Text,
     pub deleted: bool,
 }
 
@@ -47,6 +47,7 @@ impl PromptType for Series {
             deleted: false,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,

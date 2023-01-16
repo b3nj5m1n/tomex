@@ -31,17 +31,17 @@ use super::{book_author::BookAuthor, book_genre::BookGenre, rating::Rating, seri
     Deserialize,
 )]
 pub struct Book {
-    pub id: Uuid,
-    pub title: Text,
-    pub authors: Option<Vec<Author>>,
+    pub id:           Uuid,
+    pub title:        Text,
+    pub authors:      Option<Vec<Author>>,
     pub release_date: OptionalTimestamp,
-    pub series_id: Option<Uuid>,
+    pub series_id:    Option<Uuid>,
     pub series_index: Option<u32>,
-    pub series: Option<Series>,
-    pub editions: Option<Vec<Edition>>,
-    pub reviews: Option<Vec<Review>>,
-    pub genres: Option<Vec<Genre>>,
-    pub deleted: bool,
+    pub series:       Option<Series>,
+    pub editions:     Option<Vec<Edition>>,
+    pub reviews:      Option<Vec<Review>>,
+    pub genres:       Option<Vec<Genre>>,
+    pub deleted:      bool,
 }
 
 impl Book {
@@ -51,6 +51,7 @@ impl Book {
         self.hydrate_series(conn).await?;
         Ok(())
     }
+
     pub async fn get_authors(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Author>>> {
         let result = BookAuthor::get_all_for_a(conn, self).await?;
         Ok(if !result.is_empty() {
@@ -59,6 +60,7 @@ impl Book {
             None
         })
     }
+
     pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Genre>>> {
         let result = BookGenre::get_all_for_a(conn, self).await?;
         Ok(if !result.is_empty() {
@@ -67,6 +69,7 @@ impl Book {
             None
         })
     }
+
     pub async fn get_series(&self, conn: &sqlx::SqlitePool) -> Result<Option<Series>> {
         if let Some(id) = &self.series_id {
             Ok(Some(Series::get_by_id(conn, id).await?))
@@ -74,14 +77,17 @@ impl Book {
             Ok(None)
         }
     }
+
     pub async fn hydrate_authors(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.authors = self.get_authors(conn).await?;
         Ok(())
     }
+
     pub async fn hydrate_genres(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.genres = self.get_genres(conn).await?;
         Ok(())
     }
+
     pub async fn hydrate_series(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.series = self.get_series(conn).await?;
         Ok(())
@@ -135,6 +141,7 @@ impl PromptType for Book {
             series,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -379,17 +386,17 @@ impl Updateable for Book {
 impl FromRow<'_, SqliteRow> for Book {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         Ok(Self {
-            id: row.try_get("id")?,
-            title: row.try_get("title")?,
-            authors: None,
+            id:           row.try_get("id")?,
+            title:        row.try_get("title")?,
+            authors:      None,
             release_date: row.try_get("release_date")?,
-            editions: None, // TODO
-            reviews: None,
-            genres: None,
-            deleted: row.try_get("deleted")?,
-            series_id: row.try_get("series_id")?,
+            editions:     None, // TODO
+            reviews:      None,
+            genres:       None,
+            deleted:      row.try_get("deleted")?,
+            series_id:    row.try_get("series_id")?,
             series_index: row.try_get("series_index")?,
-            series: None,
+            series:       None,
         })
     }
 }

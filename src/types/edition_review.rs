@@ -31,23 +31,23 @@ use super::{edition::Edition, rating::Rating};
     Deserialize,
 )]
 pub struct EditionReview {
-    pub id: Uuid,
-    pub edition_id: Uuid,
-    pub rating: Option<u32>,
-    pub recommend: Option<bool>,
-    pub content: Option<Text>,
-    pub cover_rating: Option<u32>,
-    pub cover_text: Option<Text>,
+    pub id:                 Uuid,
+    pub edition_id:         Uuid,
+    pub rating:             Option<u32>,
+    pub recommend:          Option<bool>,
+    pub content:            Option<Text>,
+    pub cover_rating:       Option<u32>,
+    pub cover_text:         Option<Text>,
     pub typesetting_rating: Option<u32>,
-    pub typesetting_text: Option<Text>,
-    pub material_rating: Option<u32>,
-    pub material_text: Option<Text>,
-    pub price_rating: Option<u32>,
-    pub price_text: Option<Text>,
-    pub timestamp_created: Timestamp,
-    pub timestamp_updated: Timestamp,
-    pub deleted: bool,
-    pub book_title: Text,
+    pub typesetting_text:   Option<Text>,
+    pub material_rating:    Option<u32>,
+    pub material_text:      Option<Text>,
+    pub price_rating:       Option<u32>,
+    pub price_text:         Option<Text>,
+    pub timestamp_created:  Timestamp,
+    pub timestamp_updated:  Timestamp,
+    pub deleted:            bool,
+    pub book_title:         Text,
 }
 
 impl EditionReview {
@@ -95,6 +95,7 @@ impl PromptType for EditionReview {
             price_text: None,
         })
     }
+
     async fn update_by_prompt(&self, _prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
         Self: Display,
@@ -446,23 +447,23 @@ impl Updateable for EditionReview {
 impl FromRow<'_, SqliteRow> for EditionReview {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         Ok(Self {
-            id: row.try_get("id")?,
-            deleted: row.try_get("deleted")?,
-            edition_id: row.try_get("edition_id")?,
-            rating: row.try_get("rating")?,
-            recommend: row.try_get("recommend")?,
-            content: row.try_get("content")?,
-            timestamp_created: row.try_get("timestamp_created")?,
-            timestamp_updated: row.try_get("timestamp_updated")?,
-            book_title: row.try_get("book_title")?,
-            cover_rating: row.try_get("cover_rating")?,
-            cover_text: row.try_get("cover_text")?,
+            id:                 row.try_get("id")?,
+            deleted:            row.try_get("deleted")?,
+            edition_id:         row.try_get("edition_id")?,
+            rating:             row.try_get("rating")?,
+            recommend:          row.try_get("recommend")?,
+            content:            row.try_get("content")?,
+            timestamp_created:  row.try_get("timestamp_created")?,
+            timestamp_updated:  row.try_get("timestamp_updated")?,
+            book_title:         row.try_get("book_title")?,
+            cover_rating:       row.try_get("cover_rating")?,
+            cover_text:         row.try_get("cover_text")?,
             typesetting_rating: row.try_get("typesetting_rating")?,
-            typesetting_text: row.try_get("typesetting_text")?,
-            material_rating: row.try_get("material_rating")?,
-            material_text: row.try_get("material_text")?,
-            price_rating: row.try_get("price_rating")?,
-            price_text: row.try_get("price_text")?,
+            typesetting_text:   row.try_get("typesetting_text")?,
+            material_rating:    row.try_get("material_rating")?,
+            material_text:      row.try_get("material_text")?,
+            price_rating:       row.try_get("price_rating")?,
+            price_text:         row.try_get("price_text")?,
         })
     }
 }
