@@ -52,12 +52,30 @@ impl PromptType for Mood {
     where
         Self: Display,
     {
-        println!("fuck");
         let name = Text::update_by_prompt(&self.name, "Change mood name to:", conn).await?;
         Ok(Self {
             name,
             ..self.clone()
         })
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

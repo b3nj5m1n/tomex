@@ -14,7 +14,7 @@ use crate::{
 };
 use derives::*;
 
-use super::review_mood::ReviewMood;
+use super::{rating::Rating, review_mood::ReviewMood};
 
 #[derive(
     Default,
@@ -63,7 +63,11 @@ impl Review {
     }
     pub async fn get_moods(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Mood>>> {
         let result = ReviewMood::get_all_for_a(conn, self).await?;
-        Ok(if !result.is_empty() { Some(result) } else { None })
+        Ok(if !result.is_empty() {
+            Some(result)
+        } else {
+            None
+        })
     }
     pub async fn hydrate_moods(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.moods = self.get_moods(conn).await?;
@@ -80,26 +84,12 @@ impl PromptType for Review {
         let id = Uuid(uuid::Uuid::new_v4());
         let book = Book::query_by_prompt(conn).await?;
         let book_id = book.id;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let rating = inquire::Text::new("What rating would you give this book? (0-100)")
-            .with_validator(validator)
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let rating: Option<Rating> = PromptType::create_by_prompt_skippable(
+            "What rating would you give this book? (0-100)",
+            None::<&Rating>,
+            conn,
+        )
+        .await?;
         let recommend = Confirm::new("Would you recommend this book?")
             .with_default(true)
             .prompt_skippable()?;
@@ -128,33 +118,12 @@ impl PromptType for Review {
         let mut s = self.clone();
         s.hydrate(conn).await?;
         let book = Book::get_by_id(conn, &s.book_id).await?;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let rating = inquire::Text::new("What rating would you give this book? (0-100)")
-            .with_validator(validator)
-            .with_initial_value(
-                if let Some(rating) = &s.rating.map(|x| x.to_string()) {
-                    rating
-                } else {
-                    ""
-                },
-            )
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let rating: Option<Rating> = PromptType::update_by_prompt_skippable(
+            &s.rating,
+            "What rating would you give this book? (0-100)",
+            conn,
+        )
+        .await?;
         let recommend = Confirm::new("Would you recommend this book?")
             .with_default(if let Some(recommend) = &s.recommend {
                 *recommend
@@ -199,6 +168,25 @@ impl PromptType for Review {
             ..s.clone()
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

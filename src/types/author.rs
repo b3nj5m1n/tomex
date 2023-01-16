@@ -11,11 +11,7 @@ use crate::{
     config,
     config::Styleable,
     traits::*,
-    types::{
-        text::Text,
-        timestamp::{OptionalTimestamp, Timestamp},
-        uuid::Uuid,
-    },
+    types::{text::Text, timestamp::OptionalTimestamp, uuid::Uuid},
 };
 use derives::*;
 
@@ -62,64 +58,30 @@ impl PromptType for Author {
         if self.special {
             anyhow::bail!("Can't update special author");
         }
-        let name_first = match &self.name_first {
-            Some(name_first) => {
-                name_first
-                    .update_by_prompt_skippable_deleteable(
-                        "Do you want to delete the authors first name?",
-                        "Change authors first name to:",
-                        conn,
-                    )
-                    .await?
-            }
-            None => {
-                Text::create_by_prompt_skippable("What is the authors first name?", None, conn)
-                    .await?
-            }
-        };
-        let name_last = match &self.name_last {
-            Some(name_last) => {
-                name_last
-                    .update_by_prompt_skippable_deleteable(
-                        "Do you want to delete the authors last name?",
-                        "Change authors last name to:",
-                        conn,
-                    )
-                    .await?
-            }
-            None => {
-                Text::create_by_prompt_skippable("What is the authors last name?", None, conn)
-                    .await?
-            }
-        };
-        let date_born = match &self.date_born {
-            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
-                ts.update_by_prompt_skippable_deleteable(
-                    "Delete date of birth?",
-                    "When was the author born?",
-                    conn,
-                )
-                .await?,
-            ),
-            OptionalTimestamp(None) => OptionalTimestamp(
-                Timestamp::create_by_prompt_skippable("When was the author born?", None, conn)
-                    .await?,
-            ),
-        };
-        let date_died = match &self.date_died {
-            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
-                ts.update_by_prompt_skippable_deleteable(
-                    "Delete date of death?",
-                    "When did the author die?",
-                    conn,
-                )
-                .await?,
-            ),
-            OptionalTimestamp(None) => OptionalTimestamp(
-                Timestamp::create_by_prompt_skippable("When did the author die?", None, conn)
-                    .await?,
-            ),
-        };
+        let name_first = PromptType::update_by_prompt_skippable(
+            &self.name_first,
+            "What is the authors first name?",
+            conn,
+        )
+        .await?;
+        let name_last = PromptType::update_by_prompt_skippable(
+            &self.name_last,
+            "What is the authors last name?",
+            conn,
+        )
+        .await?;
+        let date_born = PromptType::update_by_prompt_skippable(
+            &self.date_born.0,
+            "When was the author born?",
+            conn,
+        )
+        .await?;
+        let date_died = PromptType::update_by_prompt_skippable(
+            &self.date_died.0,
+            "When did the author die?",
+            conn,
+        )
+        .await?;
 
         if !inquire::Confirm::new("Update author?")
             .with_default(true)
@@ -131,11 +93,30 @@ impl PromptType for Author {
         let new = Self {
             name_first,
             name_last,
-            date_born,
-            date_died,
+            date_born: OptionalTimestamp(date_born),
+            date_died: OptionalTimestamp(date_died),
             ..self.clone()
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

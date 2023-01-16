@@ -265,90 +265,21 @@ where
         prompt: &str,
         initial_value: Option<&Self>,
         conn: &sqlx::SqlitePool,
-    ) -> Result<Option<Self>> {
-        if !inquire::Confirm::new("Skip?")
-            .with_default(false)
-            .prompt()?
-        {
-            return Ok(None);
-        };
-        Ok(Some(
-            Self::create_by_prompt(prompt, initial_value, conn).await?,
-        ))
-    }
+    ) -> Result<Option<Self>>;
 
     /// Prompts the user to update this type, the result will be the updated type
     async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
     where
-        Self: Display,
-    {
-        Self::create_by_prompt(&format!("{prompt} (Currently {self})"), Some(self), conn).await
-    }
+        Self: Display;
 
-    /// Prompts the user to update this type, can be skipped, if skipped, the result will be the old
-    /// value
+    /// Prompts the user to update this type, the result will be the updated type or None if skipped
     async fn update_by_prompt_skippable(
-        &self,
+        s: &Option<Self>,
         prompt: &str,
         conn: &sqlx::SqlitePool,
-    ) -> anyhow::Result<Self>
-    where
-        Self: Display,
-    {
-        match Self::create_by_prompt_skippable(
-            &format!("{prompt} (Currently {self})"),
-            Some(self),
-            conn,
-        )
-        .await?
-        {
-            Some(new) => Ok(new),
-            None => Ok(self.clone()),
-        }
-    }
-
-    /// Prompts the user to update or delete this type
-    async fn update_by_prompt_deleteable(
-        &self,
-        prompt_delete: &str,
-        prompt_update: &str,
-        conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Option<Self>>
     where
-        Self: Display,
-    {
-        if !inquire::Confirm::new(prompt_delete)
-            .with_default(false)
-            .prompt()?
-        {
-            return Ok(None);
-        };
-        Ok(Some(
-            Self::update_by_prompt(self, prompt_update, conn).await?,
-        ))
-    }
-
-    /// Prompts the user to update or delete this type, can be skipped, if skipped, the result will
-    /// be the old value
-    async fn update_by_prompt_skippable_deleteable(
-        &self,
-        prompt_delete: &str,
-        prompt_update: &str,
-        conn: &sqlx::SqlitePool,
-    ) -> anyhow::Result<Option<Self>>
-    where
-        Self: Display,
-    {
-        if inquire::Confirm::new(prompt_delete)
-            .with_default(false)
-            .prompt()?
-        {
-            return Ok(None);
-        };
-        Ok(Some(
-            Self::update_by_prompt_skippable(self, prompt_update, conn).await?,
-        ))
-    }
+        Self: Display;
 }
 
 /// An alternative to std::fmt::Display which can query the database to retrieve addtional
@@ -632,6 +563,7 @@ where
     where
         Self: Queryable,
     {
+        println!("fuck");
         let mut s: Self = Self::query_by_prompt(conn).await?;
         let new = PromptType::update_by_prompt(&s, "", conn).await?;
         Self::update(&mut s, conn, new).await

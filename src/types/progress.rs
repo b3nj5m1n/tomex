@@ -83,7 +83,7 @@ impl PromptType for Progress {
         Self: Display,
     {
         let edition = Edition::get_by_id(conn, &self.edition_id).await?;
-        let timestamp = Timestamp::update_by_prompt_skippable(
+        let timestamp = PromptType::update_by_prompt(
             &self.timestamp,
             "For when is this progress update?",
             conn,
@@ -121,6 +121,25 @@ impl PromptType for Progress {
             ..self.clone()
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

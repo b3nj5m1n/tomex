@@ -53,7 +53,7 @@ impl PromptType for Genre {
     {
         let name = self
             .name
-            .update_by_prompt_skippable("Change genre name to:", conn)
+            .update_by_prompt("Change genre name to:", conn)
             .await?;
         let new = Self {
             id: Uuid(uuid::Uuid::nil()),
@@ -61,6 +61,25 @@ impl PromptType for Genre {
             deleted: self.deleted,
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

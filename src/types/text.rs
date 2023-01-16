@@ -63,6 +63,24 @@ impl PromptType for Text {
             None => Ok(None),
         }
     }
+
+    async fn update_by_prompt(&self, prompt: &str, conn: &sqlx::SqlitePool) -> anyhow::Result<Self>
+    where
+        Self: Display,
+    {
+        PromptType::create_by_prompt(prompt, Some(self), conn).await
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        PromptType::create_by_prompt_skippable(prompt, s.as_ref(), conn).await
+    }
 }
 
 impl<'q> sqlx::Encode<'q, sqlx::Sqlite> for Text {

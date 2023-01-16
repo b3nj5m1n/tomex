@@ -1,4 +1,5 @@
 pub mod option_to_create;
+pub mod rating;
 pub mod text;
 pub mod timestamp;
 pub mod uuid;

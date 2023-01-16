@@ -54,11 +54,19 @@ impl Book {
     }
     pub async fn get_authors(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Author>>> {
         let result = BookAuthor::get_all_for_a(conn, self).await?;
-        Ok(if !result.is_empty() { Some(result) } else { None })
+        Ok(if !result.is_empty() {
+            Some(result)
+        } else {
+            None
+        })
     }
     pub async fn get_genres(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Genre>>> {
         let result = BookGenre::get_all_for_a(conn, self).await?;
-        Ok(if !result.is_empty() { Some(result) } else { None })
+        Ok(if !result.is_empty() {
+            Some(result)
+        } else {
+            None
+        })
     }
     pub async fn hydrate_authors(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.authors = self.get_authors(conn).await?;
@@ -106,34 +114,45 @@ impl PromptType for Book {
     {
         let title = self
             .title
-            .update_by_prompt_skippable("Change title to:", conn)
+            .update_by_prompt("Change title to:", conn)
             .await?;
-        let release_date = match &self.release_date {
-            OptionalTimestamp(Some(ts)) => OptionalTimestamp(
-                ts.update_by_prompt_skippable_deleteable(
-                    "Delete release date?",
-                    "When was the book released?",
-                    conn,
-                )
-                .await?,
-            ),
-            OptionalTimestamp(None) => OptionalTimestamp(
-                Timestamp::create_by_prompt_skippable("When was the book released?", None, conn)
-                    .await?,
-            ),
-        };
+        let release_date = PromptType::update_by_prompt_skippable(
+            &self.release_date.0,
+            "When was the book released?",
+            conn,
+        )
+        .await?;
         let genres = Genre::update_vec(&self.genres, conn, "Select genres for this book:").await?;
         let new = Self {
             id: self.id.clone(),
             title,
             authors: self.authors.clone(), // TODO
-            release_date,
+            release_date: OptionalTimestamp(release_date),
             editions: self.editions.clone(),
             reviews: self.reviews.clone(),
             genres,
             deleted: self.deleted,
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

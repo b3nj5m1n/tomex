@@ -14,7 +14,7 @@ use crate::{
 };
 use derives::*;
 
-use super::edition::Edition;
+use super::{edition::Edition, rating::Rating};
 
 #[derive(
     Default,
@@ -65,26 +65,12 @@ impl PromptType for EditionReview {
         let id = Uuid(uuid::Uuid::new_v4());
         let edition = Edition::query_by_prompt(conn).await?;
         let edition_id = edition.id;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
-            .with_validator(validator)
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let rating: Option<Rating> = PromptType::create_by_prompt_skippable(
+            "What rating would you give this edition? (0-100)",
+            None::<&Rating>,
+            conn,
+        )
+        .await?;
         let recommend = Confirm::new("Would you recommend this edition?")
             .with_default(true)
             .prompt_skippable()?;
@@ -114,34 +100,12 @@ impl PromptType for EditionReview {
         Self: Display,
     {
         let edition = Edition::get_by_id(conn, &self.edition_id).await?;
-        let validator = |input: &str| match input.parse::<u32>() {
-            Ok(n) => {
-                if n <= 100 {
-                    Ok(Validation::Valid)
-                } else {
-                    Ok(Validation::Invalid(
-                        inquire::validator::ErrorMessage::Custom(
-                            "Rating has to be between 0-100".to_string(),
-                        ),
-                    ))
-                }
-            }
-            Err(_) => Ok(Validation::Invalid(
-                inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
-            )),
-        };
-        // TODO properly update these instead of deleting when this is skipped
-        let rating = inquire::Text::new("What rating would you give this edition? (0-100)")
-            .with_validator(validator)
-            .with_initial_value(
-                if let Some(rating) = &self.rating.map(|x| x.to_string()) {
-                    rating
-                } else {
-                    ""
-                },
-            )
-            .prompt_skippable()?
-            .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let rating: Option<Rating> = PromptType::update_by_prompt_skippable(
+            &self.rating,
+            "What rating would you give this edition? (0-100)",
+            conn,
+        )
+        .await?;
         let recommend = Confirm::new("Would you recommend this edition?")
             .with_default(if let Some(recommend) = &self.recommend {
                 *recommend
@@ -160,18 +124,12 @@ impl PromptType for EditionReview {
             .map(Text);
 
         // Cover
-        let cover_rating =
-            inquire::Text::new("What rating would you give this edition's cover? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.cover_rating.map(|x| x.to_string()) {
-                        rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let cover_rating: Option<Rating> = PromptType::update_by_prompt_skippable(
+            &self.cover_rating,
+            "What rating would you give this edition's cover? (0-100)",
+            conn,
+        )
+        .await?;
         let cover_text =
             inquire::Editor::new("Write a detailed a review for this edition's cover:")
                 .with_file_extension(".md")
@@ -183,18 +141,12 @@ impl PromptType for EditionReview {
                 .prompt_skippable()?
                 .map(Text);
         // Typesetting
-        let typesetting_rating =
-            inquire::Text::new("What rating would you give this edition's typesetting? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.typesetting_rating.map(|x| x.to_string()) {
-                        rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let typesetting_rating: Option<Rating> = PromptType::update_by_prompt_skippable(
+            &self.typesetting_rating,
+            "What rating would you give this edition's typesetting? (0-100)",
+            conn,
+        )
+        .await?;
         let typesetting_text =
             inquire::Editor::new("Write a detailed a review for this edition's typesetting:")
                 .with_file_extension(".md")
@@ -206,18 +158,12 @@ impl PromptType for EditionReview {
                 .prompt_skippable()?
                 .map(Text);
         // Material
-        let material_rating =
-            inquire::Text::new("What rating would you give this edition's material? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.material_rating.map(|x| x.to_string()) {
-                        rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let material_rating: Option<Rating> = PromptType::update_by_prompt_skippable(
+            &self.material_rating,
+            "What rating would you give this edition's material? (0-100)",
+            conn,
+        )
+        .await?;
         let material_text =
             inquire::Editor::new("Write a detailed a review for this edition's material:")
                 .with_file_extension(".md")
@@ -229,18 +175,12 @@ impl PromptType for EditionReview {
                 .prompt_skippable()?
                 .map(Text);
         // Price
-        let price_rating =
-            inquire::Text::new("What rating would you give this edition's price? (0-100)")
-                .with_validator(validator)
-                .with_initial_value(
-                    if let Some(rating) = &self.price_rating.map(|x| x.to_string()) {
-                        rating
-                    } else {
-                        ""
-                    },
-                )
-                .prompt_skippable()?
-                .map(|x| x.parse::<u32>().expect("Unreachable"));
+        let price_rating: Option<Rating> = PromptType::update_by_prompt_skippable(
+            &self.price_rating,
+            "What rating would you give this edition's price? (0-100)",
+            conn,
+        )
+        .await?;
         let price_text =
             inquire::Editor::new("Write a detailed a review for this edition's price:")
                 .with_file_extension(".md")
@@ -276,6 +216,25 @@ impl PromptType for EditionReview {
             ..self.clone()
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 

@@ -55,7 +55,11 @@ impl Edition {
     }
     pub async fn get_languages(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Language>>> {
         let result = EditionLanguage::get_all_for_a(conn, self).await?;
-        Ok(if !result.is_empty() { Some(result) } else { None })
+        Ok(if !result.is_empty() {
+            Some(result)
+        } else {
+            None
+        })
     }
     pub async fn hydrate_languages(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.languages = self.get_languages(conn).await?;
@@ -63,7 +67,11 @@ impl Edition {
     }
     pub async fn get_publishers(&self, conn: &sqlx::SqlitePool) -> Result<Option<Vec<Publisher>>> {
         let result = EditionPublisher::get_all_for_a(conn, self).await?;
-        Ok(if !result.is_empty() { Some(result) } else { None })
+        Ok(if !result.is_empty() {
+            Some(result)
+        } else {
+            None
+        })
     }
     pub async fn hydrate_publishers(&mut self, conn: &sqlx::SqlitePool) -> Result<()> {
         self.publishers = self.get_publishers(conn).await?;
@@ -117,33 +125,18 @@ impl PromptType for Edition {
         Self: Display,
     {
         let book = Book::get_by_id(conn, &self.book_id).await?;
-        let edition_title = match &self.edition_title {
-            Some(s) => {
-                s.update_by_prompt_skippable_deleteable(
-                    "Delete edition_tittle date?",
-                    "What is the edition title?",
-                    conn,
-                )
-                .await?
-            }
-            None => {
-                Text::create_by_prompt_skippable("What is the edition title?", None, conn).await?
-            }
-        };
-        let isbn = match &self.isbn {
-            Some(s) => {
-                s.update_by_prompt_skippable_deleteable(
-                    "Delete isbn?",
-                    "What is the isbn of this edition?",
-                    conn,
-                )
-                .await?
-            }
-            None => {
-                Text::create_by_prompt_skippable("What is the isbn of this edition?", None, conn)
-                    .await?
-            }
-        };
+        let edition_title = PromptType::update_by_prompt_skippable(
+            &self.edition_title,
+            "What is the edition title?",
+            conn,
+        )
+        .await?;
+        let isbn = PromptType::update_by_prompt_skippable(
+            &self.isbn,
+            "What is isbn of this edition?",
+            conn,
+        )
+        .await?;
         // Languages
         let languages =
             Language::update_vec(&self.languages, conn, "Select languages for this edition:")
@@ -165,6 +158,25 @@ impl PromptType for Edition {
             ..self.clone()
         };
         Ok(new)
+    }
+
+    async fn create_by_prompt_skippable(
+        prompt: &str,
+        initial_value: Option<&Self>,
+        conn: &sqlx::SqlitePool,
+    ) -> Result<Option<Self>> {
+        unreachable!("Can't skip creation of this type")
+    }
+
+    async fn update_by_prompt_skippable(
+        s: &Option<Self>,
+        prompt: &str,
+        conn: &sqlx::SqlitePool,
+    ) -> anyhow::Result<Option<Self>>
+    where
+        Self: Display,
+    {
+        unreachable!("Can't skip updating this type")
     }
 }
 
