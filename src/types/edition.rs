@@ -34,27 +34,28 @@ use super::{binding::Binding, format::EditionFormat};
     Deserialize,
 )]
 pub struct Edition {
-    pub id:            Uuid,
-    pub book_id:       Uuid,
-    pub edition_title: Option<Text>,
-    pub isbn:          Option<Text>,
-    pub pages:         Option<u32>,
-    pub languages:     Option<Vec<Language>>,
-    pub release_date:  OptionalTimestamp,
-    pub format_id:     Option<Uuid>,
-    pub format:        Option<EditionFormat>,
-    pub height:        Option<u32>,
-    pub width:         Option<u32>,
-    pub thickness:     Option<u32>,
-    pub weight:        Option<u32>,
-    pub binding_id:    Option<Uuid>,
-    pub binding:       Option<Binding>,
-    pub publishers:    Option<Vec<Publisher>>,
-    pub cover:         Option<String>,
-    pub reviews:       Option<Vec<EditionReview>>,
-    pub progress:      Option<Vec<Progress>>,
-    pub deleted:       bool,
-    pub book_title:    Text,
+    pub id:                  Uuid,
+    pub book_id:             Uuid,
+    pub edition_title:       Option<Text>,
+    pub edition_description: Option<Text>,
+    pub isbn:                Option<Text>,
+    pub pages:               Option<u32>,
+    pub languages:           Option<Vec<Language>>,
+    pub release_date:        OptionalTimestamp,
+    pub format_id:           Option<Uuid>,
+    pub format:              Option<EditionFormat>,
+    pub height:              Option<u32>,
+    pub width:               Option<u32>,
+    pub thickness:           Option<u32>,
+    pub weight:              Option<u32>,
+    pub binding_id:          Option<Uuid>,
+    pub binding:             Option<Binding>,
+    pub publishers:          Option<Vec<Publisher>>,
+    pub cover:               Option<String>,
+    pub reviews:             Option<Vec<EditionReview>>,
+    pub progress:            Option<Vec<Progress>>,
+    pub deleted:             bool,
+    pub book_title:          Text,
 }
 
 impl Edition {
@@ -131,6 +132,12 @@ impl PromptType for Edition {
         let edition_title =
             Text::create_by_prompt_skippable("What is the title of this edition?", None, conn)
                 .await?;
+        let edition_description = Text::create_by_prompt_skippable(
+            "Describe this edition (for example 1st edition, special edition, etc):",
+            None,
+            conn,
+        )
+        .await?;
         let isbn = PromptType::create_by_prompt_skippable(
             "What is the isbn of this edition?",
             None::<&Isbn>,
@@ -156,6 +163,7 @@ impl PromptType for Edition {
             id,
             book_id,
             edition_title,
+            edition_description,
             isbn: isbn.map(|x| x.to_text()),
             pages,
             languages: None,
@@ -190,6 +198,12 @@ impl PromptType for Edition {
             conn,
         )
         .await?;
+        let edition_description = PromptType::update_by_prompt_skippable(
+            &s.edition_description,
+            "Describe this edition (for example 1st edition, special edition, etc)",
+            conn,
+        )
+        .await?;
         let isbn = PromptType::update_by_prompt_skippable(
             &s.isbn,
             "What is the isbn of this edition?",
@@ -217,6 +231,7 @@ impl PromptType for Edition {
         let binding_id = binding.clone().map(|x| x.id);
         let new = Self {
             edition_title,
+            edition_description,
             isbn,
             languages,
             publishers,
@@ -397,6 +412,7 @@ impl CreateTable for Edition {
                 id TEXT PRIMARY KEY NOT NULL,
             	book_id	TEXT NOT NULL,
                 edition_title   TEXT,
+                edition_description   TEXT,
             	isbn	TEXT,
                 pages   INT,
             	release_date	INTEGER,
@@ -430,13 +446,14 @@ impl Insertable for Edition {
     {
         let result = sqlx::query(
             r#"
-            INSERT INTO editions ( id, book_id, edition_title, isbn, pages, release_date, format_id, height, width, thickness, weight, binding_id, cover, deleted, book_title )
-            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15 );
+            INSERT INTO editions ( id, book_id, edition_title, edition_description, isbn, pages, release_date, format_id, height, width, thickness, weight, binding_id, cover, deleted, book_title )
+            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16 );
             "#,
         )
         .bind(&self.id)
         .bind(&self.book_id)
         .bind(&self.edition_title)
+        .bind(&self.edition_description)
         .bind(&self.isbn)
         .bind(self.pages)
         .bind(&self.release_date)
@@ -473,18 +490,19 @@ impl Updateable for Edition {
             SET 
                 book_id = ?2,
                 edition_title = ?3,
-                isbn = ?4,
-                pages = ?5,
-                release_date = ?6,
-                format_id = ?7,
-                height = ?8,
-                width = ?9,
-                thickness = ?10,
-                weight = ?11,
-                binding_id = ?12,
-                cover = ?13,
-                deleted = ?14,
-                book_title = ?15
+                edition_description = ?4,
+                isbn = ?5,
+                pages = ?6,
+                release_date = ?7,
+                format_id = ?8,
+                height = ?9,
+                width = ?10,
+                thickness = ?11,
+                weight = ?12,
+                binding_id = ?13,
+                cover = ?14,
+                deleted = ?15,
+                book_title = ?16
             WHERE
                 id = ?1;
             "#,
@@ -493,6 +511,7 @@ impl Updateable for Edition {
         .bind(&self.id)
         .bind(&new.book_id)
         .bind(&new.edition_title)
+        .bind(&new.edition_description)
         .bind(&new.isbn)
         .bind(new.pages)
         .bind(&new.release_date)
@@ -513,27 +532,28 @@ impl Updateable for Edition {
 impl FromRow<'_, SqliteRow> for Edition {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         Ok(Self {
-            id:            row.try_get("id")?,
-            book_id:       row.try_get("book_id")?,
-            edition_title: row.try_get("edition_title")?,
-            isbn:          row.try_get("isbn")?,
-            pages:         row.try_get("pages")?,
-            release_date:  row.try_get("release_date")?,
-            cover:         row.try_get("cover")?,
-            deleted:       row.try_get("deleted")?,
-            book_title:    row.try_get("book_title")?,
-            format_id:     row.try_get("format_id")?,
-            height:        row.try_get("height")?,
-            width:         row.try_get("width")?,
-            thickness:     row.try_get("thickness")?,
-            weight:        row.try_get("weight")?,
-            binding_id:    row.try_get("binding_id")?,
-            languages:     Self::default().languages,
-            format:        Self::default().format,
-            binding:       Self::default().binding,
-            publishers:    Self::default().publishers,
-            reviews:       Self::default().reviews,
-            progress:      Self::default().progress,
+            id:                  row.try_get("id")?,
+            book_id:             row.try_get("book_id")?,
+            edition_title:       row.try_get("edition_title")?,
+            edition_description: row.try_get("edition_description")?,
+            isbn:                row.try_get("isbn")?,
+            pages:               row.try_get("pages")?,
+            release_date:        row.try_get("release_date")?,
+            cover:               row.try_get("cover")?,
+            deleted:             row.try_get("deleted")?,
+            book_title:          row.try_get("book_title")?,
+            format_id:           row.try_get("format_id")?,
+            height:              row.try_get("height")?,
+            width:               row.try_get("width")?,
+            thickness:           row.try_get("thickness")?,
+            weight:              row.try_get("weight")?,
+            binding_id:          row.try_get("binding_id")?,
+            languages:           Self::default().languages,
+            format:              Self::default().format,
+            binding:             Self::default().binding,
+            publishers:          Self::default().publishers,
+            reviews:             Self::default().reviews,
+            progress:            Self::default().progress,
         })
     }
 }

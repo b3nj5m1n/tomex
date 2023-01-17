@@ -162,6 +162,7 @@ pub struct Config {
     pub output_format:            OutputConfig,
     pub output_binding:           OutputConfig,
     pub output_dimensions:        OutputConfig,
+    pub output_price:             OutputConfig,
 }
 
 impl Config {
@@ -373,6 +374,13 @@ impl Default for Config {
             },
             output_dimensions:        OutputConfig {
                 style_content: StyleConfig {
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_price:             OutputConfig {
+                style_content: StyleConfig {
+                    color: COLOR_PRICE,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()

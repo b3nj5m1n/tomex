@@ -14,7 +14,7 @@ use crate::{
 };
 use derives::*;
 
-use super::{edition::Edition, rating::Rating};
+use super::{edition::Edition, price::Price, rating::Rating, timestamp::OptionalTimestamp};
 
 #[derive(
     Default,
@@ -44,6 +44,7 @@ pub struct EditionReview {
     pub material_text:      Option<Text>,
     pub price_rating:       Option<u32>,
     pub price_text:         Option<Text>,
+    pub price_info:         Option<Price>,
     pub timestamp_created:  Timestamp,
     pub timestamp_updated:  Timestamp,
     pub deleted:            bool,
@@ -93,6 +94,7 @@ impl PromptType for EditionReview {
             material_text: None,
             price_rating: None,
             price_text: None,
+            price_info: None,
         })
     }
 
@@ -193,6 +195,8 @@ impl PromptType for EditionReview {
                 .prompt_skippable()?
                 .map(Text);
 
+        let price_info = PromptType::update_by_prompt_skippable(&self.price_info, "", conn).await?;
+
         if !inquire::Confirm::new("Update review?")
             .with_default(true)
             .prompt()?
@@ -214,6 +218,7 @@ impl PromptType for EditionReview {
             material_text,
             price_rating,
             price_text,
+            price_info,
             ..self.clone()
         };
         Ok(new)
@@ -320,6 +325,10 @@ impl DisplayTerminal for EditionReview {
                 .format_str(s.timestamp_updated, conn, config)
                 .await?
         )?;
+        // Price Info
+        if let Some(price_info) = s.price_info {
+            write!(f, "[{}]", price_info)?;
+        }
         // ID
         if config.output_edition_review.display_uuid {
             write!(f, "({})", s.id)?;
@@ -346,6 +355,8 @@ impl CreateTable for EditionReview {
             	material_text TEXT,
             	price_rating INT,
             	price_text TEXT,
+            	price_value TEXT,
+            	price_timestamp INTEGER,
             	timestamp_created INTEGER,
             	timestamp_updated INTEGER,
             	deleted BOOL DEFAULT FALSE,
@@ -366,11 +377,11 @@ impl Insertable for EditionReview {
         Ok(sqlx::query(&format!(
             r#"
             INSERT INTO {} ( 
-                id, edition_id, rating, recommend, content,
-                cover_rating, cover_text, typesetting_rating, typesetting_text,
-                material_rating, material_text, price_rating, price_text,
+                id, edition_id, rating, recommend, content, cover_rating, cover_text,
+                typesetting_rating, typesetting_text, material_rating, material_text,
+                price_rating, price_text, price_value, price_timestamp,
                 timestamp_created, timestamp_updated, deleted, book_title )
-            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17 )
+            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19 )
             "#,
             Self::TABLE_NAME
         ))
@@ -387,6 +398,10 @@ impl Insertable for EditionReview {
         .bind(&self.material_text)
         .bind(self.price_rating)
         .bind(&self.price_text)
+        .bind(&self.price_info.clone().map(|x| x.value))
+        .bind(OptionalTimestamp(
+            self.price_info.clone().map(|x| x.timestamp.0).flatten(),
+        ))
         .bind(&self.timestamp_created)
         .bind(&self.timestamp_updated)
         .bind(self.deleted)
@@ -413,10 +428,12 @@ impl Updateable for EditionReview {
             	material_text = ?11,
             	price_rating = ?12,
             	price_text = ?13,
-                timestamp_created = ?14,
-                timestamp_updated = ?15,
-                deleted = ?16,
-                book_title = ?17
+            	price_value = ?14,
+            	price_timestamp = ?15,
+                timestamp_created = ?16,
+                timestamp_updated = ?17,
+                deleted = ?18,
+                book_title = ?19
             WHERE
                 id = ?1;
             "#,
@@ -435,6 +452,10 @@ impl Updateable for EditionReview {
         .bind(&new.material_text)
         .bind(new.price_rating)
         .bind(&new.price_text)
+        .bind(&new.price_info.clone().map(|x| x.value))
+        .bind(OptionalTimestamp(
+            new.price_info.clone().map(|x| x.timestamp.0).flatten(),
+        ))
         .bind(&new.timestamp_created)
         .bind(&new.timestamp_updated)
         .bind(new.deleted)
@@ -446,7 +467,17 @@ impl Updateable for EditionReview {
 
 impl FromRow<'_, SqliteRow> for EditionReview {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
+        let price_value = row.try_get("price_value")?;
+        let price_timestamp = row.try_get("price_timestamp")?;
+        let price_info = match price_value {
+            Some(value) => Some(Price {
+                value,
+                timestamp: price_timestamp,
+            }),
+            None => None,
+        };
         Ok(Self {
+            price_info:         price_info,
             id:                 row.try_get("id")?,
             deleted:            row.try_get("deleted")?,
             edition_id:         row.try_get("edition_id")?,

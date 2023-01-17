@@ -101,3 +101,8 @@ pub const COLOR_BINDING: Color = Color::Rgb {
     g: 218,
     b: 149,
 };
+pub const COLOR_PRICE: Color = Color::Rgb {
+    r: 240,
+    g: 198,
+    b: 198,
+};
