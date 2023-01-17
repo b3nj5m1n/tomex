@@ -362,9 +362,9 @@ where
 
 /// Singular and plural names for type & name of table in database, for example:
 /// ```
-/// const NAME_SINGULAR = "book";
-/// const NAME_PLURAL = "books";
-/// const TABLE_NAME = "books";
+/// const NAME_SINGULAR: &'static str = "book";
+/// const NAME_PLURAL: &'static str = "books";
+/// const TABLE_NAME: &'static str = "books";
 /// ```
 pub trait Names
 where
