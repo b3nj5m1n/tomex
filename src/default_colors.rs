@@ -106,3 +106,8 @@ pub const COLOR_PRICE: Color = Color::Rgb {
     g: 198,
     b: 198,
 };
+pub const COLOR_PART_INDEX: Color = Color::Rgb {
+    r: 198,
+    g: 160,
+    b: 246,
+};

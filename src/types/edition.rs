@@ -1,13 +1,12 @@
 use anyhow::Result;
 use crossterm::style::Stylize;
-use inquire::validator::Validation;
+use inquire::{validator::Validation, Select};
 use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqliteRow, FromRow, Row};
 use std::fmt::{Display, Write};
 
 use crate::{
     config::{self, Styleable},
-    default_colors::COLOR_DIMMED,
     traits::*,
     types::{
         book::Book, edition_language::EditionLanguage, edition_publisher::EditionPublisher,
@@ -17,7 +16,7 @@ use crate::{
 };
 use derives::*;
 
-use super::{binding::Binding, format::EditionFormat};
+use super::{binding::Binding, format::EditionFormat, rating::Rating};
 
 #[derive(
     Default,
@@ -52,6 +51,7 @@ pub struct Edition {
     pub binding:             Option<Binding>,
     pub publishers:          Option<Vec<Publisher>>,
     pub cover:               Option<String>,
+    pub part_index:          Option<u32>,
     pub reviews:             Option<Vec<EditionReview>>,
     pub progress:            Option<Vec<Progress>>,
     pub deleted:             bool,
@@ -120,6 +120,8 @@ impl Edition {
     }
 }
 
+const PARTS_SINGLE: &'static str = "Single-volume";
+const PARTS_MULTI: &'static str = "Multi-part";
 impl PromptType for Edition {
     async fn create_by_prompt(
         _prompt: &str,
@@ -159,6 +161,20 @@ impl PromptType for Edition {
             None => None,
         };
         let format_id = format.clone().map(|x| x.id);
+
+        let multipart = Select::new(
+            "Is this edition of the book a single volume or one of several parts?",
+            vec![PARTS_SINGLE, PARTS_MULTI],
+        )
+        .with_starting_cursor(0)
+        .prompt()?;
+        let part_index: Option<Rating> = match multipart {
+            PARTS_SINGLE => None,
+            PARTS_MULTI => Some(
+                PromptType::create_by_prompt("Which part is it?", None::<&Rating>, conn).await?,
+            ),
+            _ => unreachable!(),
+        };
         Ok(Self {
             id,
             book_id,
@@ -182,6 +198,7 @@ impl PromptType for Edition {
             weight: None,     // TODO
             binding_id: None, // TODO
             binding: None,
+            part_index,
         })
     }
 
@@ -210,6 +227,20 @@ impl PromptType for Edition {
             conn,
         )
         .await?;
+        let multipart = Select::new(
+            "Is this edition of the book a single volume or one of several parts?",
+            vec![PARTS_SINGLE, PARTS_MULTI],
+        )
+        .with_starting_cursor(if s.part_index.is_some() { 1 } else { 0 })
+        .prompt()?;
+        let part_index: Option<Rating> = match multipart {
+            PARTS_SINGLE => None,
+            PARTS_MULTI => {
+                PromptType::update_by_prompt_skippable(&s.part_index, "Which part is it?", conn)
+                    .await?
+            }
+            _ => unreachable!(),
+        };
         // Languages
         let languages =
             Language::update_vec(&s.languages, conn, "Select languages for this edition:").await?;
@@ -241,6 +272,7 @@ impl PromptType for Edition {
             format,
             binding,
             binding_id,
+            part_index,
             ..self.clone()
         };
         Ok(new)
@@ -272,37 +304,25 @@ impl Display for Edition {
             Ok(config) => config,
             Err(_) => return Err(std::fmt::Error),
         };
-        // TODO hide uuid if requested
-        match (&self.isbn, &self.edition_title) {
-            (None, None) => write!(
+        let title = match &self.edition_title {
+            Some(title) => title.style(&config.output_edition.style_content),
+            None => self.book_title.style(&config.output_edition.style_content),
+        };
+        write!(f, "{title}")?;
+        if let Some(part_index) = self.part_index {
+            write!(
                 f,
-                "{} ({})",
-                self.book_title.style(&config.output_edition.style_content),
-                self.id
-            ),
-            (None, Some(title)) => write!(
-                f,
-                "{} ({})",
-                title.style(&config.output_edition.style_content),
-                self.id
-            ),
-            (Some(isbn), None) => {
-                write!(
-                    f,
-                    "{} ({})",
-                    self.book_title.style(&config.output_edition.style_content),
-                    isbn.to_string().with(COLOR_DIMMED)
-                )
-            }
-            (Some(isbn), Some(title)) => {
-                write!(
-                    f,
-                    "{} ({})",
-                    title.style(&config.output_edition.style_content),
-                    isbn.to_string().with(COLOR_DIMMED)
-                )
+                " [Volume {}]",
+                format!("#{part_index}").style(&config.output_part_index.style_content)
+            )?;
+        }
+        if config.output_edition.display_uuid {
+            match &self.isbn {
+                Some(isbn) => write!(f, " ({isbn})")?,
+                None => write!(f, " ({})", self.id)?,
             }
         }
+        Ok(())
     }
 }
 impl DisplayTerminal for Edition {
@@ -322,6 +342,21 @@ impl DisplayTerminal for Edition {
         }
         .style(&config.output_edition.style_content);
         write!(f, "{title} ")?;
+        // Part index
+        if let Some(part_index) = s.part_index {
+            write!(
+                f,
+                "{} ",
+                config
+                    .output_part_index
+                    .format_str(
+                        format!("#{part_index}").style(&config.output_part_index.style_content),
+                        conn,
+                        config
+                    )
+                    .await?
+            )?;
+        }
         // Author
         if let Some(authors) = book.get_authors(conn).await? {
             write!(
@@ -423,6 +458,7 @@ impl CreateTable for Edition {
                 weight INT,
                 binding_id TEXT,
             	cover	TEXT,
+                part_index INT,
             	deleted BOOL DEFAULT FALSE,
                 book_title TEXT,
             	FOREIGN KEY (book_id) REFERENCES {} (id)
@@ -446,8 +482,8 @@ impl Insertable for Edition {
     {
         let result = sqlx::query(
             r#"
-            INSERT INTO editions ( id, book_id, edition_title, edition_description, isbn, pages, release_date, format_id, height, width, thickness, weight, binding_id, cover, deleted, book_title )
-            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16 );
+            INSERT INTO editions ( id, book_id, edition_title, edition_description, isbn, pages, release_date, format_id, height, width, thickness, weight, binding_id, cover, part_index, deleted, book_title )
+            VALUES ( ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17 );
             "#,
         )
         .bind(&self.id)
@@ -464,6 +500,7 @@ impl Insertable for Edition {
         .bind(&self.weight)
         .bind(&self.binding_id)
         .bind(&self.cover)
+        .bind(&self.part_index)
         .bind(self.deleted)
         .bind(&self.book_title)
         .execute(conn)
@@ -501,8 +538,9 @@ impl Updateable for Edition {
                 weight = ?12,
                 binding_id = ?13,
                 cover = ?14,
-                deleted = ?15,
-                book_title = ?16
+                part_index = ?15,
+                deleted = ?16,
+                book_title = ?17
             WHERE
                 id = ?1;
             "#,
@@ -522,6 +560,7 @@ impl Updateable for Edition {
         .bind(&new.weight)
         .bind(&new.binding_id)
         .bind(&new.cover)
+        .bind(&new.part_index)
         .bind(new.deleted)
         .bind(&new.book_title)
         .execute(conn)
@@ -548,6 +587,7 @@ impl FromRow<'_, SqliteRow> for Edition {
             thickness:           row.try_get("thickness")?,
             weight:              row.try_get("weight")?,
             binding_id:          row.try_get("binding_id")?,
+            part_index:          row.try_get("part_index")?,
             languages:           Self::default().languages,
             format:              Self::default().format,
             binding:             Self::default().binding,
