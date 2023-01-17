@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use inquire::{validator::Validation, CustomUserError};
+use liquidity_check::validate;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -36,20 +37,12 @@ impl Display for Price {
 
 // TODO
 fn validator(input: &str) -> Result<Validation, CustomUserError> {
-    match input.parse::<u32>() {
-        Ok(n) => {
-            if n <= 100 {
-                Ok(Validation::Valid)
-            } else {
-                Ok(Validation::Invalid(
-                    inquire::validator::ErrorMessage::Custom(
-                        "Rating has to be between 0-100".to_string(),
-                    ),
-                ))
-            }
-        }
-        Err(_) => Ok(Validation::Invalid(
-            inquire::validator::ErrorMessage::Custom("Input isn't a valid number".to_string()),
+    match validate(input) {
+        true => Ok(Validation::Valid),
+        false => Ok(Validation::Invalid(
+            inquire::validator::ErrorMessage::Custom(
+                "Not recognised as monetary value".to_string(),
+            ),
         )),
     }
 }
