@@ -1,7 +1,10 @@
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tomex::types::{text::Text, timestamp::OptionalTimestamp};
+use tomex::types::{
+    text::Text,
+    timestamp::{OptionalTimestamp, Timestamp},
+};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Book {
@@ -79,6 +82,14 @@ pub async fn create_by_isbn(
     let book = books.get(&isbn_prefixed).ok_or(anyhow!(
         "Book not found in response, might not be in the OpenLibrary database"
     ))?;
+    let release_date = match &book.publish_date {
+        Some(publish_date) => OptionalTimestamp(match dateparser::parse(publish_date) {
+            Ok(timestamp) => Some(Timestamp(timestamp)),
+            Err(_) => None,
+        }),
+        None => OptionalTimestamp(None),
+    };
+
     // TODO: Author
     // TODO: Edition
     Ok(tomex::types::book::Book {
