@@ -76,9 +76,9 @@ pub async fn create_by_isbn(
     params.insert("format", "json");
     let resp = client.get(url).query(&params).send().await?.text().await?;
     let books: HashMap<String, Book> = serde_json::from_str(&resp)?;
-    let book = books
-        .get(&isbn_prefixed)
-        .ok_or(anyhow!("Book not found in response"))?;
+    let book = books.get(&isbn_prefixed).ok_or(anyhow!(
+        "Book not found in response, might not be in the OpenLibrary database"
+    ))?;
     // TODO: Author
     // TODO: Edition
     Ok(tomex::types::book::Book {
