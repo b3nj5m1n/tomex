@@ -38,7 +38,12 @@ pub fn arg_parser() -> Command {
                 .alias("a")
                 .alias("insert")
                 .subcommand_required(true)
-                .subcommands(arg_parser_types()),
+                .subcommands(arg_parser_types())
+                .subcommand(
+                    Command::new("by_isbn")
+                        .about("Add a book by querying OpenLibrary for an ISBN")
+                        .alias("isbn"),
+                ),
         )
         .subcommand(
             Command::new("edit")

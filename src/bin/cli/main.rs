@@ -8,6 +8,7 @@ use sqlx::{
 use std::{env, process::exit};
 
 mod command_parser;
+mod openlibrary;
 mod prompt;
 mod repl;
 
@@ -37,6 +38,17 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
     let matches = matches.unwrap();
     match matches.subcommand() {
         Some(("add", _matches)) => match _matches.subcommand() {
+            Some(("by_isbn", _matches)) => {
+                let isbn = PromptType::create_by_prompt(
+                    "What is the ISBN?",
+                    None::<&tomex::types::isbn::Isbn>,
+                    conn,
+                )
+                .await?;
+                let book_auto = openlibrary::create_by_isbn(&isbn.0.to_string(), conn).await?;
+                let book = Book::update_by_prompt(&book_auto, "", conn).await?;
+                book.insert(conn).await?;
+            }
             Some(("book", _matches)) => {
                 Book::insert_by_prompt(conn).await?;
             }

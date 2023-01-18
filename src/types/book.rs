@@ -119,7 +119,7 @@ impl PromptType for Book {
         let series_index = match series_id {
             Some(_) => {
                 PromptType::create_by_prompt_skippable(
-                    "What is the book's position in the series?",
+                    "What is the books position in the series?",
                     None::<&Rating>,
                     conn,
                 )
@@ -168,7 +168,7 @@ impl PromptType for Book {
             Some(_) => {
                 PromptType::update_by_prompt_skippable(
                     &self.series_index,
-                    "What is the book's position in the series?",
+                    "What is the books position in the series?",
                     conn,
                 )
                 .await?
