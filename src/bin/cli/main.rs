@@ -46,9 +46,7 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
                     conn,
                 )
                 .await?;
-                let book_auto = openlibrary::create_by_isbn(&isbn.0.to_string(), conn).await?;
-                let book = Book::update_by_prompt(&book_auto, "", conn).await?;
-                book.insert(conn).await?;
+                openlibrary::create_by_isbn(&isbn.0.to_string(), conn).await?;
             }
             Some(("book", _matches)) => {
                 Book::insert_by_prompt(conn).await?;

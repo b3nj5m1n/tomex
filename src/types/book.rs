@@ -93,6 +93,16 @@ impl Book {
         self.series = self.get_series(conn).await?;
         Ok(())
     }
+
+    pub async fn get_by_title(conn: &sqlx::SqlitePool, title: String) -> Result<Option<Self>> {
+        Ok(sqlx::query_as::<_, Self>(&format!(
+            "SELECT * FROM {} WHERE title = ?1 COLLATE NOCASE AND deleted = 0;",
+            Self::TABLE_NAME
+        ))
+        .bind(title)
+        .fetch_optional(conn)
+        .await?)
+    }
 }
 
 impl PromptType for Book {

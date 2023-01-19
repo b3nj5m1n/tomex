@@ -29,6 +29,18 @@ pub struct Author {
 
 const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
 
+impl Author {
+    pub async fn get_by_name(conn: &sqlx::SqlitePool, name: String) -> Result<Option<Self>> {
+        Ok(sqlx::query_as::<_, Self>(&format!(
+            "SELECT * FROM {} WHERE name = ?1 COLLATE NOCASE AND deleted = 0;",
+            Self::TABLE_NAME
+        ))
+        .bind(name)
+        .fetch_optional(conn)
+        .await?)
+    }
+}
+
 impl PromptType for Author {
     async fn create_by_prompt(
         _prompt: &str,
