@@ -19,13 +19,12 @@ use derives::*;
     Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Id, Serialize, Deserialize,
 )]
 pub struct Author {
-    pub id:         Uuid,
-    pub name_first: Option<Text>,
-    pub name_last:  Option<Text>,
-    pub date_born:  OptionalTimestamp,
-    pub date_died:  OptionalTimestamp,
-    pub deleted:    bool,
-    pub special:    bool,
+    pub id:        Uuid,
+    pub name:      Option<Text>,
+    pub date_born: OptionalTimestamp,
+    pub date_died: OptionalTimestamp,
+    pub deleted:   bool,
+    pub special:   bool,
 }
 
 const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
@@ -37,14 +36,11 @@ impl PromptType for Author {
         conn: &sqlx::SqlitePool,
     ) -> Result<Self> {
         let id = Uuid(uuid::Uuid::new_v4());
-        let name_first =
-            Text::create_by_prompt_skippable("What is the authors first name?", None, conn).await?;
-        let name_last =
-            Text::create_by_prompt_skippable("What is the authors last name?", None, conn).await?;
+        let name =
+            Text::create_by_prompt_skippable("What is the authors name?", None, conn).await?;
         Ok(Self {
             id,
-            name_first,
-            name_last,
+            name,
             date_born: OptionalTimestamp(None),
             date_died: OptionalTimestamp(None),
             deleted: false,
@@ -59,18 +55,9 @@ impl PromptType for Author {
         if self.special {
             anyhow::bail!("Can't update special author");
         }
-        let name_first = PromptType::update_by_prompt_skippable(
-            &self.name_first,
-            "What is the authors first name?",
-            conn,
-        )
-        .await?;
-        let name_last = PromptType::update_by_prompt_skippable(
-            &self.name_last,
-            "What is the authors last name?",
-            conn,
-        )
-        .await?;
+        let name =
+            PromptType::update_by_prompt_skippable(&self.name, "What is the authors name?", conn)
+                .await?;
         let date_born = PromptType::update_by_prompt_skippable(
             &self.date_born.0,
             "When was the author born?",
@@ -92,8 +79,7 @@ impl PromptType for Author {
         };
 
         let new = Self {
-            name_first,
-            name_last,
+            name,
             date_born: OptionalTimestamp(date_born),
             date_died: OptionalTimestamp(date_died),
             ..self.clone()
@@ -133,24 +119,9 @@ impl Display for Author {
                 _ => Err(std::fmt::Error),
             }
         } else {
-            match (&self.name_first, &self.name_last) {
-                (None, None) => (),
-                (None, Some(name_last)) => write!(
-                    f,
-                    "{}, (First name unknown)",
-                    name_last.style(&config.output_author.style_content),
-                )?,
-                (Some(name_first), None) => write!(
-                    f,
-                    "(Last name unknown), {}",
-                    name_first.style(&config.output_author.style_content),
-                )?,
-                (Some(name_first), Some(name_last)) => write!(
-                    f,
-                    "{}, {}",
-                    name_last.style(&config.output_author.style_content),
-                    name_first.style(&config.output_author.style_content),
-                )?,
+            match &self.name {
+                None => (),
+                Some(name) => write!(f, "{}", name.style(&config.output_author.style_content),)?,
             }
             if config.output_author.display_uuid {
                 write!(f, " ({})", self.id)
@@ -173,24 +144,9 @@ impl DisplayTerminal for Author {
                 _ => anyhow::bail!("Unkown special author"),
             }
         } else {
-            match (&self.name_first, &self.name_last) {
-                (None, None) => (),
-                (None, Some(name_last)) => write!(
-                    f,
-                    "{}, (First name unknown)",
-                    name_last.style(&config.output_author.style_content),
-                )?,
-                (Some(name_first), None) => write!(
-                    f,
-                    "(Last name unknown), {}",
-                    name_first.style(&config.output_author.style_content),
-                )?,
-                (Some(name_first), Some(name_last)) => write!(
-                    f,
-                    "{}, {}",
-                    name_last.style(&config.output_author.style_content),
-                    name_first.style(&config.output_author.style_content),
-                )?,
+            match &self.name {
+                None => (),
+                Some(name) => write!(f, "{}", name.style(&config.output_author.style_content),)?,
             }
         }
         if config.output_author.display_uuid {
@@ -206,8 +162,7 @@ impl CreateTable for Author {
             r#"
             CREATE TABLE IF NOT EXISTS {} (
                 id TEXT PRIMARY KEY NOT NULL,
-                name_first TEXT,
-                name_last TEXT,
+                name TEXT,
                 date_born INTEGER,
                 date_died INTEGER,
                 deleted BOOL DEFAULT FALSE
@@ -218,13 +173,12 @@ impl CreateTable for Author {
         .await?;
         Self::insert(
             &Self {
-                id:         UUID_UNKOWN,
-                name_first: None,
-                name_last:  None,
-                date_born:  OptionalTimestamp(None),
-                date_died:  OptionalTimestamp(None),
-                deleted:    false,
-                special:    true,
+                id:        UUID_UNKOWN,
+                name:      None,
+                date_born: OptionalTimestamp(None),
+                date_died: OptionalTimestamp(None),
+                deleted:   false,
+                special:   true,
             },
             conn,
         )
@@ -237,13 +191,12 @@ impl Insertable for Author {
     async fn insert(&self, conn: &sqlx::SqlitePool) -> Result<SqliteQueryResult> {
         Ok(sqlx::query(
             r#"
-                    INSERT INTO authors ( id, name_first, name_last, date_born, date_died, deleted )
-                    VALUES ( ?1, ?2, ?3, ?4, ?5, ?6 )
-                    "#,
+            INSERT INTO authors ( id, name, date_born, date_died, deleted )
+            VALUES ( ?1, ?2, ?3, ?4, ?5 )
+            "#,
         )
         .bind(&self.id)
-        .bind(&self.name_first)
-        .bind(&self.name_last)
+        .bind(&self.name)
         .bind(&self.date_born)
         .bind(&self.date_died)
         .bind(self.deleted)
@@ -260,19 +213,17 @@ impl Updateable for Author {
             r#"
             UPDATE {}
             SET 
-                name_first = ?2,
-                name_last = ?3,
-                date_born = ?4,
-                date_died = ?5,
-                deleted = ?6
+                name = ?2,
+                date_born = ?3,
+                date_died = ?4,
+                deleted = ?5
             WHERE
                 id = ?1;
             "#,
             Self::TABLE_NAME
         ))
         .bind(&self.id)
-        .bind(&new.name_first)
-        .bind(&new.name_last)
+        .bind(&new.name)
         .bind(&new.date_born)
         .bind(&new.date_died)
         .bind(new.deleted)
@@ -312,13 +263,12 @@ impl Removeable for Author {
 impl FromRow<'_, SqliteRow> for Author {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         let s = Self {
-            id:         row.try_get("id")?,
-            deleted:    row.try_get("deleted")?,
-            name_first: row.try_get("name_first")?,
-            name_last:  row.try_get("name_last")?,
-            date_born:  row.try_get("date_born")?,
-            date_died:  row.try_get("date_died")?,
-            special:    false,
+            id:        row.try_get("id")?,
+            deleted:   row.try_get("deleted")?,
+            name:      row.try_get("name")?,
+            date_born: row.try_get("date_born")?,
+            date_died: row.try_get("date_died")?,
+            special:   false,
         };
         if s.id == UUID_UNKOWN {
             return Ok(Self {
