@@ -8,6 +8,7 @@ use sqlx::{
 use std::{env, process::exit};
 
 mod command_parser;
+mod openlib_schema;
 mod openlibrary;
 mod prompt;
 mod repl;
