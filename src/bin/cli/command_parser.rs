@@ -96,6 +96,7 @@ pub fn arg_parser() -> Command {
                 .subcommand_required(true)
                 .subcommands(arg_parser_types()),
         )
+        .subcommand(Command::new("listen").about("Start a web server for scanning isbn numbers"))
 }
 
 pub fn arg_parser_repl() -> Command {

@@ -12,6 +12,7 @@ mod openlib_schema;
 mod openlibrary;
 mod prompt;
 mod repl;
+mod server;
 
 use tomex::{
     backup, config,
@@ -207,6 +208,9 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
             Some((name, _matches)) => unimplemented!("{}", name),
             None => unreachable!("subcommand required"),
         },
+        Some(("listen", _matches)) => {
+            crate::server::start(conn).await;
+        }
         Some(("exit", _matches)) => {
             exit(0);
         }
