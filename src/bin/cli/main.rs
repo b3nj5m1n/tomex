@@ -1,11 +1,10 @@
 use anyhow::Result;
-use dotenvy::{dotenv, var as envar};
 use reedline::Signal;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
     Pool, SqlitePool,
 };
-use std::{env, process::exit};
+use std::{env, path::PathBuf, process::exit};
 
 mod command_parser;
 mod openlib_schema;
@@ -220,20 +219,16 @@ async fn handle_command(command: String, conn: &SqlitePool, config: &config::Con
     Ok(())
 }
 
-const DEFAULT_DB: &str = "test.db";
-
-async fn connect_to_db(db_url: Option<String>) -> Result<SqlitePool> {
-    let db_url = match db_url {
-        Some(db_url) => db_url,
-        None => match dotenv() {
-            Ok(_) => match envar("DATABASE_URL").ok() {
-                Some(db_url) => db_url,
-                None => DEFAULT_DB.to_string(),
-            },
-            Err(_) => DEFAULT_DB.to_string(),
-        },
-    };
-
+async fn connect_to_db(db_url: PathBuf) -> Result<SqlitePool> {
+    let db_url = shellexpand::full(
+        db_url
+            .to_str()
+            .ok_or(anyhow::anyhow!("Invalid unicode found in path to database"))?,
+    )?;
+    let db_url = PathBuf::from(db_url.into_owned());
+    std::fs::create_dir_all(db_url.parent().ok_or(anyhow::anyhow!(
+        "Couldn't extract parent directory from database location"
+    ))?)?;
     Ok(Pool::connect_with(
         SqliteConnectOptions::new()
             .filename(db_url)
@@ -272,12 +267,11 @@ async fn create_tables(conn: &SqlitePool) -> Result<()> {
 async fn main() -> Result<()> {
     let args_parsed = command_parser::arg_parser_cli().get_matches_from(env::args_os().skip(1));
 
-    let conn = connect_to_db(None).await?;
-
-    create_tables(&conn).await?;
-
     let config = config::Config::read_config()?;
 
+    let conn = connect_to_db(config.database_location.clone()).await?;
+
+    create_tables(&conn).await?;
     // println!("{}", config::Config::default_as_string()?);
 
     if let Some(("repl", _)) = args_parsed.subcommand() {

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::Result;
 use crossterm::style::Stylize;
 use figment::{
@@ -138,6 +140,7 @@ impl Default for OutputConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub database_location:        std::path::PathBuf,
     pub output_uuid:              OutputConfig,
     pub output_timestamp:         OutputConfig,
     pub output_author:            OutputConfig,
@@ -183,6 +186,7 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
+            database_location:        PathBuf::from("~/.local/share/tomex/database"),
             output_uuid:              OutputConfig {
                 prefix: "(".into(),
                 suffix: ")".into(),
