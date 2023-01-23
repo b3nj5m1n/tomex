@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -59,20 +60,58 @@ impl PromptType for Timestamp {
         initial_value: Option<&Self>,
         _conn: &sqlx::SqlitePool,
     ) -> anyhow::Result<Self> {
-        let mut prompt = inquire::DateSelect::new(prompt);
-        if let Some(s) = initial_value {
-            prompt = inquire::DateSelect {
-                starting_date: s.0.date_naive(),
-                ..prompt
-            };
+        const OPTION_DATEPICKER: &'static str = "Datepicker";
+        const OPTION_TIMESTAMP: &'static str = "Timestamp";
+        let options: Vec<&str> = vec![OPTION_DATEPICKER, OPTION_TIMESTAMP];
+
+        let ans: Result<&str, inquire::InquireError> =
+            inquire::Select::new("How would you like to input the timestamp?", options).prompt();
+
+        match ans {
+            Ok(OPTION_DATEPICKER) => {
+                let mut prompt = inquire::DateSelect::new(prompt);
+                if let Some(s) = initial_value {
+                    prompt = inquire::DateSelect {
+                        starting_date: s.0.date_naive(),
+                        ..prompt
+                    };
+                }
+                Ok(Timestamp(chrono::DateTime::from_utc(
+                    chrono::NaiveDateTime::new(
+                        prompt.prompt()?,
+                        chrono::NaiveTime::from_hms_opt(12, 0, 0).unwrap(),
+                    ),
+                    chrono::Utc,
+                )))
+            }
+            Ok(OPTION_TIMESTAMP) => {
+                fn prompt_for_timestamp() -> DateTime<Utc> {
+                    loop {
+                        let prompt = match inquire::Text::new("Timestamp:").prompt() {
+                            Ok(ts) => ts,
+                            Err(_) => continue,
+                        };
+                        let timestamp = match dateparser::parse(prompt.as_str()) {
+                            Ok(ts) => ts,
+                            Err(_) => continue,
+                        };
+                        let result =
+                            inquire::Confirm::new(&format!("Is this correct: {} ?", timestamp))
+                                .with_default(true)
+                                .prompt();
+                        match result {
+                            Ok(true) => return timestamp,
+                            Ok(false) => continue,
+                            Err(_) => continue,
+                        }
+                    }
+                }
+                let timestamp = prompt_for_timestamp();
+                Ok(Timestamp(timestamp))
+            }
+            Ok(_) => unreachable!("Unexpected response"),
+            Err(_) => Err(anyhow::anyhow!("Error getting progress")),
         }
-        Ok(Timestamp(chrono::DateTime::from_utc(
-            chrono::NaiveDateTime::new(
-                prompt.prompt()?,
-                chrono::NaiveTime::from_hms_opt(12, 0, 0).unwrap(),
-            ),
-            chrono::Utc,
-        )))
     }
 
     async fn create_by_prompt_skippable(
