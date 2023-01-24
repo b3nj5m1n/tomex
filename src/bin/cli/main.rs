@@ -15,6 +15,7 @@ mod server;
 
 use tomex::{
     backup, config,
+    export::Export,
     traits::*,
     types::{
         author::Author, binding::Binding, book::Book, book_author::BookAuthor,
@@ -297,6 +298,9 @@ async fn main() -> Result<()> {
         let mut state = backup::State::load(&conn).await?;
         state.sort();
         println!("{}", state.serialize()?);
+    } else if let Some(("export", _)) = args_parsed.subcommand() {
+        let export = Export::new(&conn).await?;
+        Export::export(export)?;
     } else {
         let args = env::args_os()
             .skip(1)
