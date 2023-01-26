@@ -75,7 +75,7 @@ impl State {
 
     /// Serialize the state to a string
     pub fn serialize(&self) -> Result<String> {
-        Ok(serde_json::to_string(self)?)
+        Ok(serde_json::to_string_pretty(self)?)
     }
 
     /// Deseriablize from a string to state
