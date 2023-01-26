@@ -1,5 +1,6 @@
 use axum::extract::{Query, State};
 use axum::{extract::Path, http::StatusCode, routing::get, Router};
+use local_ip_address::local_ip;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -17,7 +18,7 @@ pub async fn start(conn: &sqlx::SqlitePool) {
         .route("/api/isbn/:isbn", get(isbn))
         .with_state(state);
 
-    let addr = SocketAddr::from(([192, 168, 178, 91], 3000));
+    let addr = SocketAddr::from((local_ip().expect("Couldn't get local ip address"), 3000));
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await

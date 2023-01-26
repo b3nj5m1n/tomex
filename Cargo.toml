@@ -28,6 +28,7 @@ figment = { version = "0.10.8", features = ["yaml", "toml", "env"] }
 inquire = { version = "0.5.2", features = ["date", "editor"] }
 isbn2 = "0.4.0"
 liquidity_check = "0.1.0"
+local-ip-address = "0.5.1"
 reedline = "0.14.0"
 reqwest = { version = "0.11.13", features = ["json", "rustls-tls"], default-features = false }
 serde = { version = "1.0.152", features = ["derive"] }
