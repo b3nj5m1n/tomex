@@ -1,4 +1,5 @@
 use anyhow::Result;
+use reqwest::{Client, ClientBuilder};
 use tomex::{
     traits::{Insertable, PromptType},
     types::{
@@ -7,6 +8,7 @@ use tomex::{
         timestamp::{OptionalTimestamp, Timestamp},
     },
 };
+use tracing::info;
 
 use crate::openlib_schema::{
     author::Author as OpenLibAuthor, book::Book as OpenLibBook, edition::Edition as OpenLibEdition,
@@ -23,9 +25,19 @@ fn opt_str_to_optional_timestamp(input: &Option<String>) -> OptionalTimestamp {
     }
 }
 
-pub async fn isbn_to_edition(isbn: &str, _conn: &sqlx::SqlitePool) -> Result<OpenLibEdition> {
+pub async fn isbn_to_edition(
+    isbn: &str,
+    _conn: &sqlx::SqlitePool,
+    client: &Client,
+) -> Result<OpenLibEdition> {
     let url = format!("https://openlibrary.org/isbn/{}.json", isbn);
-    let resp = reqwest::get(url).await?.json::<OpenLibEdition>().await?;
+    info!("Making request to {}", url);
+    let resp = client
+        .get(url)
+        .send()
+        .await?
+        .json::<OpenLibEdition>()
+        .await?;
     Ok(resp)
 }
 
@@ -65,6 +77,7 @@ pub async fn build_edition(edition: OpenLibEdition, book: Book, isbn: &str) -> E
 pub async fn edition_to_book(
     edition: &OpenLibEdition,
     _conn: &sqlx::SqlitePool,
+    client: &Client,
 ) -> Result<OpenLibBook> {
     let url = format!(
         "https://openlibrary.org{}.json",
@@ -80,8 +93,8 @@ pub async fn edition_to_book(
             ))?
             .key
     );
-    let resp = reqwest::get(url).await?.json::<OpenLibBook>().await?;
-    Ok(resp)
+    info!("Making request to {}", url);
+    Ok(client.get(url).send().await?.json::<OpenLibBook>().await?)
 }
 
 pub async fn build_book(book: OpenLibBook, authors: Option<Vec<Author>>) -> Book {
@@ -90,7 +103,14 @@ pub async fn build_book(book: OpenLibBook, authors: Option<Vec<Author>>) -> Book
         title:        Text(book.title),
         authors:      authors,
         release_date: OptionalTimestamp(None),
-        summary:      book.description.map(Text),
+        summary:      match book.description {
+            Some(description) => match description {
+                crate::openlib_schema::book::Description::Simple(x) => Some(Text(x)),
+                crate::openlib_schema::book::Description::Complex(x) => Some(Text(x.value)),
+            },
+            None => None,
+        },
+        //.map(|x| Text(x.value))},
         series_id:    None,
         series_index: None,
         series:       None,
@@ -104,6 +124,7 @@ pub async fn build_book(book: OpenLibBook, authors: Option<Vec<Author>>) -> Book
 pub async fn edition_to_authors(
     edition: &OpenLibEdition,
     _conn: &sqlx::SqlitePool,
+    client: &Client,
 ) -> Result<Vec<OpenLibAuthor>> {
     let authors_keys = edition
         .authors
@@ -115,7 +136,13 @@ pub async fn edition_to_authors(
     let mut authors = Vec::with_capacity(authors_keys.len());
     for key in authors_keys {
         let url = format!("https://openlibrary.org{}.json", key);
-        let resp = reqwest::get(url).await?.json::<OpenLibAuthor>().await?;
+        info!("Making request to {}", url);
+        let resp = client
+            .get(url)
+            .send()
+            .await?
+            .json::<OpenLibAuthor>()
+            .await?;
         authors.push(resp);
     }
     Ok(authors)
@@ -136,13 +163,18 @@ pub async fn create_by_isbn(
     isbn: &str,
     conn: &sqlx::SqlitePool,
 ) -> Result<tomex::types::edition::Edition> {
-    let edition = isbn_to_edition(isbn, conn).await?;
+    let client = ClientBuilder::new()
+        .timeout(std::time::Duration::new(10, 0))
+        .build()?;
+    info!("Getting information from OpenLibrary");
+    let edition = isbn_to_edition(isbn, conn, &client).await?;
 
     // println!("Edition:\n{}", serde_json::to_string_pretty(&edition)?);
 
-    let authors_auto = edition_to_authors(&edition, conn).await?;
+    let authors_auto = edition_to_authors(&edition, conn, &client).await?;
     let mut authors = Vec::with_capacity(authors_auto.len());
 
+    info!("Review author information");
     for author in authors_auto {
         let potential_author = Author::get_by_name(conn, author.name.clone()).await?;
         match potential_author {
@@ -176,8 +208,9 @@ pub async fn create_by_isbn(
 
     // println!("Authors:\n{}", serde_json::to_string_pretty(&authors)?);
 
-    let book_auto = edition_to_book(&edition, conn).await?;
+    let book_auto = edition_to_book(&edition, conn, &client).await?;
 
+    info!("Review book information");
     let potential_book = Book::get_by_title(conn, book_auto.title.clone()).await?;
     let book = match potential_book {
         Some(book_in_db) => {
@@ -206,6 +239,7 @@ pub async fn create_by_isbn(
     // println!("Book:\n{}", serde_json::to_string_pretty(&book)?);
 
     let edition_auto = build_edition(edition, book, isbn).await;
+    info!("Review edition information");
     let edition = PromptType::update_by_prompt(&edition_auto, "", conn).await?;
     edition.insert(conn).await?;
     Ok(edition)

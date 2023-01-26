@@ -5,6 +5,8 @@ use sqlx::{
     Pool, SqlitePool,
 };
 use std::{env, path::PathBuf, process::exit};
+use tracing::Level;
+use tracing_subscriber::FmtSubscriber;
 
 mod command_parser;
 mod openlib_schema;
@@ -274,6 +276,11 @@ async fn main() -> Result<()> {
 
     create_tables(&conn).await?;
     // println!("{}", config::Config::default_as_string()?);
+
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::INFO)
+        .finish();
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
 
     if let Some(("repl", _)) = args_parsed.subcommand() {
         let mut repl = repl::Repl::new(command_parser::generate_completions());

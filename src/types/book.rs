@@ -377,10 +377,10 @@ impl Updateable for Book {
             UPDATE {}
             SET 
                 title = ?2,
-                release_date = ?4,
-                series_id = ?5,
-                series_index = ?6,
-                deleted = ?7
+                release_date = ?3,
+                series_id = ?4,
+                series_index = ?5,
+                deleted = ?6
             WHERE
                 id = ?1;
             "#,
