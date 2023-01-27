@@ -32,13 +32,16 @@ pub async fn isbn_to_edition(
 ) -> Result<OpenLibEdition> {
     let url = format!("https://openlibrary.org/isbn/{}.json", isbn);
     info!("Making request to {}", url);
-    let resp = client
-        .get(url)
-        .send()
-        .await?
-        .json::<OpenLibEdition>()
-        .await?;
-    Ok(resp)
+    let resp = &client.get(url).send().await?.text().await?;
+    let resp = &mut serde_json::Deserializer::from_str(resp);
+    // .json::<OpenLibEdition>()
+    // .await?;
+    // let resp: Result<OpenLibEdition, serde_path_to_error::Error<_>> =
+    let resp: Result<OpenLibEdition, _> = serde_path_to_error::deserialize(resp);
+    match resp {
+        Ok(resp) => Ok(resp),
+        Err(err) => Err(anyhow::anyhow!(err.to_string())),
+    }
 }
 
 pub async fn build_edition(edition: OpenLibEdition, book: Book, isbn: &str) -> Edition {
@@ -94,7 +97,13 @@ pub async fn edition_to_book(
             .key
     );
     info!("Making request to {}", url);
-    Ok(client.get(url).send().await?.json::<OpenLibBook>().await?)
+    let resp = &client.get(url).send().await?.text().await?;
+    let resp = &mut serde_json::Deserializer::from_str(resp);
+    let resp: Result<OpenLibBook, _> = serde_path_to_error::deserialize(resp);
+    match resp {
+        Ok(resp) => Ok(resp),
+        Err(err) => Err(anyhow::anyhow!(err.to_string())),
+    }
 }
 
 pub async fn build_book(book: OpenLibBook, authors: Option<Vec<Author>>) -> Book {
@@ -121,29 +130,29 @@ pub async fn build_book(book: OpenLibBook, authors: Option<Vec<Author>>) -> Book
     }
 }
 
-pub async fn edition_to_authors(
-    edition: &OpenLibEdition,
+pub async fn book_to_authors(
+    book: &OpenLibBook,
     _conn: &sqlx::SqlitePool,
     client: &Client,
 ) -> Result<Vec<OpenLibAuthor>> {
-    let authors_keys = edition
+    let authors_keys = book
         .authors
         .clone()
         .ok_or(anyhow::anyhow!("No authors found on OpenLibrary"))?
         .into_iter()
-        .map(|x| x.key)
+        .map(|x| x.author.key)
         .collect::<Vec<String>>();
     let mut authors = Vec::with_capacity(authors_keys.len());
     for key in authors_keys {
         let url = format!("https://openlibrary.org{}.json", key);
         info!("Making request to {}", url);
-        let resp = client
-            .get(url)
-            .send()
-            .await?
-            .json::<OpenLibAuthor>()
-            .await?;
-        authors.push(resp);
+        let resp = &client.get(url).send().await?.text().await?;
+        let resp = &mut serde_json::Deserializer::from_str(resp);
+        let resp: Result<OpenLibAuthor, _> = serde_path_to_error::deserialize(resp);
+        match resp {
+            Ok(resp) => authors.push(resp),
+            Err(err) => return Err(anyhow::anyhow!(err.to_string())),
+        }
     }
     Ok(authors)
 }
@@ -171,7 +180,9 @@ pub async fn create_by_isbn(
 
     // println!("Edition:\n{}", serde_json::to_string_pretty(&edition)?);
 
-    let authors_auto = edition_to_authors(&edition, conn, &client).await?;
+    let book_auto = edition_to_book(&edition, conn, &client).await?;
+
+    let authors_auto = book_to_authors(&book_auto, conn, &client).await?;
     let mut authors = Vec::with_capacity(authors_auto.len());
 
     info!("Review author information");
@@ -207,8 +218,6 @@ pub async fn create_by_isbn(
     }
 
     // println!("Authors:\n{}", serde_json::to_string_pretty(&authors)?);
-
-    let book_auto = edition_to_book(&edition, conn, &client).await?;
 
     info!("Review book information");
     let potential_book = Book::get_by_title(conn, book_auto.title.clone()).await?;

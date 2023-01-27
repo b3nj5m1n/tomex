@@ -41,14 +41,14 @@ async fn isbn(
                     info!("Handling of {} complete.", isbn);
                     Ok(format!("Handling of {} complete.", isbn))
                 }
-                Err(_) => {
-                    error!("Handling of {} failed.", isbn);
+                Err(e) => {
+                    error!("Handling of {} failed.\n{e}", isbn);
                     Err(StatusCode::INTERNAL_SERVER_ERROR)
                 }
             }
         }
-        Err(_) => {
-            error!("{} is not an isbn.", isbn);
+        Err(e) => {
+            error!("{} is not an isbn.\n{e}", isbn);
             Err(StatusCode::IM_A_TEAPOT)
         }
     }
@@ -70,14 +70,14 @@ async fn isbn_query(
                     info!("Handling of {} complete.", isbn);
                     Ok(format!("Handling of {} complete.", isbn))
                 }
-                Err(_) => {
-                    error!("Handling of {} failed.", isbn);
+                Err(e) => {
+                    error!("Handling of {} failed.\n{e}", isbn);
                     Err(StatusCode::INTERNAL_SERVER_ERROR)
                 }
             }
         }
-        Err(_) => {
-            error!("{} is not an isbn.", isbn);
+        Err(e) => {
+            error!("{} is not an isbn.\n{e}", isbn);
             Err(StatusCode::IM_A_TEAPOT)
         }
     }
