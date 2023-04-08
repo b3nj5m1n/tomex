@@ -1,4 +1,4 @@
 test.db*
 history.txt
 /target
-/Cargo.lock
+/result
