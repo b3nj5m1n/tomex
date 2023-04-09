@@ -167,6 +167,7 @@ pub struct Config {
     pub output_dimensions:        OutputConfig,
     pub output_price:             OutputConfig,
     pub output_part_index:        OutputConfig,
+    pub output_error:             OutputConfig,
 }
 
 impl Config {
@@ -394,6 +395,14 @@ impl Default for Config {
                 description: "Volume".into(),
                 style_content: StyleConfig {
                     color: COLOR_PART_INDEX,
+                    ..StyleConfig::default()
+                },
+                ..OutputConfig::default()
+            },
+            output_error:             OutputConfig {
+                description: "Error".into(),
+                style_content: StyleConfig {
+                    color: COLOR_ERROR,
                     ..StyleConfig::default()
                 },
                 ..OutputConfig::default()

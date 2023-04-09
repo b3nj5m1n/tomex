@@ -4,7 +4,7 @@ use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
     Pool, SqlitePool,
 };
-use std::{env, path::PathBuf, process::exit};
+use std::{env, fs, path::PathBuf, process::exit};
 use tracing::Level;
 use tracing_subscriber::FmtSubscriber;
 
@@ -305,6 +305,13 @@ async fn main() -> Result<()> {
         let mut state = backup::State::load(&conn).await?;
         state.sort();
         println!("{}", state.serialize()?);
+    } else if let Some(("restore", x)) = args_parsed.subcommand() {
+        let content = fs::read_to_string(
+            x.get_one::<String>("file")
+                .ok_or(anyhow::anyhow!("Couldn't read backup from specified file."))?,
+        )?;
+        let mut state = backup::State::deserialize(content)?;
+        backup::State::rebuild(&state, &conn).await?;
     } else if let Some(("export", _)) = args_parsed.subcommand() {
         let export = Export::new(&conn).await?;
         Export::export(export)?;

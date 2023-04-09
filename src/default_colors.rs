@@ -111,3 +111,8 @@ pub const COLOR_PART_INDEX: Color = Color::Rgb {
     g: 160,
     b: 246,
 };
+pub const COLOR_ERROR: Color = Color::Rgb {
+    r: 237,
+    g: 135,
+    b: 150,
+};

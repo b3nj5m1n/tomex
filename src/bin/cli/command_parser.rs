@@ -1,4 +1,4 @@
-use clap::Command;
+use clap::{Arg, Command};
 
 pub fn arg_parser_types() -> Vec<Command> {
     vec![
@@ -107,6 +107,11 @@ pub fn arg_parser_cli() -> Command {
     arg_parser()
         .subcommand(Command::new("repl").about("Launch a read eval print loop"))
         .subcommand(Command::new("backup").about("Backup the database to JSON"))
+        .subcommand(
+            Command::new("restore")
+                .about("Turn JSON from backup command to new sqlite database")
+                .arg(Arg::new("file").required(true)),
+        )
         .subcommand(
             Command::new("export")
                 .about("Export to a format you can import in goodreads/storygraph/bookwyrm"),
