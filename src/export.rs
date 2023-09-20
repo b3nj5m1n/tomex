@@ -7,7 +7,7 @@ use crate::{
     traits::Queryable,
     types::{
         edition::Edition,
-        progress::{PagesProgress, Progress},
+        progress::{PagesProgress, Progress}, book::Book,
     },
 };
 
@@ -97,6 +97,8 @@ impl Export {
         let mut result = Vec::new();
         for (edition_id, (timestamp_started, timestamp_finished)) in editions_read.into_iter() {
             let edition = Edition::get_by_id(conn, &crate::types::uuid::Uuid(edition_id)).await?;
+            let book = Book::get_by_id(conn, &edition.book_id).await?;
+            let authors = book.get_authors(conn).await?;
             result.push(Self {
                 isbn: Some(format!("=\"{}\"", "")),
                 isbn13: Some(format!(
@@ -106,9 +108,28 @@ impl Export {
                         None => "".to_string(),
                     }
                 )),
+                title: Some(match edition.edition_title {
+                    Some(s) => s.0,
+                    None => {
+                        book.title.0
+                    },
+                }),
+                author: Some(match authors {
+                    Some(authors) => {
+                        match authors.first() {
+                            Some(author) => match author.name.clone() {
+                                Some(author_name) => author_name.0,
+                                None => "".to_string(),
+                            },
+                            None => "".to_string(),
+                        }
+                    },
+                    None => "".to_string(),
+                }),
                 date_read: Some(timestamp_finished.0.format("%Y/%m/%d").to_string()),
                 date_added: Some(timestamp_started.0.format("%Y/%m/%d").to_string()),
                 exclusive_shelf: Some("read".into()),
+                read_count: Some(1.to_string()), // TODO this should be actually calculated
                 ..Self::default()
             });
         }
