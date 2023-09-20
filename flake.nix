@@ -34,6 +34,7 @@
             in
               craneLib.buildPackage {
                 src = ./.;
+                buildInputs = with pkgs; [mold];
               };
         };
         defaultPackage = packages.tomex;
