@@ -20,7 +20,6 @@ use derives::*;
     Id,
     Names,
     CRUD,
-    Queryable,
     Removeable,
     Serialize,
     Deserialize,
@@ -29,6 +28,14 @@ pub struct Genre {
     pub id:      Uuid,
     pub name:    Text,
     pub deleted: bool,
+}
+
+impl Queryable for Genre {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| a.name.0.partial_cmp(&b.name.0).unwrap());
+        return x;
+    }
 }
 
 impl UpdateVec for Genre {

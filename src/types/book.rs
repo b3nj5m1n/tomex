@@ -23,7 +23,6 @@ use super::{book_author::BookAuthor, book_genre::BookGenre, rating::Rating, seri
     PartialEq,
     Eq,
     Names,
-    Queryable,
     Id,
     Removeable,
     CRUD,
@@ -43,6 +42,14 @@ pub struct Book {
     pub reviews:      Option<Vec<Review>>,
     pub genres:       Option<Vec<Genre>>,
     pub deleted:      bool,
+}
+
+impl Queryable for Book {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| a.title.0.partial_cmp(&b.title.0).unwrap());
+        return x;
+    }
 }
 
 impl Book {

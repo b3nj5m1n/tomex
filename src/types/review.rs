@@ -24,7 +24,6 @@ use super::{rating::Rating, review_mood::ReviewMood};
     Eq,
     Names,
     CRUD,
-    Queryable,
     Removeable,
     Id,
     Serialize,
@@ -43,6 +42,14 @@ pub struct Review {
     pub deleted:           bool,
     pub book_title:        Text,
     pub moods:             Option<Vec<Mood>>,
+}
+
+impl Queryable for Review {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| a.timestamp_updated.partial_cmp(&b.timestamp_updated).unwrap());
+        return x;
+    }
 }
 
 impl Review {

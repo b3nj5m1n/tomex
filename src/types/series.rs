@@ -22,7 +22,6 @@ use super::text::Text;
     Id,
     Names,
     CRUD,
-    Queryable,
     Removeable,
     Serialize,
     Deserialize,
@@ -31,6 +30,14 @@ pub struct Series {
     pub id:      Uuid,
     pub name:    Text,
     pub deleted: bool,
+}
+
+impl Queryable for Series {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| a.name.0.partial_cmp(&b.name.0).unwrap());
+        return x;
+    }
 }
 
 impl PromptType for Series {

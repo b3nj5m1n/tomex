@@ -25,7 +25,6 @@ use super::{binding::Binding, format::EditionFormat, rating::Rating};
     PartialEq,
     Eq,
     Names,
-    Queryable,
     Id,
     Removeable,
     CRUD,
@@ -56,6 +55,20 @@ pub struct Edition {
     pub progress:            Option<Vec<Progress>>,
     pub deleted:             bool,
     pub book_title:          Text,
+}
+
+impl Queryable for Edition {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| match &a.edition_title {
+            Some(title) => title.0.clone(),
+            None => a.book_title.0.clone(),
+        }.partial_cmp(match &b.edition_title {
+            Some(title) => &title.0,
+            None => &b.book_title.0,
+        }).unwrap());
+        return x;
+    }
 }
 
 impl Edition {

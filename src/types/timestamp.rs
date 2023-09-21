@@ -10,7 +10,7 @@ use crate::{
     traits::PromptType,
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize, PartialOrd, Ord)]
 pub struct Timestamp(pub chrono::DateTime<chrono::Utc>);
 
 impl Display for Timestamp {

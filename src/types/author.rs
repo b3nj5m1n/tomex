@@ -6,6 +6,7 @@ use sqlx::{
     FromRow, Row,
 };
 use std::fmt::{Display, Write};
+use std::borrow::Cow;
 
 use crate::{
     config,
@@ -15,16 +16,43 @@ use crate::{
 };
 use derives::*;
 
-#[derive(
-    Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Queryable, Id, Serialize, Deserialize,
-)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Names, CRUD, Id, Serialize, Deserialize)]
 pub struct Author {
-    pub id:        Uuid,
-    pub name:      Option<Text>,
+    pub id: Uuid,
+    pub name: Option<Text>,
     pub date_born: OptionalTimestamp,
     pub date_died: OptionalTimestamp,
-    pub deleted:   bool,
-    pub special:   bool,
+    pub deleted: bool,
+    pub special: bool,
+}
+
+impl Queryable for Author {
+    /* async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| match &a.name {
+            Some(name) => name.0.clone(),
+            None => "".to_string(),
+        }.partial_cmp(match &b.name {
+            Some(name) => &name.0,
+            None => &"".to_string(),
+        }).unwrap());
+        return x;
+    } */
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| {
+            let a_name: Cow<str> = match &a.name {
+                Some(name) => Cow::Borrowed(&name.0),
+                None => Cow::Borrowed(""),
+            };
+            let b_name: Cow<str> = match &b.name {
+                Some(name) => Cow::Borrowed(&name.0),
+                None => Cow::Borrowed(""),
+            };
+            a_name.partial_cmp(&b_name).unwrap()
+        });
+        x
+    }
 }
 
 const UUID_UNKOWN: Uuid = Uuid(uuid::uuid!("00000000-0000-0000-0000-000000000000"));
@@ -185,12 +213,12 @@ impl CreateTable for Author {
         .await?;
         Self::insert(
             &Self {
-                id:        UUID_UNKOWN,
-                name:      None,
+                id: UUID_UNKOWN,
+                name: None,
                 date_born: OptionalTimestamp(None),
                 date_died: OptionalTimestamp(None),
-                deleted:   false,
-                special:   true,
+                deleted: false,
+                special: true,
             },
             conn,
         )
@@ -275,12 +303,12 @@ impl Removeable for Author {
 impl FromRow<'_, SqliteRow> for Author {
     fn from_row(row: &SqliteRow) -> sqlx::Result<Self> {
         let s = Self {
-            id:        row.try_get("id")?,
-            deleted:   row.try_get("deleted")?,
-            name:      row.try_get("name")?,
+            id: row.try_get("id")?,
+            deleted: row.try_get("deleted")?,
+            name: row.try_get("name")?,
             date_born: row.try_get("date_born")?,
             date_died: row.try_get("date_died")?,
-            special:   false,
+            special: false,
         };
         if s.id == UUID_UNKOWN {
             return Ok(Self {

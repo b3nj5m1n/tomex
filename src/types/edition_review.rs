@@ -24,7 +24,6 @@ use super::{edition::Edition, price::Price, rating::Rating, timestamp::OptionalT
     Eq,
     Names,
     CRUD,
-    Queryable,
     Removeable,
     Id,
     Serialize,
@@ -49,6 +48,14 @@ pub struct EditionReview {
     pub timestamp_updated:  Timestamp,
     pub deleted:            bool,
     pub book_title:         Text,
+}
+
+impl Queryable for EditionReview {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| a.timestamp_updated.partial_cmp(&b.timestamp_updated).unwrap());
+        return x;
+    }
 }
 
 impl EditionReview {

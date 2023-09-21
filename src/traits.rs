@@ -551,7 +551,7 @@ where
                 Self::NAME_PLURAL.chars().skip(1).collect::<String>()
             );
             let xs = Self::get_all(conn).await?;
-            for x in xs {
+            for x in Self::sort_for_display(xs).await {
                 println!(
                     "{}",
                     DisplayTerminal::fmt_to_string(&x, conn, Some(" • "), config).await?
@@ -559,6 +559,10 @@ where
             }
         }
         Ok(())
+    }
+
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        return x;
     }
 }
 

@@ -21,7 +21,7 @@ use derives::*;
     Id,
     Names,
     CRUD,
-    Queryable,
+    // Queryable,
     Removeable,
     Serialize,
     Deserialize,
@@ -32,6 +32,14 @@ pub struct Progress {
     pub timestamp:      Timestamp,
     pub pages_progress: PagesProgress,
     pub deleted:        bool,
+}
+
+impl Queryable for Progress {
+    async fn sort_for_display(x: Vec<Self>) -> Vec<Self> {
+        let mut x = x.clone();
+        x.sort_by(|a, b| a.timestamp.partial_cmp(&b.timestamp).unwrap());
+        return x;
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
