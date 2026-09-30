@@ -1,0 +1,3138 @@
+{
+  "moods": [
+    {
+      "id": "07532c14-9bf5-442b-bd63-6038a40aaad0",
+      "name": "Inspiring",
+      "deleted": false
+    },
+    {
+      "id": "0c86213f-64f4-47ab-ac29-e3fc4c0666b2",
+      "name": "Mysterious",
+      "deleted": false
+    },
+    {
+      "id": "12ff33e3-3b65-4821-afd6-5c2bdb1d9a60",
+      "name": "Reflective",
+      "deleted": false
+    },
+    {
+      "id": "3516a18c-a3f4-408a-9388-1790efddb538",
+      "name": "Relaxing",
+      "deleted": false
+    },
+    {
+      "id": "37f3beee-ba35-4957-ae9c-fb4f19827e4c",
+      "name": "Dark",
+      "deleted": false
+    },
+    {
+      "id": "4ba07184-92f3-41d0-b733-d3e403a7f533",
+      "name": "Informative",
+      "deleted": false
+    },
+    {
+      "id": "5447082a-bef4-4b27-8906-fc7b3124ecd6",
+      "name": "Lighthearted",
+      "deleted": false
+    },
+    {
+      "id": "6665ef19-ebdc-4bdb-bcb4-845f0d04f896",
+      "name": "Funny",
+      "deleted": false
+    },
+    {
+      "id": "7f584f2d-35f1-4fec-aeba-e62c7212398f",
+      "name": "Tense",
+      "deleted": false
+    },
+    {
+      "id": "95c5140e-f62d-4982-8858-c5336bd9df70",
+      "name": "Challenging",
+      "deleted": false
+    },
+    {
+      "id": "9c2d0812-6c25-4294-a917-6e7faa826ae8",
+      "name": "Hopeful",
+      "deleted": false
+    },
+    {
+      "id": "b4b06dd1-be29-4914-8a6e-a11d7e12849c",
+      "name": "Emotional",
+      "deleted": false
+    },
+    {
+      "id": "bb2c5921-eee5-4a62-aa83-cb7834e558c2",
+      "name": "Sad",
+      "deleted": false
+    },
+    {
+      "id": "e7291183-ba90-48a3-b102-b21e732fd2c0",
+      "name": "Adventurous",
+      "deleted": false
+    }
+  ],
+  "paces": [
+    {
+      "id": "250c046e-f840-472d-93a4-18f5c666b4d4",
+      "name": "Medium",
+      "deleted": false
+    },
+    {
+      "id": "65bef1a9-75a6-490c-a1f0-68b6026192fa",
+      "name": "Fast",
+      "deleted": false
+    },
+    {
+      "id": "7b0f2901-e058-4901-a527-307d4be12baf",
+      "name": "Slow",
+      "deleted": false
+    }
+  ],
+  "genres": [
+    {
+      "id": "04f2b840-baee-4af2-af1b-afe110ae1801",
+      "name": "True Crime",
+      "deleted": false
+    },
+    {
+      "id": "151bc0c4-e2b3-4090-bf91-43ce62dd5d26",
+      "name": "Horror",
+      "deleted": false
+    },
+    {
+      "id": "197c53e7-b5f3-42d5-8241-1941a2c94402",
+      "name": "Children",
+      "deleted": false
+    },
+    {
+      "id": "1edd2b50-65e3-4542-8162-ec9dc1332c2b",
+      "name": "Biography",
+      "deleted": false
+    },
+    {
+      "id": "1f67e35e-487d-4717-9c12-cca8ea224cdc",
+      "name": "Essays",
+      "deleted": false
+    },
+    {
+      "id": "25a88e29-86e5-4cf6-a035-5c0d932e49e1",
+      "name": "Science Fiction",
+      "deleted": false
+    },
+    {
+      "id": "26e9b484-844e-4a71-959a-fa053c340205",
+      "name": "Food & Drink",
+      "deleted": false
+    },
+    {
+      "id": "26f223a0-879b-4581-9f43-393ff0bf1dbb",
+      "name": "Fantasy",
+      "deleted": false
+    },
+    {
+      "id": "2b8276ab-8a04-478f-b19b-1abab68ed9a7",
+      "name": "Mystery",
+      "deleted": false
+    },
+    {
+      "id": "3346d4ee-51ac-4e98-ad81-c3703644041e",
+      "name": "Autobiography",
+      "deleted": false
+    },
+    {
+      "id": "39bdb653-fec4-40af-8e23-08276a2f45e9",
+      "name": "Politics",
+      "deleted": false
+    },
+    {
+      "id": "3f04f6f8-59b9-4afa-beb0-164a45afbbb5",
+      "name": "Religion & Spirituality",
+      "deleted": false
+    },
+    {
+      "id": "4186b4d5-80c7-4d7a-a8d4-595cc6be0d66",
+      "name": "Short Story",
+      "deleted": false
+    },
+    {
+      "id": "50e0cb16-5c2f-4cac-a1fc-6f22f2307859",
+      "name": "Graphic Novel",
+      "deleted": false
+    },
+    {
+      "id": "6893afd1-ba69-4ca7-a71d-d86efe876c03",
+      "name": "Self-help",
+      "deleted": false
+    },
+    {
+      "id": "7e6f2351-83c1-4a2c-9e4d-793d46301ad2",
+      "name": "Thriller",
+      "deleted": false
+    },
+    {
+      "id": "a86ff460-8e20-4176-8db9-29acaabacf99",
+      "name": "Humor",
+      "deleted": false
+    },
+    {
+      "id": "ab72338e-0934-4cbf-8f20-66ebcd5e01ce",
+      "name": "Young Adult",
+      "deleted": false
+    },
+    {
+      "id": "b4cb537a-f287-4e48-8e6a-e16d88416ab3",
+      "name": "History",
+      "deleted": false
+    },
+    {
+      "id": "c12196b9-a845-4c79-a54c-9f9d42ae83db",
+      "name": "Historical Fiction",
+      "deleted": false
+    },
+    {
+      "id": "c693ed78-35c1-4488-956a-63d4f8b028d3",
+      "name": "Dystopian",
+      "deleted": false
+    },
+    {
+      "id": "ca1cf171-1635-493b-a157-b08a92a20654",
+      "name": "Travel",
+      "deleted": false
+    },
+    {
+      "id": "d637b371-6c57-4ddf-83c2-22580b81d646",
+      "name": "Action & Adventure",
+      "deleted": false
+    },
+    {
+      "id": "e777568b-e417-4217-9315-4ef28b63807f",
+      "name": "Romance",
+      "deleted": false
+    },
+    {
+      "id": "ecd24fdb-cdcb-4d89-bc6e-3aa06d69ceeb",
+      "name": "Art & Photography",
+      "deleted": false
+    }
+  ],
+  "languages": [
+    {
+      "id": "9bf9bd9f-1df2-4f7d-adaa-03719d995a93",
+      "name": "German",
+      "deleted": false
+    },
+    {
+      "id": "a95f5f6e-8560-4b02-9443-14f7502d28fe",
+      "name": "English",
+      "deleted": false
+    }
+  ],
+  "publishers": [
+    {
+      "id": "05fdd9cc-9c4d-4a88-b11a-ee512dc29b21",
+      "name": "Profile Books",
+      "deleted": false
+    },
+    {
+      "id": "07345b15-960e-48d2-8644-12ddd5b92365",
+      "name": "Fischer",
+      "deleted": false
+    },
+    {
+      "id": "0a2ae995-4657-4814-86ca-df96e1b6ec0b",
+      "name": "Simon & Schuster",
+      "deleted": false
+    },
+    {
+      "id": "103c44fe-337a-46c9-8cfe-769d31af7557",
+      "name": "Hachette Livre",
+      "deleted": false
+    },
+    {
+      "id": "20040cc3-b80e-4d22-a571-a09bc58f0ed4",
+      "name": "Scholastic",
+      "deleted": false
+    },
+    {
+      "id": "2334916b-e46c-4acf-ba6c-c2145f8e4be8",
+      "name": "Penguin Random House",
+      "deleted": false
+    },
+    {
+      "id": "32a6b981-222b-4c27-8d64-f7fcc08b99c6",
+      "name": "Orbit",
+      "deleted": false
+    },
+    {
+      "id": "34f9552f-8dcb-4459-a89d-16c0da4e12b6",
+      "name": "Gollancz",
+      "deleted": false
+    },
+    {
+      "id": "4460f31a-3fb2-4cb0-af28-fc47b81027ce",
+      "name": "Del Rey",
+      "deleted": false
+    },
+    {
+      "id": "5f478846-4b3a-4dc2-9613-81545a313b1b",
+      "name": "Bloomsbury",
+      "deleted": false
+    },
+    {
+      "id": "5fee5de1-34e7-4ce6-b77f-b372024c517d",
+      "name": "Pearson Education",
+      "deleted": false
+    },
+    {
+      "id": "7cb9511d-c1c9-416f-8fc6-b5146eb22d3e",
+      "name": "Oxford University Press",
+      "deleted": false
+    },
+    {
+      "id": "9f7ba146-adde-46a8-bacc-e2b0cdd76279",
+      "name": "HarperCollins",
+      "deleted": false
+    },
+    {
+      "id": "df856005-201a-40a5-a86c-1d4ab49a808b",
+      "name": "Orion",
+      "deleted": false
+    },
+    {
+      "id": "ea09ced0-5570-4780-a485-7ca4de92383e",
+      "name": "Alma",
+      "deleted": false
+    },
+    {
+      "id": "eac1c6ac-d5f4-486e-9e64-110d9454206c",
+      "name": "Diogenes",
+      "deleted": false
+    },
+    {
+      "id": "f11b4ba2-e7f6-40a3-b48c-16d4113a1754",
+      "name": "Pan Macmillan",
+      "deleted": false
+    },
+    {
+      "id": "f524b405-45d0-4709-a7bd-73714239e05b",
+      "name": "John Wiley & Sons",
+      "deleted": false
+    }
+  ],
+  "books": [
+    {
+      "id": "02048781-9455-486e-b093-81182049978f",
+      "title": "Assassin's Quest",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "18335a92-4af1-422d-acaa-4dee855aec7f",
+      "series_index": 3,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "1ab8554a-a961-479a-9eea-54d6816bc987",
+      "title": "Heaven’s River",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "0d0d4cf6-159f-479e-8b85-716cf8576d05",
+      "series_index": 4,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "2871e170-3420-4984-bd6e-ff8ef5f80f78",
+      "title": "A Day in the Life of Abed Salama",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "2911d0f5-34a4-4f2d-8ee7-7e8f4c81b918",
+      "title": "The Two Towers",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "5e8e91c2-f3c9-43e6-ba87-2d26cd02ef2e",
+      "series_index": 2,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "29c7c48b-6fda-4642-8ebb-8a6f75f9bbc4",
+      "title": "Oathbringer",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "fd0d0310-f2f8-4837-8a58-a93e4fabca27",
+      "series_index": 3,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "36e40bc2-d9b7-4a88-95e3-1297c8811b18",
+      "title": "The Importance of Being Earnest",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "39e24313-feb7-4234-acba-9ddb8e4b5890",
+      "title": "Northanger Abbey",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "3b5d3223-6e5f-4cfb-9da8-b7d5947b41f6",
+      "title": "Der Zauberberg",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "44b115ae-4ccd-44b3-92d8-9225915e0e69",
+      "title": "Don Quijote de la Mancha",
+      "authors": null,
+      "release_date": "1605-01-16T00:00:00Z",
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "4eeb1e72-ab93-444d-905d-2c059a3e87f8",
+      "title": "The Fellowship of the Ring",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "5e8e91c2-f3c9-43e6-ba87-2d26cd02ef2e",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "56bdac86-122d-4a76-9ccf-e73f81bb25e0",
+      "title": "Babel",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "59ae25ac-ad03-4a5b-9d39-b65273e1fa1a",
+      "title": "Pride and Prejudice",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "640cfa28-cd97-4685-874b-17baf4186873",
+      "title": "Das Parfum",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "729585a7-13b2-40f6-861a-9ba89d3e3655",
+      "title": "The Call of the Wild",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "72d27f61-541f-4f6c-9610-dee8ec03c046",
+      "title": "The Return of the King",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "5e8e91c2-f3c9-43e6-ba87-2d26cd02ef2e",
+      "series_index": 3,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "7a5e6231-3f46-473d-89e9-b0dee5e5d303",
+      "title": "Nineteen Eighty-Four",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "7a9d5256-db16-48aa-8551-da46d4472b41",
+      "title": "Jade City",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "2aef55dd-5062-4b8e-a665-d5c185f0f4a5",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "7d861f73-5fc1-48d2-9be1-1c8214012b59",
+      "title": "Yellowface",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "82d3b7a7-1780-4e64-aa44-c8e7d10d3c3a",
+      "title": "For We Are Many",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "0d0d4cf6-159f-479e-8b85-716cf8576d05",
+      "series_index": 2,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "89276ed5-57e6-493a-a335-188dbbcfbcd4",
+      "title": "The Final Empire",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "27f1b057-bf30-4a0a-9e6b-e53807d9d063",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "9136d056-4e86-49b7-8eb1-3312527783f7",
+      "title": "Arsène Lupin, gentleman-cambrioleur",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "fd54e1f0-9c28-4c36-bc94-c27aca2adda6",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "abb24432-bc72-4ae0-b065-b9ca04da5449",
+      "title": "Royal Assassin",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "18335a92-4af1-422d-acaa-4dee855aec7f",
+      "series_index": 2,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "ae201152-a69c-449a-8e64-471f5b5ff80e",
+      "title": "Jade War",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "2aef55dd-5062-4b8e-a665-d5c185f0f4a5",
+      "series_index": 2,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "b2cbd624-44d5-4b19-8509-b02f419b59f9",
+      "title": "All These Worlds",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "0d0d4cf6-159f-479e-8b85-716cf8576d05",
+      "series_index": 3,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "b657631f-b938-49d8-bfa0-68a4aa534c30",
+      "title": "Jade Legacy",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "2aef55dd-5062-4b8e-a665-d5c185f0f4a5",
+      "series_index": 3,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "bf52e2fa-e932-4937-9869-dcf4a6799315",
+      "title": "The Picture of Dorian Gray",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "c41170f0-eaf7-45ce-84fa-6851d570ceb5",
+      "title": "The Hobbit",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "d085a5c0-b457-46bd-95d7-fa13d9e4b53f",
+      "title": "The Way of Kings",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "fd0d0310-f2f8-4837-8a58-a93e4fabca27",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "d23633bc-7700-4255-8197-b825f3fe5d2b",
+      "title": "Le Comte de Monte Cristo",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "d2b583e6-0ea6-4b00-b080-815c7796680d",
+      "title": "Frankenstein",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "de4dd94b-a305-4a76-bc1f-f1ccbc5df0b9",
+      "title": "Words of Radiance",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "fd0d0310-f2f8-4837-8a58-a93e4fabca27",
+      "series_index": 2,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "df687c91-fcbf-42e5-8d42-f10775ac8046",
+      "title": "Assassin's Apprentice",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "18335a92-4af1-422d-acaa-4dee855aec7f",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "e4679cfe-c417-4536-b5ce-689c4d2ab84d",
+      "title": "We Are Legion",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "0d0d4cf6-159f-479e-8b85-716cf8576d05",
+      "series_index": 1,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "edcd6ee7-489d-4c79-b2b6-130a4ffd64ec",
+      "title": "The Hero of Ages",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "27f1b057-bf30-4a0a-9e6b-e53807d9d063",
+      "series_index": 3,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "f6f76691-7220-4780-ac1b-5c10f5998548",
+      "title": "The Well of Ascension",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": "27f1b057-bf30-4a0a-9e6b-e53807d9d063",
+      "series_index": 2,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    },
+    {
+      "id": "f98013b6-f550-42a6-8896-fe41702ce43d",
+      "title": "Project Hail Mary",
+      "authors": null,
+      "release_date": null,
+      "summary": null,
+      "series_id": null,
+      "series_index": null,
+      "series": null,
+      "editions": null,
+      "reviews": null,
+      "genres": null,
+      "deleted": false
+    }
+  ],
+  "editions": [
+    {
+      "id": "004ea940-8378-4207-b21f-9421f420a226",
+      "book_id": "72d27f61-541f-4f6c-9610-dee8ec03c046",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780261102378",
+      "pages": 563,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Return of the King"
+    },
+    {
+      "id": "016746c6-e696-43f5-9aef-33feac745dfb",
+      "book_id": "2871e170-3420-4984-bd6e-ff8ef5f80f78",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781802060041",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "A Day in the Life of Abed Salama"
+    },
+    {
+      "id": "0773f322-1145-4529-b5b8-5618de3e49de",
+      "book_id": "f98013b6-f550-42a6-8896-fe41702ce43d",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781529157468",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Project Hail Mary"
+    },
+    {
+      "id": "125e3100-42e9-49fa-94bb-4d9ac825c28b",
+      "book_id": "de4dd94b-a305-4a76-bc1f-f1ccbc5df0b9",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "\u001b[38;2;202;211;245m978-0-575-09332-4\u001b[39m",
+      "pages": 564,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": 2,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Words of Radiance"
+    },
+    {
+      "id": "14106162-5b35-4b86-9481-1691426c7409",
+      "book_id": "7a5e6231-3f46-473d-89e9-b0dee5e5d303",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781847498571",
+      "pages": 283,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Nineteen Eighty-Four"
+    },
+    {
+      "id": "1d1a218e-6b6b-463f-bce4-44e5869e1072",
+      "book_id": "82d3b7a7-1780-4e64-aa44-c8e7d10d3c3a",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781680680591",
+      "pages": 311,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "For We Are Many"
+    },
+    {
+      "id": "21319b8f-225d-4598-a0d0-3cb3c203705b",
+      "book_id": "729585a7-13b2-40f6-861a-9ba89d3e3655",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": null,
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "5e6b39a9-6f6f-4cf0-a92c-55088c36202f",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Call of the Wild"
+    },
+    {
+      "id": "26651942-a4d7-4e97-b576-e699cdb7e1b6",
+      "book_id": "edcd6ee7-489d-4c79-b2b6-130a4ffd64ec",
+      "edition_title": "Hero of Ages",
+      "edition_description": null,
+      "isbn": "9780575089945",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Hero of Ages"
+    },
+    {
+      "id": "2af4d14c-846d-4d54-87dc-31c66bd46b21",
+      "book_id": "7a9d5256-db16-48aa-8551-da46d4472b41",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780356510514",
+      "pages": 512,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Jade City"
+    },
+    {
+      "id": "3a462fea-f8c4-436a-9c5c-1143bdbe3bcb",
+      "book_id": "d2b583e6-0ea6-4b00-b080-815c7796680d",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "\u001b[38;2;202;211;245m978-1-84749-350-7\u001b[39m",
+      "pages": 207,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Frankenstein"
+    },
+    {
+      "id": "4591cfb7-48e1-4ce9-a9b0-bf9fde22143f",
+      "book_id": "02048781-9455-486e-b093-81182049978f",
+      "edition_title": "Assassin's Quest (The Illustrated Edition)",
+      "edition_description": null,
+      "isbn": "9780593157930",
+      "pages": 880,
+      "languages": null,
+      "release_date": "2021-03-02T13:03:49.139Z",
+      "format_id": "249f84dc-b704-4bb1-8f48-b78ad973c543",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Assassin's Quest"
+    },
+    {
+      "id": "4d86dcf6-05eb-47c2-b92f-cfda851d3fd4",
+      "book_id": "bf52e2fa-e932-4937-9869-dcf4a6799315",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781847493729",
+      "pages": 288,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Picture of Dorian Gray"
+    },
+    {
+      "id": "5331c12b-3f62-41ca-83c8-ef30d3d18eed",
+      "book_id": "56bdac86-122d-4a76-9ccf-e73f81bb25e0",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "\u001b[38;2;202;211;245m978-0-06-302143-3\u001b[39m",
+      "pages": 560,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Babel"
+    },
+    {
+      "id": "645ffc20-cf9e-46a6-9b4e-ce1c49fc51b4",
+      "book_id": "ae201152-a69c-449a-8e64-471f5b5ff80e",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780356510538",
+      "pages": 624,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Jade War"
+    },
+    {
+      "id": "6c85bd1d-6688-4c2e-be7d-c3d90c302798",
+      "book_id": "f6f76691-7220-4780-ac1b-5c10f5998548",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780575089938",
+      "pages": 781,
+      "languages": null,
+      "release_date": "2000-06-17T19:04:39.892Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Well of Ascension"
+    },
+    {
+      "id": "6fb5a385-7105-43a0-ad44-a8376cf6dea4",
+      "book_id": "df687c91-fcbf-42e5-8d42-f10775ac8046",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780007562251",
+      "pages": null,
+      "languages": null,
+      "release_date": "2001-06-01T20:06:13.543Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Assassin's Apprentice"
+    },
+    {
+      "id": "72f9e6ef-2f70-446c-b355-433f77fdd47f",
+      "book_id": "59ae25ac-ad03-4a5b-9d39-b65273e1fa1a",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781847493699",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Pride and Prejudice"
+    },
+    {
+      "id": "73c77640-d722-4cfb-89fe-d1dfaab70cef",
+      "book_id": "7d861f73-5fc1-48d2-9be1-1c8214012b59",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780008532819",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Yellowface"
+    },
+    {
+      "id": "8526c414-c456-4eb1-8df6-0ee102d76504",
+      "book_id": "2911d0f5-34a4-4f2d-8ee7-7e8f4c81b918",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780261102361",
+      "pages": 449,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Two Towers"
+    },
+    {
+      "id": "85d9b3ae-0c21-46e6-b673-8761821fd5ae",
+      "book_id": "c41170f0-eaf7-45ce-84fa-6851d570ceb5",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780261102217",
+      "pages": 310,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Hobbit"
+    },
+    {
+      "id": "8c7ab44d-5a5d-4bb7-90a5-5b562ec7b1f1",
+      "book_id": "b2cbd624-44d5-4b19-8509-b02f419b59f9",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781680680607",
+      "pages": 280,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "All These Worlds"
+    },
+    {
+      "id": "98e40673-02da-4c63-a665-630672bf923f",
+      "book_id": "9136d056-4e86-49b7-8eb1-3312527783f7",
+      "edition_title": "Gentleman-Gauner",
+      "edition_description": null,
+      "isbn": "9783963571589",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Arsène Lupin, gentleman-cambrioleur"
+    },
+    {
+      "id": "a33d5333-c81b-492e-be09-6ac1360df2ae",
+      "book_id": "3b5d3223-6e5f-4cfb-9da8-b7d5947b41f6",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9783596904167",
+      "pages": null,
+      "languages": null,
+      "release_date": "2012-05-06T12:04:04.124Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Der Zauberberg"
+    },
+    {
+      "id": "a930b3bd-323d-4ace-99fc-899a8037c788",
+      "book_id": "1ab8554a-a961-479a-9eea-54d6816bc987",
+      "edition_title": "Heaven's River",
+      "edition_description": null,
+      "isbn": "9781680682267",
+      "pages": null,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Heaven’s River"
+    },
+    {
+      "id": "ac853b04-26e3-4d07-9592-8197e700d3a5",
+      "book_id": "d085a5c0-b457-46bd-95d7-fa13d9e4b53f",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780575102484",
+      "pages": null,
+      "languages": null,
+      "release_date": "2011-06-01T19:08:33.467Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": 2,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Way of Kings"
+    },
+    {
+      "id": "b2fc139a-010e-4133-9bcb-0c62fc141db9",
+      "book_id": "44b115ae-4ccd-44b3-92d8-9225915e0e69",
+      "edition_title": "Don Quijote von der Mancha",
+      "edition_description": "7. Auflage",
+      "isbn": "9783423144698",
+      "pages": 1488,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Don Quijote de la Mancha"
+    },
+    {
+      "id": "b61b8e09-8d4b-43d0-a3ed-094161dc0794",
+      "book_id": "abb24432-bc72-4ae0-b065-b9ca04da5449",
+      "edition_title": "Royal Assassin (the Illustrated Edition)",
+      "edition_description": null,
+      "isbn": "9780593157923",
+      "pages": 704,
+      "languages": null,
+      "release_date": null,
+      "format_id": "249f84dc-b704-4bb1-8f48-b78ad973c543",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Royal Assassin"
+    },
+    {
+      "id": "b8b686b3-3ac9-4c7a-b4aa-1ffc52ada9fb",
+      "book_id": "d2b583e6-0ea6-4b00-b080-815c7796680d",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780141198965",
+      "pages": 250,
+      "languages": null,
+      "release_date": "2012-04-30T23:30:30.713Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Frankenstein"
+    },
+    {
+      "id": "bbb9960b-35dd-485d-a5c8-e3c1e1b18ff7",
+      "book_id": "39e24313-feb7-4234-acba-9ddb8e4b5890",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781847496249",
+      "pages": 224,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Northanger Abbey"
+    },
+    {
+      "id": "bcd5b8b0-1f5b-4ae4-9d4a-7b64e98ff3ca",
+      "book_id": "d23633bc-7700-4255-8197-b825f3fe5d2b",
+      "edition_title": "The Count of Monte Cristo",
+      "edition_description": null,
+      "isbn": "9781607107316",
+      "pages": 1112,
+      "languages": null,
+      "release_date": "2013-05-13T15:37:35.976Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Le Comte de Monte Cristo"
+    },
+    {
+      "id": "c8199439-a007-4458-8c42-6e73f2c95517",
+      "book_id": "640cfa28-cd97-4685-874b-17baf4186873",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9783257228007",
+      "pages": 319,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Das Parfum"
+    },
+    {
+      "id": "cc284d13-388b-4f9c-b7d3-e7590e3fcf11",
+      "book_id": "36e40bc2-d9b7-4a88-95e3-1297c8811b18",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781420952780",
+      "pages": 82,
+      "languages": null,
+      "release_date": "2016-02-22T16:27:37.054Z",
+      "format_id": null,
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Importance of Being Earnest"
+    },
+    {
+      "id": "cd6dfc40-a32c-4bcc-a305-c9eaae04e24b",
+      "book_id": "de4dd94b-a305-4a76-bc1f-f1ccbc5df0b9",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "\u001b[38;2;202;211;245m978-0-575-09331-7\u001b[39m",
+      "pages": 653,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": 1,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Words of Radiance"
+    },
+    {
+      "id": "d7c91a2a-e1c7-45d5-af2a-cc116a648096",
+      "book_id": "29c7c48b-6fda-4642-8ebb-8a6f75f9bbc4",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780575093362",
+      "pages": null,
+      "languages": null,
+      "release_date": "2018-10-31T20:25:04.889Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": 1,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Oathbringer"
+    },
+    {
+      "id": "daee169e-51f3-46b8-98ec-eed8d4bb7017",
+      "book_id": "e4679cfe-c417-4536-b5ce-689c4d2ab84d",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9781680680584",
+      "pages": 308,
+      "languages": null,
+      "release_date": "2017-04-14T14:35:26.063Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "We Are Legion"
+    },
+    {
+      "id": "db9650a1-7726-452c-83b3-d54a11a4b5b5",
+      "book_id": "29c7c48b-6fda-4642-8ebb-8a6f75f9bbc4",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "\u001b[38;2;202;211;245m978-0-575-09337-9\u001b[39m",
+      "pages": 756,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": null,
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": 2,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Oathbringer"
+    },
+    {
+      "id": "e1824a8d-4e61-4ff9-b6cf-82a5168d53de",
+      "book_id": "d085a5c0-b457-46bd-95d7-fa13d9e4b53f",
+      "edition_title": "The Way of Kings",
+      "edition_description": null,
+      "isbn": "9780575097360",
+      "pages": 594,
+      "languages": null,
+      "release_date": "2011-05-01T19:06:14.813Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": 1,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Way of Kings"
+    },
+    {
+      "id": "ea612508-d86e-45c2-8a75-8e3624392be7",
+      "book_id": "b657631f-b938-49d8-bfa0-68a4aa534c30",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780356510590",
+      "pages": 736,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "Jade Legacy"
+    },
+    {
+      "id": "f60d9612-f4a1-4ae6-8f1f-b906c86d883c",
+      "book_id": "4eeb1e72-ab93-444d-905d-2c059a3e87f8",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780261102354",
+      "pages": 529,
+      "languages": null,
+      "release_date": null,
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Fellowship of the Ring"
+    },
+    {
+      "id": "fe9b599d-5d2f-434e-8dcd-1c7804163511",
+      "book_id": "89276ed5-57e6-493a-a335-188dbbcfbcd4",
+      "edition_title": null,
+      "edition_description": null,
+      "isbn": "9780575089914",
+      "pages": null,
+      "languages": null,
+      "release_date": "2009-08-12T19:01:31.723Z",
+      "format_id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "format": null,
+      "height": null,
+      "width": null,
+      "thickness": null,
+      "weight": null,
+      "binding_id": "11a8d073-879f-4970-871c-d1618a776784",
+      "binding": null,
+      "publishers": null,
+      "cover": null,
+      "part_index": null,
+      "reviews": null,
+      "progress": null,
+      "deleted": false,
+      "book_title": "The Final Empire"
+    }
+  ],
+  "authors": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": null,
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": true
+    },
+    {
+      "id": "026fe07b-e20b-47af-b9cb-c20248dec271",
+      "name": "Robin Hobb",
+      "date_born": "1952-03-05T00:00:00Z",
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "049b5117-3ab1-4c04-a5b8-0567ab4c59bf",
+      "name": "Nathan Thrall",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "0bc025e1-4424-47ac-8172-9575d62e83ad",
+      "name": "Jane Austen",
+      "date_born": "1775-12-16T00:00:00Z",
+      "date_died": "1817-07-18T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "3eab0a20-a914-4c0f-bfd4-3c701020d154",
+      "name": "Brandon Sanderson",
+      "date_born": "1975-12-19T00:00:00Z",
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "5bf5e210-1cef-4448-8bee-452a2b93c45c",
+      "name": "J.R.R. Tolkien",
+      "date_born": "1892-01-03T00:00:00Z",
+      "date_died": "1973-09-02T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "7f7c9104-936a-45dc-9a3a-3f4f8fa36863",
+      "name": "George Orwell",
+      "date_born": "1903-06-25T00:00:00Z",
+      "date_died": "1950-01-21T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "82bf8928-e1b4-400a-884b-3542d7d2f996",
+      "name": "Fonda Lee",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "a4649eec-f9ea-450d-b962-02f6bd3d4c09",
+      "name": "Oscar Wilde",
+      "date_born": "1854-10-16T00:00:00Z",
+      "date_died": "1900-11-30T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "a9e2178f-82cc-4f0b-8132-6af597579d9f",
+      "name": "Andy Weir",
+      "date_born": "1972-06-16T00:00:00Z",
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "b27ce3fc-8fe3-44ed-8e83-637ea79b4f95",
+      "name": "Maurice Leblanc",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "c1859873-46cb-48a1-aaa8-295b8cbe0168",
+      "name": "Rebecca F. Kuang",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "c21aa19c-20ad-4768-985d-42fab8a10c74",
+      "name": "Patrick Süskind",
+      "date_born": "1949-03-26T00:00:00Z",
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "ca484fdd-dd57-42de-9475-2f0cba18a668",
+      "name": "Miguel de Cervantes Saavedra",
+      "date_born": "1547-09-29T00:00:00Z",
+      "date_died": "1616-04-23T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "cec1b924-e44e-4ca5-ab83-737f4ba04950",
+      "name": "Thomas Mann",
+      "date_born": "1875-06-06T00:00:00Z",
+      "date_died": "1955-08-12T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "d0b74420-9eb6-49ff-ad59-bbd75fc13fcd",
+      "name": "Dennis E. Taylor",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "e4a4589b-69cf-42f8-a27b-8639de604d5c",
+      "name": "Mary Shelley",
+      "date_born": "1797-08-30T00:00:00Z",
+      "date_died": "1851-02-01T00:00:00Z",
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "e7c4b777-803c-44bc-9924-584099828f7f",
+      "name": "Jack London",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    },
+    {
+      "id": "eb236dcc-5bb0-4001-8e36-f48f907c6aeb",
+      "name": "Alexandre Dumas",
+      "date_born": null,
+      "date_died": null,
+      "deleted": false,
+      "special": false
+    }
+  ],
+  "reviews": [],
+  "edition_reviews": [],
+  "progress": [
+    {
+      "id": "0c2cb4be-a248-43a3-a946-eb25afce636b",
+      "edition_id": "98e40673-02da-4c63-a665-630672bf923f",
+      "timestamp": "2021-02-21T23:00:00Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "104b648a-4a67-4984-860f-ecc3cc9087d3",
+      "edition_id": "73c77640-d722-4cfb-89fe-d1dfaab70cef",
+      "timestamp": "2024-09-24T17:17:57Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "12cd6d20-3471-496b-ba98-8d2c3194dc05",
+      "edition_id": "a33d5333-c81b-492e-be09-6ac1360df2ae",
+      "timestamp": "2024-10-02T09:51:29Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "13119069-2197-4546-bb89-0dc5d943545e",
+      "edition_id": "a930b3bd-323d-4ace-99fc-899a8037c788",
+      "timestamp": "2025-10-04T23:43:39Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "1bc3dd09-d57b-4d51-9739-fefcf229a9cc",
+      "edition_id": "ac853b04-26e3-4d07-9592-8197e700d3a5",
+      "timestamp": "2023-01-21T00:17:21Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "1e72c893-fbe8-4ce6-a96b-aa2c609b1cba",
+      "edition_id": "a930b3bd-323d-4ace-99fc-899a8037c788",
+      "timestamp": "2025-09-05T23:01:35Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "229bb049-855d-40fa-b0de-af64adfacd58",
+      "edition_id": "cc284d13-388b-4f9c-b7d3-e7590e3fcf11",
+      "timestamp": "2024-04-06T23:44:01Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "23766d81-fd92-4c09-a60e-4e535d3da009",
+      "edition_id": "645ffc20-cf9e-46a6-9b4e-ce1c49fc51b4",
+      "timestamp": "2023-08-04T23:38:37Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "23f717fe-c5b0-4e71-b005-5f2f11545689",
+      "edition_id": "2af4d14c-846d-4d54-87dc-31c66bd46b21",
+      "timestamp": "2023-04-25T16:07:38Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "26b2f8af-1681-4d86-a50c-7740d630793b",
+      "edition_id": "6fb5a385-7105-43a0-ad44-a8376cf6dea4",
+      "timestamp": "2023-04-16T05:51:04Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "27add76d-48b2-48c8-801a-04c1e905ed97",
+      "edition_id": "85d9b3ae-0c21-46e6-b673-8761821fd5ae",
+      "timestamp": "2022-01-13T01:09:08Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "283790a2-a8a9-46d9-8ebd-9d1397ba417f",
+      "edition_id": "daee169e-51f3-46b8-98ec-eed8d4bb7017",
+      "timestamp": "2025-06-13T17:12:05Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "2b563f6e-5d72-41cb-91a9-8c37f1ee01be",
+      "edition_id": "0773f322-1145-4529-b5b8-5618de3e49de",
+      "timestamp": "2022-12-01T12:06:42Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "2e84fca7-369f-432f-8ee9-ca7338240b2c",
+      "edition_id": "1d1a218e-6b6b-463f-bce4-44e5869e1072",
+      "timestamp": "2025-06-13T20:13:45Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "312470be-0229-4346-816a-d9e5a2471ac1",
+      "edition_id": "cc284d13-388b-4f9c-b7d3-e7590e3fcf11",
+      "timestamp": "2024-04-07T15:15:16Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "340069ce-8aae-4d76-8181-5f1d152bcfa8",
+      "edition_id": "a33d5333-c81b-492e-be09-6ac1360df2ae",
+      "timestamp": "2024-10-10T20:59:42Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "34ad1f0d-af5f-4fe4-ab86-cc0201526ee9",
+      "edition_id": "b61b8e09-8d4b-43d0-a3ed-094161dc0794",
+      "timestamp": "2023-12-28T05:09:01Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "35c0a178-7880-45d8-977c-5fb36470bd11",
+      "edition_id": "73c77640-d722-4cfb-89fe-d1dfaab70cef",
+      "timestamp": "2024-09-25T00:35:29Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "35e632c8-c61b-4cf8-8aa2-3e7156cd4691",
+      "edition_id": "e1824a8d-4e61-4ff9-b6cf-82a5168d53de",
+      "timestamp": "2023-01-11T18:56:39Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "384ca3f5-b150-4b6f-b2ef-4d444d3441ef",
+      "edition_id": "bbb9960b-35dd-485d-a5c8-e3c1e1b18ff7",
+      "timestamp": "2022-08-14T14:07:38Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "38ba8d5c-f540-44fe-a97b-656021eaa02f",
+      "edition_id": "004ea940-8378-4207-b21f-9421f420a226",
+      "timestamp": "2022-08-31T03:47:44Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "392c3d3e-4a88-4e0c-97f0-515fe4052567",
+      "edition_id": "ac853b04-26e3-4d07-9592-8197e700d3a5",
+      "timestamp": "2023-01-24T06:16:14Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "4096eedc-dd66-43b5-8f98-cb4effb1164c",
+      "edition_id": "d7c91a2a-e1c7-45d5-af2a-cc116a648096",
+      "timestamp": "2023-02-21T19:31:32Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "454e415a-5c57-45a8-9b6b-3127ae855110",
+      "edition_id": "4d86dcf6-05eb-47c2-b92f-cfda851d3fd4",
+      "timestamp": "2022-08-28T23:24:27Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "4b584eaa-e48a-472c-8128-b549e359a15c",
+      "edition_id": "016746c6-e696-43f5-9aef-33feac745dfb",
+      "timestamp": "2025-03-14T17:30:43Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "5444346e-b796-4d66-a52a-c6f60cf78061",
+      "edition_id": "8526c414-c456-4eb1-8df6-0ee102d76504",
+      "timestamp": "2022-08-13T11:26:19Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "5c863ce0-3502-4b9a-92ce-f05c6b4d4e5c",
+      "edition_id": "4591cfb7-48e1-4ce9-a9b0-bf9fde22143f",
+      "timestamp": "2024-01-30T22:37:44Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "60e30d67-f77a-49aa-9759-704ef49aea5c",
+      "edition_id": "b2fc139a-010e-4133-9bcb-0c62fc141db9",
+      "timestamp": "2026-04-21T19:25:18Z",
+      "pages_progress": {
+        "Pages": 587
+      },
+      "deleted": false
+    },
+    {
+      "id": "62035db3-450d-4524-9d7a-702611f404ad",
+      "edition_id": "8526c414-c456-4eb1-8df6-0ee102d76504",
+      "timestamp": "2022-08-21T03:09:27Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "6293c174-20de-47c3-855c-38473825ce40",
+      "edition_id": "ea612508-d86e-45c2-8a75-8e3624392be7",
+      "timestamp": "2023-11-30T20:54:14Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "629575b6-baa8-4d7e-96f3-82e59108ca4d",
+      "edition_id": "bcd5b8b0-1f5b-4ae4-9d4a-7b64e98ff3ca",
+      "timestamp": "2024-04-08T16:32:25Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "68a00493-bba4-4070-8c12-676495017f9b",
+      "edition_id": "0773f322-1145-4529-b5b8-5618de3e49de",
+      "timestamp": "2022-12-08T18:09:08Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "6cb89096-3279-46f2-84a7-fb7fe309a01f",
+      "edition_id": "125e3100-42e9-49fa-94bb-4d9ac825c28b",
+      "timestamp": "2023-02-13T09:51:32Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "6fc553ac-3fab-424a-bcb6-5cc02fd28118",
+      "edition_id": "f60d9612-f4a1-4ae6-8f1f-b906c86d883c",
+      "timestamp": "2022-08-01T16:43:20Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "72061059-007f-4648-a343-6bceb0c1bd76",
+      "edition_id": "6c85bd1d-6688-4c2e-be7d-c3d90c302798",
+      "timestamp": "2022-09-09T09:50:59Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "73d9327c-6070-47cb-81b3-bdb6f9d26f58",
+      "edition_id": "ea612508-d86e-45c2-8a75-8e3624392be7",
+      "timestamp": "2023-10-06T01:55:59Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "77be5ce8-2abe-4cc3-911d-bf48b060aa2b",
+      "edition_id": "14106162-5b35-4b86-9481-1691426c7409",
+      "timestamp": "2021-03-28T22:00:00Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "7a64c8d9-fbc4-402b-a6a4-0a2fe5f4c31d",
+      "edition_id": "5331c12b-3f62-41ca-83c8-ef30d3d18eed",
+      "timestamp": "2024-09-27T10:42:25Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "820f1bdb-e2dd-439b-91c3-af65ca8d34cd",
+      "edition_id": "5331c12b-3f62-41ca-83c8-ef30d3d18eed",
+      "timestamp": "2024-09-25T12:45:34Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "8d5319f6-3375-4811-9aee-e9407aa53561",
+      "edition_id": "fe9b599d-5d2f-434e-8dcd-1c7804163511",
+      "timestamp": "2022-09-01T06:09:15Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "8de67d45-a699-4cab-9dd6-53ce9b3f43fd",
+      "edition_id": "1d1a218e-6b6b-463f-bce4-44e5869e1072",
+      "timestamp": "2025-06-26T23:03:21Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "8f1959f6-2741-462f-804b-52ab56b491b4",
+      "edition_id": "004ea940-8378-4207-b21f-9421f420a226",
+      "timestamp": "2022-08-23T00:57:50Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "8f5bc65d-5429-4993-aa65-605df0371d95",
+      "edition_id": "db9650a1-7726-452c-83b3-d54a11a4b5b5",
+      "timestamp": "2023-06-16T11:10:27Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "92662ea2-caef-4522-9c5a-6595bc3a9075",
+      "edition_id": "cd6dfc40-a32c-4bcc-a305-c9eaae04e24b",
+      "timestamp": "2023-02-09T01:53:35Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "927ad921-c127-4cd8-8974-8103011dedb2",
+      "edition_id": "016746c6-e696-43f5-9aef-33feac745dfb",
+      "timestamp": "2025-03-15T22:36:22Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "93de2fc4-8256-40c5-858e-2d75dc88ae8e",
+      "edition_id": "6c85bd1d-6688-4c2e-be7d-c3d90c302798",
+      "timestamp": "2022-09-05T13:59:54Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "9e96e4de-7b01-4d7b-b1c6-d9d08690a6c4",
+      "edition_id": "e1824a8d-4e61-4ff9-b6cf-82a5168d53de",
+      "timestamp": "2023-01-21T00:10:23Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "a1ec42b8-ef5c-48ce-80df-14719b19325d",
+      "edition_id": "21319b8f-225d-4598-a0d0-3cb3c203705b",
+      "timestamp": "2021-02-27T23:00:00Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "a236a0bb-9c40-45fe-be47-3ee24b7520ea",
+      "edition_id": "c8199439-a007-4458-8c42-6e73f2c95517",
+      "timestamp": "2021-03-04T23:00:00Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "a5c3c436-9315-42a7-b7b6-795b6d0d6835",
+      "edition_id": "125e3100-42e9-49fa-94bb-4d9ac825c28b",
+      "timestamp": "2023-02-11T12:47:41Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "a837bcd6-9277-4137-803c-95863bddf37e",
+      "edition_id": "85d9b3ae-0c21-46e6-b673-8761821fd5ae",
+      "timestamp": "2022-01-08T15:19:53Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "a859c28d-cc6e-4a57-85eb-505843bba17e",
+      "edition_id": "4591cfb7-48e1-4ce9-a9b0-bf9fde22143f",
+      "timestamp": "2023-12-28T05:09:01Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "aa001668-3e78-4441-90e0-3a40c845572f",
+      "edition_id": "98e40673-02da-4c63-a665-630672bf923f",
+      "timestamp": "2021-02-20T23:00:00Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "aa891914-c789-4620-98bf-03872d2e8c69",
+      "edition_id": "b2fc139a-010e-4133-9bcb-0c62fc141db9",
+      "timestamp": "2026-03-17T21:00:38Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "ab009484-f61a-4842-a345-0d8c78386971",
+      "edition_id": "72f9e6ef-2f70-446c-b355-433f77fdd47f",
+      "timestamp": "2021-12-22T21:01:35Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "c1185f14-0ba1-4faf-af54-8e95897e8e3e",
+      "edition_id": "8c7ab44d-5a5d-4bb7-90a5-5b562ec7b1f1",
+      "timestamp": "2025-07-06T21:58:01Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "c4c429e0-916b-4319-8985-5d7e2f7aa0c2",
+      "edition_id": "cd6dfc40-a32c-4bcc-a305-c9eaae04e24b",
+      "timestamp": "2023-02-10T14:59:33Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "cc490247-6f9a-4d16-b254-a25aa69694b9",
+      "edition_id": "b8b686b3-3ac9-4c7a-b4aa-1ffc52ada9fb",
+      "timestamp": "2021-04-14T22:00:00Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "cc7230cd-7521-43d7-891c-9c9f6176093f",
+      "edition_id": "8c7ab44d-5a5d-4bb7-90a5-5b562ec7b1f1",
+      "timestamp": "2025-06-27T22:30:19Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "ce6cee04-7859-44ce-a1ce-50905a1fb058",
+      "edition_id": "daee169e-51f3-46b8-98ec-eed8d4bb7017",
+      "timestamp": "2025-05-30T22:04:13Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "d0e8f26a-1014-47e0-afa0-9d92c21ae068",
+      "edition_id": "c8199439-a007-4458-8c42-6e73f2c95517",
+      "timestamp": "2021-03-05T23:00:00Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "d831542d-6968-459c-90d8-d6e2db7ee296",
+      "edition_id": "bcd5b8b0-1f5b-4ae4-9d4a-7b64e98ff3ca",
+      "timestamp": "2024-06-23T19:26:46Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "d92a2012-6900-4bee-8a3b-7db87cceac75",
+      "edition_id": "72f9e6ef-2f70-446c-b355-433f77fdd47f",
+      "timestamp": "2021-12-15T22:27:12Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "dd190623-11f1-4571-9d3c-ae845700fce7",
+      "edition_id": "2af4d14c-846d-4d54-87dc-31c66bd46b21",
+      "timestamp": "2023-04-20T01:23:27Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "e10b94c2-7eb6-49f5-92bc-804c86316d73",
+      "edition_id": "4d86dcf6-05eb-47c2-b92f-cfda851d3fd4",
+      "timestamp": "2022-08-27T23:47:42Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "e4022e24-e0e2-43e5-8f4c-91378af9b02e",
+      "edition_id": "fe9b599d-5d2f-434e-8dcd-1c7804163511",
+      "timestamp": "2022-09-04T05:43:31Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "e5bfd1d6-67ca-4c4e-b6b7-b90aabc830b2",
+      "edition_id": "b2fc139a-010e-4133-9bcb-0c62fc141db9",
+      "timestamp": "2026-06-17T19:41:38Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "e6b944a1-e112-443d-8c27-25f755ef1cf8",
+      "edition_id": "f60d9612-f4a1-4ae6-8f1f-b906c86d883c",
+      "timestamp": "2022-08-12T02:52:16Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "ed4fec1d-60ff-4266-8ac3-9cbee7911b4b",
+      "edition_id": "645ffc20-cf9e-46a6-9b4e-ce1c49fc51b4",
+      "timestamp": "2023-06-26T04:59:14Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "efb91bf6-c2ad-4d7e-b522-3d086adda5d9",
+      "edition_id": "b61b8e09-8d4b-43d0-a3ed-094161dc0794",
+      "timestamp": "2023-12-01T22:49:21Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "f2b61cfe-ffd8-4b1d-95f5-099d504e27ce",
+      "edition_id": "db9650a1-7726-452c-83b3-d54a11a4b5b5",
+      "timestamp": "2023-06-23T23:08:13Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "f9536060-2e60-4d6c-946d-352f237bd3c5",
+      "edition_id": "26651942-a4d7-4e97-b576-e699cdb7e1b6",
+      "timestamp": "2022-09-26T00:39:00Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "f9d7ee3f-81e5-4ded-a785-53070ddd5908",
+      "edition_id": "bbb9960b-35dd-485d-a5c8-e3c1e1b18ff7",
+      "timestamp": "2022-08-16T19:39:07Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "f9eaa3e9-ef7f-4572-b33d-b0cfc618c146",
+      "edition_id": "6fb5a385-7105-43a0-ad44-a8376cf6dea4",
+      "timestamp": "2023-02-16T16:47:20Z",
+      "pages_progress": "Started",
+      "deleted": false
+    },
+    {
+      "id": "f9ffbe20-adc4-4a4c-907a-9e62d297b1a9",
+      "edition_id": "d7c91a2a-e1c7-45d5-af2a-cc116a648096",
+      "timestamp": "2023-04-19T14:46:22Z",
+      "pages_progress": "Finished",
+      "deleted": false
+    },
+    {
+      "id": "fb68a331-0427-4277-855d-a022c2b175c5",
+      "edition_id": "26651942-a4d7-4e97-b576-e699cdb7e1b6",
+      "timestamp": "2022-09-18T10:52:56Z",
+      "pages_progress": "Started",
+      "deleted": false
+    }
+  ],
+  "series": [
+    {
+      "id": "0d0d4cf6-159f-479e-8b85-716cf8576d05",
+      "name": "Bobiverse",
+      "deleted": false
+    },
+    {
+      "id": "18335a92-4af1-422d-acaa-4dee855aec7f",
+      "name": "Farseer Trilogy",
+      "deleted": false
+    },
+    {
+      "id": "27f1b057-bf30-4a0a-9e6b-e53807d9d063",
+      "name": "Mistborn",
+      "deleted": false
+    },
+    {
+      "id": "2aef55dd-5062-4b8e-a665-d5c185f0f4a5",
+      "name": "Green Bone Saga",
+      "deleted": false
+    },
+    {
+      "id": "5e8e91c2-f3c9-43e6-ba87-2d26cd02ef2e",
+      "name": "The Lord of the Rings",
+      "deleted": false
+    },
+    {
+      "id": "fd0d0310-f2f8-4837-8a58-a93e4fabca27",
+      "name": "The Stormlight Archives",
+      "deleted": false
+    },
+    {
+      "id": "fd54e1f0-9c28-4c36-bc94-c27aca2adda6",
+      "name": "Arsène Lupin",
+      "deleted": false
+    }
+  ],
+  "bindings": [
+    {
+      "id": "11a8d073-879f-4970-871c-d1618a776784",
+      "name": "Perfect binding",
+      "deleted": false
+    },
+    {
+      "id": "519f4975-7a4c-4a17-8927-cafc51f0d827",
+      "name": "Saddle-stitching",
+      "deleted": false
+    },
+    {
+      "id": "6ff10b06-bf48-49c7-8fa9-d3ef247a6858",
+      "name": "Case binding",
+      "deleted": false
+    },
+    {
+      "id": "9fbb9b81-185b-4ab4-a07a-166142337e9e",
+      "name": "Spiral wire binding",
+      "deleted": false
+    },
+    {
+      "id": "ac1b9213-31c7-452d-b995-8bc01fd367e1",
+      "name": "Perfect binding with sewn signatures",
+      "deleted": false
+    },
+    {
+      "id": "d1b9b408-f446-4c2f-be1c-5d3f323e41f0",
+      "name": "Tape binding",
+      "deleted": false
+    },
+    {
+      "id": "ea812bd7-df7f-4cf0-b8d8-31d39bfe18d9",
+      "name": "Japanese stab binding",
+      "deleted": false
+    },
+    {
+      "id": "ec5ba23c-4c1b-4950-b2d5-fad8ef85d855",
+      "name": "Hand-stitched binding",
+      "deleted": false
+    },
+    {
+      "id": "f2b62dd1-26d9-4e5c-a2c6-11c7e7fabb8d",
+      "name": "Spiral binding",
+      "deleted": false
+    },
+    {
+      "id": "feaced93-58df-48c1-be9d-50f1a94e6404",
+      "name": "Comb binding",
+      "deleted": false
+    }
+  ],
+  "edition_formats": [
+    {
+      "id": "249f84dc-b704-4bb1-8f48-b78ad973c543",
+      "name": "Hardcover",
+      "deleted": false
+    },
+    {
+      "id": "5e6b39a9-6f6f-4cf0-a92c-55088c36202f",
+      "name": "Ebook",
+      "deleted": false
+    },
+    {
+      "id": "93b3f802-21df-486c-b15b-3da96f533c01",
+      "name": "Paperback",
+      "deleted": false
+    },
+    {
+      "id": "ed96d107-3ba7-4328-9e15-c9b583863a17",
+      "name": "Audiobook",
+      "deleted": false
+    }
+  ],
+  "book_authors": [
+    {
+      "book_id": "02048781-9455-486e-b093-81182049978f",
+      "author_id": "026fe07b-e20b-47af-b9cb-c20248dec271"
+    },
+    {
+      "book_id": "1ab8554a-a961-479a-9eea-54d6816bc987",
+      "author_id": "d0b74420-9eb6-49ff-ad59-bbd75fc13fcd"
+    },
+    {
+      "book_id": "2871e170-3420-4984-bd6e-ff8ef5f80f78",
+      "author_id": "049b5117-3ab1-4c04-a5b8-0567ab4c59bf"
+    },
+    {
+      "book_id": "2911d0f5-34a4-4f2d-8ee7-7e8f4c81b918",
+      "author_id": "5bf5e210-1cef-4448-8bee-452a2b93c45c"
+    },
+    {
+      "book_id": "29c7c48b-6fda-4642-8ebb-8a6f75f9bbc4",
+      "author_id": "3eab0a20-a914-4c0f-bfd4-3c701020d154"
+    },
+    {
+      "book_id": "36e40bc2-d9b7-4a88-95e3-1297c8811b18",
+      "author_id": "a4649eec-f9ea-450d-b962-02f6bd3d4c09"
+    },
+    {
+      "book_id": "39e24313-feb7-4234-acba-9ddb8e4b5890",
+      "author_id": "0bc025e1-4424-47ac-8172-9575d62e83ad"
+    },
+    {
+      "book_id": "3b5d3223-6e5f-4cfb-9da8-b7d5947b41f6",
+      "author_id": "cec1b924-e44e-4ca5-ab83-737f4ba04950"
+    },
+    {
+      "book_id": "44b115ae-4ccd-44b3-92d8-9225915e0e69",
+      "author_id": "ca484fdd-dd57-42de-9475-2f0cba18a668"
+    },
+    {
+      "book_id": "4eeb1e72-ab93-444d-905d-2c059a3e87f8",
+      "author_id": "5bf5e210-1cef-4448-8bee-452a2b93c45c"
+    },
+    {
+      "book_id": "56bdac86-122d-4a76-9ccf-e73f81bb25e0",
+      "author_id": "c1859873-46cb-48a1-aaa8-295b8cbe0168"
+    },
+    {
+      "book_id": "59ae25ac-ad03-4a5b-9d39-b65273e1fa1a",
+      "author_id": "0bc025e1-4424-47ac-8172-9575d62e83ad"
+    },
+    {
+      "book_id": "640cfa28-cd97-4685-874b-17baf4186873",
+      "author_id": "c21aa19c-20ad-4768-985d-42fab8a10c74"
+    },
+    {
+      "book_id": "729585a7-13b2-40f6-861a-9ba89d3e3655",
+      "author_id": "e7c4b777-803c-44bc-9924-584099828f7f"
+    },
+    {
+      "book_id": "72d27f61-541f-4f6c-9610-dee8ec03c046",
+      "author_id": "5bf5e210-1cef-4448-8bee-452a2b93c45c"
+    },
+    {
+      "book_id": "7a5e6231-3f46-473d-89e9-b0dee5e5d303",
+      "author_id": "7f7c9104-936a-45dc-9a3a-3f4f8fa36863"
+    },
+    {
+      "book_id": "7a9d5256-db16-48aa-8551-da46d4472b41",
+      "author_id": "82bf8928-e1b4-400a-884b-3542d7d2f996"
+    },
+    {
+      "book_id": "7d861f73-5fc1-48d2-9be1-1c8214012b59",
+      "author_id": "c1859873-46cb-48a1-aaa8-295b8cbe0168"
+    },
+    {
+      "book_id": "82d3b7a7-1780-4e64-aa44-c8e7d10d3c3a",
+      "author_id": "d0b74420-9eb6-49ff-ad59-bbd75fc13fcd"
+    },
+    {
+      "book_id": "89276ed5-57e6-493a-a335-188dbbcfbcd4",
+      "author_id": "3eab0a20-a914-4c0f-bfd4-3c701020d154"
+    },
+    {
+      "book_id": "9136d056-4e86-49b7-8eb1-3312527783f7",
+      "author_id": "b27ce3fc-8fe3-44ed-8e83-637ea79b4f95"
+    },
+    {
+      "book_id": "abb24432-bc72-4ae0-b065-b9ca04da5449",
+      "author_id": "026fe07b-e20b-47af-b9cb-c20248dec271"
+    },
+    {
+      "book_id": "ae201152-a69c-449a-8e64-471f5b5ff80e",
+      "author_id": "82bf8928-e1b4-400a-884b-3542d7d2f996"
+    },
+    {
+      "book_id": "b2cbd624-44d5-4b19-8509-b02f419b59f9",
+      "author_id": "d0b74420-9eb6-49ff-ad59-bbd75fc13fcd"
+    },
+    {
+      "book_id": "b657631f-b938-49d8-bfa0-68a4aa534c30",
+      "author_id": "82bf8928-e1b4-400a-884b-3542d7d2f996"
+    },
+    {
+      "book_id": "bf52e2fa-e932-4937-9869-dcf4a6799315",
+      "author_id": "a4649eec-f9ea-450d-b962-02f6bd3d4c09"
+    },
+    {
+      "book_id": "c41170f0-eaf7-45ce-84fa-6851d570ceb5",
+      "author_id": "5bf5e210-1cef-4448-8bee-452a2b93c45c"
+    },
+    {
+      "book_id": "d085a5c0-b457-46bd-95d7-fa13d9e4b53f",
+      "author_id": "3eab0a20-a914-4c0f-bfd4-3c701020d154"
+    },
+    {
+      "book_id": "d23633bc-7700-4255-8197-b825f3fe5d2b",
+      "author_id": "eb236dcc-5bb0-4001-8e36-f48f907c6aeb"
+    },
+    {
+      "book_id": "d2b583e6-0ea6-4b00-b080-815c7796680d",
+      "author_id": "e4a4589b-69cf-42f8-a27b-8639de604d5c"
+    },
+    {
+      "book_id": "de4dd94b-a305-4a76-bc1f-f1ccbc5df0b9",
+      "author_id": "3eab0a20-a914-4c0f-bfd4-3c701020d154"
+    },
+    {
+      "book_id": "df687c91-fcbf-42e5-8d42-f10775ac8046",
+      "author_id": "026fe07b-e20b-47af-b9cb-c20248dec271"
+    },
+    {
+      "book_id": "e4679cfe-c417-4536-b5ce-689c4d2ab84d",
+      "author_id": "d0b74420-9eb6-49ff-ad59-bbd75fc13fcd"
+    },
+    {
+      "book_id": "edcd6ee7-489d-4c79-b2b6-130a4ffd64ec",
+      "author_id": "3eab0a20-a914-4c0f-bfd4-3c701020d154"
+    },
+    {
+      "book_id": "f6f76691-7220-4780-ac1b-5c10f5998548",
+      "author_id": "3eab0a20-a914-4c0f-bfd4-3c701020d154"
+    },
+    {
+      "book_id": "f98013b6-f550-42a6-8896-fe41702ce43d",
+      "author_id": "a9e2178f-82cc-4f0b-8132-6af597579d9f"
+    }
+  ],
+  "book_genres": [
+    {
+      "book_id": "02048781-9455-486e-b093-81182049978f",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "1ab8554a-a961-479a-9eea-54d6816bc987",
+      "genre_id": "25a88e29-86e5-4cf6-a035-5c0d932e49e1"
+    },
+    {
+      "book_id": "2871e170-3420-4984-bd6e-ff8ef5f80f78",
+      "genre_id": "1edd2b50-65e3-4542-8162-ec9dc1332c2b"
+    },
+    {
+      "book_id": "2871e170-3420-4984-bd6e-ff8ef5f80f78",
+      "genre_id": "b4cb537a-f287-4e48-8e6a-e16d88416ab3"
+    },
+    {
+      "book_id": "2911d0f5-34a4-4f2d-8ee7-7e8f4c81b918",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "29c7c48b-6fda-4642-8ebb-8a6f75f9bbc4",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "36e40bc2-d9b7-4a88-95e3-1297c8811b18",
+      "genre_id": "a86ff460-8e20-4176-8db9-29acaabacf99"
+    },
+    {
+      "book_id": "4eeb1e72-ab93-444d-905d-2c059a3e87f8",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "56bdac86-122d-4a76-9ccf-e73f81bb25e0",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "72d27f61-541f-4f6c-9610-dee8ec03c046",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "7a5e6231-3f46-473d-89e9-b0dee5e5d303",
+      "genre_id": "c693ed78-35c1-4488-956a-63d4f8b028d3"
+    },
+    {
+      "book_id": "7a9d5256-db16-48aa-8551-da46d4472b41",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "7d861f73-5fc1-48d2-9be1-1c8214012b59",
+      "genre_id": "151bc0c4-e2b3-4090-bf91-43ce62dd5d26"
+    },
+    {
+      "book_id": "7d861f73-5fc1-48d2-9be1-1c8214012b59",
+      "genre_id": "7e6f2351-83c1-4a2c-9e4d-793d46301ad2"
+    },
+    {
+      "book_id": "82d3b7a7-1780-4e64-aa44-c8e7d10d3c3a",
+      "genre_id": "25a88e29-86e5-4cf6-a035-5c0d932e49e1"
+    },
+    {
+      "book_id": "89276ed5-57e6-493a-a335-188dbbcfbcd4",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "abb24432-bc72-4ae0-b065-b9ca04da5449",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "ae201152-a69c-449a-8e64-471f5b5ff80e",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "b2cbd624-44d5-4b19-8509-b02f419b59f9",
+      "genre_id": "25a88e29-86e5-4cf6-a035-5c0d932e49e1"
+    },
+    {
+      "book_id": "b657631f-b938-49d8-bfa0-68a4aa534c30",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "c41170f0-eaf7-45ce-84fa-6851d570ceb5",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "d085a5c0-b457-46bd-95d7-fa13d9e4b53f",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "d23633bc-7700-4255-8197-b825f3fe5d2b",
+      "genre_id": "d637b371-6c57-4ddf-83c2-22580b81d646"
+    },
+    {
+      "book_id": "de4dd94b-a305-4a76-bc1f-f1ccbc5df0b9",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "df687c91-fcbf-42e5-8d42-f10775ac8046",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "e4679cfe-c417-4536-b5ce-689c4d2ab84d",
+      "genre_id": "25a88e29-86e5-4cf6-a035-5c0d932e49e1"
+    },
+    {
+      "book_id": "edcd6ee7-489d-4c79-b2b6-130a4ffd64ec",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "f6f76691-7220-4780-ac1b-5c10f5998548",
+      "genre_id": "26f223a0-879b-4581-9f43-393ff0bf1dbb"
+    },
+    {
+      "book_id": "f98013b6-f550-42a6-8896-fe41702ce43d",
+      "genre_id": "25a88e29-86e5-4cf6-a035-5c0d932e49e1"
+    }
+  ],
+  "edition_languages": [
+    {
+      "edition_id": "004ea940-8378-4207-b21f-9421f420a226",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "016746c6-e696-43f5-9aef-33feac745dfb",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "0773f322-1145-4529-b5b8-5618de3e49de",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "14106162-5b35-4b86-9481-1691426c7409",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "1d1a218e-6b6b-463f-bce4-44e5869e1072",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "26651942-a4d7-4e97-b576-e699cdb7e1b6",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "2af4d14c-846d-4d54-87dc-31c66bd46b21",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "3a462fea-f8c4-436a-9c5c-1143bdbe3bcb",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "4591cfb7-48e1-4ce9-a9b0-bf9fde22143f",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "4d86dcf6-05eb-47c2-b92f-cfda851d3fd4",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "645ffc20-cf9e-46a6-9b4e-ce1c49fc51b4",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "6c85bd1d-6688-4c2e-be7d-c3d90c302798",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "6fb5a385-7105-43a0-ad44-a8376cf6dea4",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "72f9e6ef-2f70-446c-b355-433f77fdd47f",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "73c77640-d722-4cfb-89fe-d1dfaab70cef",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "8526c414-c456-4eb1-8df6-0ee102d76504",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "85d9b3ae-0c21-46e6-b673-8761821fd5ae",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "8c7ab44d-5a5d-4bb7-90a5-5b562ec7b1f1",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "98e40673-02da-4c63-a665-630672bf923f",
+      "language_id": "9bf9bd9f-1df2-4f7d-adaa-03719d995a93"
+    },
+    {
+      "edition_id": "a33d5333-c81b-492e-be09-6ac1360df2ae",
+      "language_id": "9bf9bd9f-1df2-4f7d-adaa-03719d995a93"
+    },
+    {
+      "edition_id": "a930b3bd-323d-4ace-99fc-899a8037c788",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "ac853b04-26e3-4d07-9592-8197e700d3a5",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "b2fc139a-010e-4133-9bcb-0c62fc141db9",
+      "language_id": "9bf9bd9f-1df2-4f7d-adaa-03719d995a93"
+    },
+    {
+      "edition_id": "b61b8e09-8d4b-43d0-a3ed-094161dc0794",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "b8b686b3-3ac9-4c7a-b4aa-1ffc52ada9fb",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "bbb9960b-35dd-485d-a5c8-e3c1e1b18ff7",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "bcd5b8b0-1f5b-4ae4-9d4a-7b64e98ff3ca",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "c8199439-a007-4458-8c42-6e73f2c95517",
+      "language_id": "9bf9bd9f-1df2-4f7d-adaa-03719d995a93"
+    },
+    {
+      "edition_id": "cc284d13-388b-4f9c-b7d3-e7590e3fcf11",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "d7c91a2a-e1c7-45d5-af2a-cc116a648096",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "daee169e-51f3-46b8-98ec-eed8d4bb7017",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "e1824a8d-4e61-4ff9-b6cf-82a5168d53de",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "ea612508-d86e-45c2-8a75-8e3624392be7",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "f60d9612-f4a1-4ae6-8f1f-b906c86d883c",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    },
+    {
+      "edition_id": "fe9b599d-5d2f-434e-8dcd-1c7804163511",
+      "language_id": "a95f5f6e-8560-4b02-9443-14f7502d28fe"
+    }
+  ],
+  "edition_publishers": [
+    {
+      "edition_id": "016746c6-e696-43f5-9aef-33feac745dfb",
+      "publisher_id": "2334916b-e46c-4acf-ba6c-c2145f8e4be8"
+    },
+    {
+      "edition_id": "0773f322-1145-4529-b5b8-5618de3e49de",
+      "publisher_id": "2334916b-e46c-4acf-ba6c-c2145f8e4be8"
+    },
+    {
+      "edition_id": "14106162-5b35-4b86-9481-1691426c7409",
+      "publisher_id": "ea09ced0-5570-4780-a485-7ca4de92383e"
+    },
+    {
+      "edition_id": "26651942-a4d7-4e97-b576-e699cdb7e1b6",
+      "publisher_id": "df856005-201a-40a5-a86c-1d4ab49a808b"
+    },
+    {
+      "edition_id": "2af4d14c-846d-4d54-87dc-31c66bd46b21",
+      "publisher_id": "103c44fe-337a-46c9-8cfe-769d31af7557"
+    },
+    {
+      "edition_id": "3a462fea-f8c4-436a-9c5c-1143bdbe3bcb",
+      "publisher_id": "ea09ced0-5570-4780-a485-7ca4de92383e"
+    },
+    {
+      "edition_id": "4591cfb7-48e1-4ce9-a9b0-bf9fde22143f",
+      "publisher_id": "4460f31a-3fb2-4cb0-af28-fc47b81027ce"
+    },
+    {
+      "edition_id": "4d86dcf6-05eb-47c2-b92f-cfda851d3fd4",
+      "publisher_id": "ea09ced0-5570-4780-a485-7ca4de92383e"
+    },
+    {
+      "edition_id": "645ffc20-cf9e-46a6-9b4e-ce1c49fc51b4",
+      "publisher_id": "103c44fe-337a-46c9-8cfe-769d31af7557"
+    },
+    {
+      "edition_id": "6c85bd1d-6688-4c2e-be7d-c3d90c302798",
+      "publisher_id": "df856005-201a-40a5-a86c-1d4ab49a808b"
+    },
+    {
+      "edition_id": "6fb5a385-7105-43a0-ad44-a8376cf6dea4",
+      "publisher_id": "9f7ba146-adde-46a8-bacc-e2b0cdd76279"
+    },
+    {
+      "edition_id": "72f9e6ef-2f70-446c-b355-433f77fdd47f",
+      "publisher_id": "ea09ced0-5570-4780-a485-7ca4de92383e"
+    },
+    {
+      "edition_id": "85d9b3ae-0c21-46e6-b673-8761821fd5ae",
+      "publisher_id": "9f7ba146-adde-46a8-bacc-e2b0cdd76279"
+    },
+    {
+      "edition_id": "a33d5333-c81b-492e-be09-6ac1360df2ae",
+      "publisher_id": "07345b15-960e-48d2-8644-12ddd5b92365"
+    },
+    {
+      "edition_id": "ac853b04-26e3-4d07-9592-8197e700d3a5",
+      "publisher_id": "df856005-201a-40a5-a86c-1d4ab49a808b"
+    },
+    {
+      "edition_id": "b61b8e09-8d4b-43d0-a3ed-094161dc0794",
+      "publisher_id": "4460f31a-3fb2-4cb0-af28-fc47b81027ce"
+    },
+    {
+      "edition_id": "b8b686b3-3ac9-4c7a-b4aa-1ffc52ada9fb",
+      "publisher_id": "2334916b-e46c-4acf-ba6c-c2145f8e4be8"
+    },
+    {
+      "edition_id": "bbb9960b-35dd-485d-a5c8-e3c1e1b18ff7",
+      "publisher_id": "ea09ced0-5570-4780-a485-7ca4de92383e"
+    },
+    {
+      "edition_id": "bcd5b8b0-1f5b-4ae4-9d4a-7b64e98ff3ca",
+      "publisher_id": "2334916b-e46c-4acf-ba6c-c2145f8e4be8"
+    },
+    {
+      "edition_id": "c8199439-a007-4458-8c42-6e73f2c95517",
+      "publisher_id": "eac1c6ac-d5f4-486e-9e64-110d9454206c"
+    },
+    {
+      "edition_id": "d7c91a2a-e1c7-45d5-af2a-cc116a648096",
+      "publisher_id": "df856005-201a-40a5-a86c-1d4ab49a808b"
+    },
+    {
+      "edition_id": "e1824a8d-4e61-4ff9-b6cf-82a5168d53de",
+      "publisher_id": "df856005-201a-40a5-a86c-1d4ab49a808b"
+    },
+    {
+      "edition_id": "ea612508-d86e-45c2-8a75-8e3624392be7",
+      "publisher_id": "32a6b981-222b-4c27-8d64-f7fcc08b99c6"
+    },
+    {
+      "edition_id": "fe9b599d-5d2f-434e-8dcd-1c7804163511",
+      "publisher_id": "df856005-201a-40a5-a86c-1d4ab49a808b"
+    }
+  ],
+  "review_moods": []
+}
